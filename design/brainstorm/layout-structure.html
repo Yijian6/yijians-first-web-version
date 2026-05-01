@@ -1,0 +1,40 @@
+<h2>页面结构怎么安排？</h2>
+<p class="subtitle">极简风格下，内容的组织方式很重要</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>单页长滚动</h3>
+      <p>所有板块在一个页面内，向下滚动浏览。开场动画 → 个人简介 → Books → Skills → Passion → Music → 金句 → Work → 联系方式</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>浏览体验连贯</li><li>实现简单</li><li>移动端友好</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>页面会很长</li><li>不方便跳转到特定板块</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>导航栏 + 独立页面</h3>
+      <p>顶部导航栏，每个板块是独立页面。点击导航切换，类似传统网站结构。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>结构清晰</li><li>便于扩展</li><li>可独立更新各板块</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>需要多页面管理</li><li>页面切换有加载</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>首页入口 + 板块页面</h3>
+      <p>首页是精美的入口（你的名字+动画），点击进入后是各板块的导航页，再点击进入具体内容。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>仪式感强</li><li>首页冲击力大</li><li>层次分明</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>多一次点击才能看到内容</li><li>实现复杂度中等</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

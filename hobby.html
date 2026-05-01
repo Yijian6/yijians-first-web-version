@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hobby - 觉</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-brand">觉</div>
+        <div class="nav-links">
+            <a href="work.html" class="nav-link">Work</a>
+            <a href="offer.html" class="nav-link">Offer</a>
+            <a href="passion.html" class="nav-link">Passion</a>
+            <a href="hobby.html" class="nav-link active">Hobby</a>
+            <a href="prediction.html" class="nav-link">Prediction</a>
+        </div>
+    </nav>
+
+    <!-- Hobby板块内容 -->
+    <div class="page-content">
+        <div class="section-header">
+            <h1>Hobby</h1>
+            <p>我的爱好：书籍、技能、音乐</p>
+        </div>
+
+        <!-- 标签页切换 -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="books">Books</button>
+            <button class="tab-btn" data-tab="skills">Skills</button>
+            <button class="tab-btn" data-tab="music">Music</button>
+        </div>
+
+        <!-- Books内容 -->
+        <div id="books" class="tab-content active">
+            <div class="book-list">
+                <div class="book-item">
+                    <h3>《思考，快与慢》</h3>
+                    <p class="book-author">丹尼尔·卡尼曼</p>
+                    <p class="book-review">这本书改变了我对决策和思考的理解。</p>
+                </div>
+
+                <div class="book-item">
+                    <h3>《原则》</h3>
+                    <p class="book-author">瑞·达利欧</p>
+                    <p class="book-review">关于生活和工作的原则。</p>
+                </div>
+
+                <div class="book-item">
+                    <h3>《穷查理宝典》</h3>
+                    <p class="book-author">查理·芒格</p>
+                    <p class="book-review">智慧的箴言。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills内容 -->
+        <div id="skills" class="tab-content">
+            <div class="skill-list">
+                <div class="skill-item">
+                    <h3>HTML/CSS</h3>
+                    <div class="skill-bar">
+                        <div class="skill-level" style="width: 60%;"></div>
+                    </div>
+                    <p>学习中...</p>
+                </div>
+
+                <div class="skill-item">
+                    <h3>JavaScript</h3>
+                    <div class="skill-bar">
+                        <div class="skill-level" style="width: 30%;"></div>
+                    </div>
+                    <p>刚开始学</p>
+                </div>
+
+                <div class="skill-item">
+                    <h3>阅读</h3>
+                    <div class="skill-bar">
+                        <div class="skill-level" style="width: 80%;"></div>
+                    </div>
+                    <p>持续积累</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Music内容 -->
+        <div id="music" class="tab-content">
+            <div class="music-list">
+                <div class="music-item">
+                    <h3>歌曲名称</h3>
+                    <p>歌手名称</p>
+                </div>
+
+                <div class="music-item">
+                    <h3>歌曲名称</h3>
+                    <p>歌手名称</p>
+                </div>
+
+                <div class="music-item">
+                    <h3>歌曲名称</h3>
+                    <p>歌手名称</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页面底部 -->
+    <footer class="footer">
+        <div class="golden-sentence">
+            <p>"保持简单，保持优雅。"</p>
+        </div>
+        <div class="contact-info">
+            <p>联系方式：example@email.com</p>
+            <p>GitHub：@jue</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+/* 基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Times New Roman', Georgia, '宋体', '楷体', serif;
+    background-color: #0a0a0a;
+    color: #fff;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+a {
+    color: #d4af37;
+    text-decoration: none;
+    transition: opacity 0.3s ease;
+}
+
+a:hover {
+    opacity: 0.8;
+}
+
+/* 首页动画 */
+.intro {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #0a0a0a;
+    z-index: 1000;
+    animation: fadeOut 0.5s ease 2s forwards;
+}
+
+.intro-content {
+    text-align: center;
+    animation: fadeIn 1.5s ease;
+}
+
+.intro-name {
+    font-size: 72px;
+    font-weight: 300;
+    letter-spacing: 12px;
+    color: #d4af37;
+    margin-bottom: 20px;
+}
+
+.intro-subtitle {
+    font-size: 16px;
+    letter-spacing: 6px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* 主要内容 */
+.main {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 导航栏 */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 40px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.nav-brand {
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    color: #d4af37;
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-link {
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.6);
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #d4af37;
+}
+
+/* 首页内容 */
+.home-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+.welcome {
+    text-align: center;
+    max-width: 600px;
+}
+
+.welcome h2 {
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    margin-bottom: 20px;
+    color: #d4af37;
+}
+
+.welcome p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 15px;
+}
+
+/* 页面内容 */
+.page-content {
+    flex: 1;
+    padding: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.section-header {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+.section-header h1 {
+    font-size: 36px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    color: #d4af37;
+    margin-bottom: 10px;
+}
+
+.section-header p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Work板块 - 时间线 */
+.timeline {
+    border-left: 2px solid rgba(212, 175, 55, 0.3);
+    padding-left: 30px;
+}
+
+.timeline-item {
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -36px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #d4af37;
+    border-radius: 50%;
+}
+
+.timeline-date {
+    font-size: 14px;
+    color: rgba(212, 175, 55, 0.6);
+    margin-bottom: 10px;
+}
+
+.timeline-content h3 {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.timeline-content p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 15px;
+}
+
+.project-link {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Offer板块 */
+.offer-list {
+    display: grid;
+    gap: 30px;
+}
+
+.offer-item {
+    padding: 30px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.offer-item h3 {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 15px;
+    color: #d4af37;
+}
+
+.offer-item p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Passion板块 - 精选时刻 */
+.moments {
+    display: grid;
+    gap: 30px;
+}
+
+.moment {
+    padding: 30px;
+    border-left: 3px solid rgba(212, 175, 55, 0.3);
+}
+
+.moment-date {
+    font-size: 14px;
+    color: rgba(212, 175, 55, 0.6);
+    margin-bottom: 15px;
+}
+
+.moment-content h3 {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.moment-content p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Hobby板块 - 标签页 */
+.tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    padding-bottom: 15px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    padding: 5px 0;
+    transition: color 0.3s ease;
+}
+
+.tab-btn:hover,
+.tab-btn.active {
+    color: #d4af37;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Books */
+.book-list {
+    display: grid;
+    gap: 30px;
+}
+
+.book-item {
+    padding: 30px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.book-item h3 {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 5px;
+}
+
+.book-author {
+    font-size: 14px;
+    color: rgba(212, 175, 55, 0.6);
+    margin-bottom: 15px;
+}
+
+.book-review {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Skills */
+.skill-list {
+    display: grid;
+    gap: 30px;
+}
+
+.skill-item {
+    padding: 30px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.skill-item h3 {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 15px;
+}
+
+.skill-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+    border-radius: 2px;
+}
+
+.skill-level {
+    height: 100%;
+    background: #d4af37;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.skill-item p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Music */
+.music-list {
+    display: grid;
+    gap: 30px;
+}
+
+.music-item {
+    padding: 30px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.music-item h3 {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 5px;
+}
+
+.music-item p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Prediction板块 */
+.predictions {
+    display: grid;
+    gap: 30px;
+}
+
+.prediction-item {
+    display: flex;
+    gap: 30px;
+    padding: 30px;
+    border-left: 3px solid rgba(212, 175, 55, 0.3);
+}
+
+.prediction-year {
+    font-size: 24px;
+    font-weight: 300;
+    color: #d4af37;
+    min-width: 80px;
+}
+
+.prediction-content h3 {
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.prediction-content p {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* 页面底部 */
+.footer {
+    padding: 40px;
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.golden-sentence p {
+    font-size: 16px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.contact-info {
+    text-align: right;
+}
+
+.contact-info p {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 5px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .page-content {
+        padding: 20px;
+    }
+
+    .section-header h1 {
+        font-size: 28px;
+    }
+
+    .footer {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .contact-info {
+        text-align: center;
+    }
+
+    .prediction-item {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .prediction-year {
+        min-width: auto;
+    }
+}

@@ -1,0 +1,79 @@
+<h2>首页想要什么样的效果？</h2>
+<p class="subtitle">首页是第一印象，决定用户是否继续浏览</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>极简文字开场</h3>
+      <p>黑底白字，你的名字大字居中，下方一句简短介绍。滚动后出现导航和内容。</p>
+      <div class="mockup">
+        <div class="mockup-header">首页预览</div>
+        <div class="mockup-body" style="height: 300px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #0a0a0a;">
+          <div style="font-size: 48px; font-weight: 300; letter-spacing: 8px; color: #fff;">刘奕健</div>
+          <div style="font-size: 16px; color: rgba(255,255,255,0.5); margin-top: 20px; letter-spacing: 4px;">阅读者 · 思考者 · 创造者</div>
+          <div style="margin-top: 60px; font-size: 12px; color: rgba(255,255,255,0.3);">↓ 向下滚动</div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>冲击力强</li><li>极简高端</li><li>实现简单</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>信息量少</li><li>需要滚动才能看到内容</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>导航即首页</h3>
+      <p>首页直接展示导航栏，没有额外的开场。点击导航进入各板块。</p>
+      <div class="mockup">
+        <div class="mockup-header">首页预览</div>
+        <div class="mockup-body" style="height: 300px; display: flex; flex-direction: column; background: #0a0a0a;">
+          <div style="padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div style="font-size: 20px; font-weight: 300; letter-spacing: 4px;">刘奕健</div>
+            <div style="display: flex; gap: 30px; font-size: 14px; color: rgba(255,255,255,0.6);">
+              <span>Work</span>
+              <span>Passion</span>
+              <span>Hobby</span>
+              <span>Prediction</span>
+            </div>
+          </div>
+          <div style="flex: 1; display: flex; justify-content: center; align-items: center;">
+            <div style="text-align: center; color: rgba(255,255,255,0.3);">
+              <div style="font-size: 14px;">选择一个板块开始探索</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>直接高效</li><li>结构清晰</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>缺少仪式感</li><li>第一印象不够深刻</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>动画开场 + 导航</h3>
+      <p>你之前提到的"Liu飘过，奕健出现"动画，然后过渡到导航页面。</p>
+      <div class="mockup">
+        <div class="mockup-header">首页预览（动画序列）</div>
+        <div class="mockup-body" style="height: 300px; background: #0a0a0a; position: relative; overflow: hidden;">
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+            <div style="font-size: 64px; font-weight: 200; letter-spacing: 12px; color: #fff; opacity: 0.8;">Liu</div>
+            <div style="font-size: 14px; color: rgba(255,255,255,0.4); margin-top: 10px;">飘过...</div>
+          </div>
+          <div style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); font-size: 12px; color: rgba(255,255,255,0.2);">
+            动画结束后显示导航
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>独特记忆点</li><li>符合你的创意想法</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>实现复杂</li><li>可能影响加载速度</li><li>重复访问可能厌烦</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

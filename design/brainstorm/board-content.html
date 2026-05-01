@@ -1,0 +1,89 @@
+<h2>各板块内容怎么展示？</h2>
+<p class="subtitle">每个板块的布局和交互方式</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>统一卡片式</h3>
+      <p>每个板块用统一的卡片布局，点击卡片展开详情。整洁有序。</p>
+      <div class="mockup">
+        <div class="mockup-header">Work板块预览</div>
+        <div class="mockup-body" style="height: 250px; background: #0a0a0a; padding: 30px;">
+          <div style="color: #d4af37; font-size: 20px; font-weight: 300; letter-spacing: 4px; margin-bottom: 20px;">Work</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div style="border: 1px solid rgba(212,175,55,0.2); padding: 20px; background: rgba(212,175,55,0.05);">
+              <div style="color: #fff; font-size: 14px; margin-bottom: 8px;">项目名称</div>
+              <div style="color: rgba(255,255,255,0.5); font-size: 12px;">简短描述...</div>
+            </div>
+            <div style="border: 1px solid rgba(212,175,55,0.2); padding: 20px; background: rgba(212,175,55,0.05);">
+              <div style="color: #fff; font-size: 14px; margin-bottom: 8px;">项目名称</div>
+              <div style="color: rgba(255,255,255,0.5); font-size: 12px;">简短描述...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>整洁有序</li><li>易于扩展</li><li>移动端友好</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>可能显得普通</li><li>缺乏变化</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>时间线/故事式</h3>
+      <p>按时间顺序展示，像讲故事一样。适合展示成长历程。</p>
+      <div class="mockup">
+        <div class="mockup-header">Work板块预览</div>
+        <div class="mockup-body" style="height: 250px; background: #0a0a0a; padding: 30px;">
+          <div style="color: #d4af37; font-size: 20px; font-weight: 300; letter-spacing: 4px; margin-bottom: 20px;">Work</div>
+          <div style="border-left: 2px solid rgba(212,175,55,0.3); padding-left: 20px;">
+            <div style="margin-bottom: 20px;">
+              <div style="color: rgba(212,175,55,0.6); font-size: 12px;">2024</div>
+              <div style="color: #fff; font-size: 14px; margin-top: 5px;">个人网站项目</div>
+              <div style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 5px;">从零开始学习前端开发...</div>
+            </div>
+            <div style="margin-bottom: 20px;">
+              <div style="color: rgba(212,175,55,0.6); font-size: 12px;">2023</div>
+              <div style="color: #fff; font-size: 14px; margin-top: 5px;">另一个项目</div>
+              <div style="color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 5px;">描述...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>有故事感</li><li>展示成长</li><li>独特</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>需要持续更新</li><li>内容少时会空</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>大图+文字</h3>
+      <p>每个项目/内容用大图展示，配简短文字。视觉冲击力强。</p>
+      <div class="mockup">
+        <div class="mockup-header">Work板块预览</div>
+        <div class="mockup-body" style="height: 250px; background: #0a0a0a; padding: 30px;">
+          <div style="color: #d4af37; font-size: 20px; font-weight: 300; letter-spacing: 4px; margin-bottom: 20px;">Work</div>
+          <div style="display: flex; gap: 20px;">
+            <div style="flex: 1; background: rgba(212,175,55,0.1); height: 120px; display: flex; align-items: center; justify-content: center;">
+              <div style="color: rgba(255,255,255,0.3); font-size: 12px;">项目截图</div>
+            </div>
+            <div style="flex: 1;">
+              <div style="color: #fff; font-size: 16px; margin-bottom: 10px;">项目名称</div>
+              <div style="color: rgba(255,255,255,0.5); font-size: 12px;">详细描述这个项目...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>视觉冲击力强</li><li>适合展示作品</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>需要高质量图片</li><li>移动端适配复杂</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,54 @@
+<h2>导航栏想要什么样式？</h2>
+<p class="subtitle">极简风格下，导航栏是点睛之笔</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>纯文字导航</h3>
+      <p>左侧名字，右侧板块名称。无背景，文字就是导航。类似李笑来的风格。</p>
+      <div class="mock-nav">刘奕健 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Books &nbsp; Skills &nbsp; Passion &nbsp; Music &nbsp; Work</div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>极简到极致</li><li>高端感最强</li><li>加载最快</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>板块多时可能拥挤</li><li>移动端需要折叠</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>图标+文字</h3>
+      <p>每个板块配一个小图标，视觉识别度更高。</p>
+      <div class="mock-nav">刘奕健 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 📚 Books &nbsp; 🛠 Skills &nbsp; ❤️ Passion &nbsp; 🎵 Music &nbsp; 💼 Work</div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>视觉丰富</li><li>易于识别</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>不够极简</li><li>图标风格需要统一</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>悬浮侧边导航</h3>
+      <p>导航在左侧或右侧垂直排列，滚动时固定。适合内容较多的页面。</p>
+      <div style="display: flex;">
+        <div class="mock-sidebar" style="width: 120px; min-height: 200px;">
+          <div style="padding: 10px; font-size: 14px;">
+            <div style="margin: 8px 0; opacity: 0.6;">Books</div>
+            <div style="margin: 8px 0; opacity: 0.6;">Skills</div>
+            <div style="margin: 8px 0; opacity: 0.6;">Passion</div>
+            <div style="margin: 8px 0; opacity: 0.6;">Music</div>
+            <div style="margin: 8px 0; opacity: 0.6;">Work</div>
+          </div>
+        </div>
+        <div class="mock-content" style="margin-left: 20px; flex: 1;">主内容区域</div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>导航始终可见</li><li>适合长内容页面</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>占用横向空间</li><li>移动端需要特殊处理</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

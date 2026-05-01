@@ -1,0 +1,52 @@
+<h2>移动端怎么适配？</h2>
+<p class="subtitle">现在很多人用手机浏览网站</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>响应式设计</h3>
+      <p>同一个网站，自动适应不同屏幕大小。手机上导航栏变成汉堡菜单。</p>
+      <div class="mockup">
+        <div class="mockup-header">移动端预览</div>
+        <div class="mockup-body" style="height: 300px; background: #0a0a0a; padding: 20px; max-width: 300px; margin: 0 auto;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <div style="color: #d4af37; font-size: 18px; letter-spacing: 4px;">觉</div>
+            <div style="color: rgba(255,255,255,0.6); font-size: 20px;">☰</div>
+          </div>
+          <div style="text-align: center; margin-top: 60px;">
+            <div style="color: rgba(255,255,255,0.4); font-size: 14px;">点击汉堡菜单展开导航</div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>一套代码</li><li>维护简单</li><li>主流做法</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>手机体验可能不如桌面</li><li>需要仔细调试</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>桌面优先</h3>
+      <p>先做好桌面版，手机上简单适配就行。专注桌面体验。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>开发简单</li><li>桌面体验好</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>手机体验差</li><li>可能丢失手机用户</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>手机优先</h3>
+      <p>先做好手机版，桌面版在此基础上扩展。符合现代趋势。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>手机体验好</li><li>符合现代趋势</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>桌面体验可能受限</li><li>需要更多设计思考</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

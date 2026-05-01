@@ -1,0 +1,65 @@
+<h2>实现方案选择</h2>
+<p class="subtitle">怎么把这个网站做出来</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>纯手写 HTML/CSS/JS</h3>
+      <p>从零开始写每一行代码。完全掌控，学习最深入。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>完全掌控</li><li>学习最深入</li><li>无依赖</li><li>长期可维护</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>开发速度慢</li><li>需要学很多东西</li><li>重复造轮子</li></ul></div>
+      </div>
+      <div style="margin-top: 15px; padding: 15px; background: rgba(212,175,55,0.1); border-left: 3px solid #d4af37;">
+        <div style="color: #d4af37; font-size: 12px; letter-spacing: 2px;">适合人群</div>
+        <div style="color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 8px;">想深入学习前端，不怕慢，追求完全掌控</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>使用轻量级框架</h3>
+      <p>用 Astro 或 11ty 这类静态网站生成器。保留掌控感，提高效率。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>开发效率高</li><li>依然可以写原生代码</li><li>内置优化</li><li>学习曲线平缓</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>需要学框架</li><li>有一定依赖</li><li>调试可能复杂</li></ul></div>
+      </div>
+      <div style="margin-top: 15px; padding: 15px; background: rgba(212,175,55,0.1); border-left: 3px solid #d4af37;">
+        <div style="color: #d4af37; font-size: 12px; letter-spacing: 2px;">适合人群</div>
+        <div style="color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 8px;">想高效开发，同时保持掌控感，愿意学一点新东西</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>使用现代前端框架</h3>
+      <p>用 React、Vue 或 Svelte。功能强大，生态丰富。</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>优点</h4><ul><li>功能强大</li><li>生态丰富</li><li>就业市场需要</li><li>适合复杂交互</li></ul></div>
+        <div class="cons"><h4>缺点</h4><ul><li>学习曲线陡峭</li><li>依赖重</li><li>可能过度工程化</li><li>你的需求用不上</li></ul></div>
+      </div>
+      <div style="margin-top: 15px; padding: 15px; background: rgba(212,175,55,0.1); border-left: 3px solid #d4af37;">
+        <div style="color: #d4af37; font-size: 12px; letter-spacing: 2px;">适合人群</div>
+        <div style="color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 8px;">想学现代前端，未来可能做更复杂的项目</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 40px;">
+  <h3>我的建议</h3>
+  <div style="color: rgba(255,255,255,0.6); line-height: 1.8; padding: 20px; background: rgba(212,175,55,0.05); border: 1px solid rgba(212,175,55,0.2);">
+    <p><strong>推荐方案 A：纯手写 HTML/CSS/JS</strong></p>
+    <p style="margin-top: 10px;">理由：</p>
+    <p>1. 你是计算机小白，从基础学起最扎实</p>
+    <p>2. 你想完全掌控，手写代码掌控感最强</p>
+    <p>3. 你的网站需求简单，不需要复杂框架</p>
+    <p>4. 未来学框架时，基础扎实会更容易</p>
+    <p style="margin-top: 10px;">我们可以先做出一个基础版本，然后逐步添加功能。每一步你都能理解背后的原理。</p>
+  </div>
+</div>
