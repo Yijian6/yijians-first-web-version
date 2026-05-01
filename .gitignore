@@ -16,3 +16,6 @@ Thumbs.db
 # 构建产物
 dist/
 build/
+
+# Wrangler缓存
+.wrangler/
