@@ -3,52 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>觉 | Yijian</title>
+    <title>觉 | Yijian — The Awakening</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-    <!-- 首页动画 -->
+
+    <!-- Scroll Progress -->
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <!-- Boot Sequence -->
     <div id="intro" class="intro">
         <div class="intro-content">
             <h1 class="intro-name">觉</h1>
-            <p class="intro-subtitle">YIJIAN LIU</p>
+            <p class="intro-subtitle">THE AWAKENING</p>
+            <div class="intro-line"></div>
         </div>
     </div>
 
-    <!-- 主要内容 -->
+    <!-- Main -->
     <div id="main" class="main hidden">
-        <!-- 导航栏 -->
+
+        <!-- Navigation -->
         <nav class="navbar">
-            <div class="nav-brand">觉 | Yijian</div>
+            <div class="nav-brand">觉</div>
             <div class="nav-links">
-                <a href="work.html" class="nav-link">Work</a>
-                <a href="offer.html" class="nav-link">Offer</a>
-                <a href="passion.html" class="nav-link">Passion</a>
-                <a href="hobby.html" class="nav-link">Hobby</a>
-                <a href="prediction.html" class="nav-link">Prediction</a>
+                <a href="work.html" class="nav-link" data-index="01">Work</a>
+                <a href="offer.html" class="nav-link" data-index="02">Offer</a>
+                <a href="passion.html" class="nav-link" data-index="03">Passion</a>
+                <a href="hobby.html" class="nav-link" data-index="04">Hobby</a>
+                <a href="prediction.html" class="nav-link" data-index="05">Prediction</a>
             </div>
+            <button class="hamburger" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
         </nav>
 
-        <!-- 首页内容 -->
-        <div class="home-content">
-            <div class="welcome">
-                <h2>欢迎来到  我的世界</h2>
-                <p>这是一个关于我、我的作品、我的热情、我的预言的地方。</p>
-                <p>选择上方的导航开始探索。</p>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu">
+            <a href="index.html" class="mobile-link active"><span class="mobile-menu-index">00</span> Home</a>
+            <a href="work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+            <a href="offer.html" class="mobile-link"><span class="mobile-menu-index">02</span> Offer</a>
+            <a href="passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+            <a href="hobby.html" class="mobile-link"><span class="mobile-menu-index">04</span> Hobby</a>
+            <a href="prediction.html" class="mobile-link"><span class="mobile-menu-index">05</span> Prediction</a>
+        </div>
+
+        <!-- Hero -->
+        <section class="hero-section">
+            <div class="hero-label reveal">Personal Portfolio — Est. 2026</div>
+            <h1 class="hero-title reveal delay-1">
+                我在<em>觉醒</em>中<br>寻找方向
+            </h1>
+            <p class="hero-subtitle reveal delay-2">
+                一个关于作品、热情、预言和成长的地方。<br>
+                从零开始，用代码和思考构建自己的世界。
+            </p>
+            <a href="work.html" class="hero-cta magnetic reveal delay-3">
+                开始探索
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <div class="hero-scroll-hint">Scroll</div>
+        </section>
+
+        <!-- Portrait -->
+        <section class="portrait-section reveal-scale">
+            <div class="portrait-wrapper">
+                <img src="照片.jpg" alt="刘奕健 / Yijian Liu" class="portrait-img">
+                <div class="portrait-label">
+                    <span class="portrait-label-tag">Portrait</span>
+                    <span class="portrait-label-index">001</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Marquee Strip -->
+        <div class="marquee-strip">
+            <div class="marquee-track">
+                <span>觉 <em>/</em> AWAKENING</span>
+                <span>前端开发 <em>/</em> FRONTEND</span>
+                <span>阅读 <em>/</em> READING</span>
+                <span>成长 <em>/</em> GROWTH</span>
+                <span>投资 <em>/</em> INVESTING</span>
+                <span>预言 <em>/</em> PREDICTION</span>
+                <span>觉 <em>/</em> AWAKENING</span>
+                <span>前端开发 <em>/</em> FRONTEND</span>
+                <span>阅读 <em>/</em> READING</span>
+                <span>成长 <em>/</em> GROWTH</span>
+                <span>投资 <em>/</em> INVESTING</span>
+                <span>预言 <em>/</em> PREDICTION</span>
             </div>
         </div>
 
-        <!-- 页面底部 -->
+        <!-- Footer -->
         <footer class="footer">
-            <div class="golden-sentence">
-                <p>"无人扶我青云志，我自踏雪至山巅"——佚名</p>
+            <div class="footer-quote reveal">
+                "无人扶我青云志，我自踏雪至山巅"
             </div>
-            <div class="contact-info">
-                
-                <p>微信：iDoWantiDoWill   ||    邮箱：lyijian86@gmail.com ||   GitHub：
-                    <a href="https://github.com/Yijian6">github.com/Yijian6</a>
-                </p>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：<span class="wechat-trigger">iDoWantiDoWill</span></p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
             </div>
         </footer>
     </div>

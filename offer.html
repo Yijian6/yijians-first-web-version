@@ -3,63 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Offer | 觉 Yijian</title>
+    <title>Offer — 觉</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- 导航栏 -->
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
     <nav class="navbar">
-        <div class="nav-brand">觉 | Yijian</div>
+        <div class="nav-brand">觉</div>
         <div class="nav-links">
-            <a href="work.html" class="nav-link">Work</a>
-            <a href="offer.html" class="nav-link active">Offer</a>
-            <a href="passion.html" class="nav-link">Passion</a>
-            <a href="hobby.html" class="nav-link">Hobby</a>
-            <a href="prediction.html" class="nav-link">Prediction</a>
+            <a href="work.html" class="nav-link" data-index="01">Work</a>
+            <a href="offer.html" class="nav-link active" data-index="02">Offer</a>
+            <a href="passion.html" class="nav-link" data-index="03">Passion</a>
+            <a href="hobby.html" class="nav-link" data-index="04">Hobby</a>
+            <a href="prediction.html" class="nav-link" data-index="05">Prediction</a>
         </div>
+        <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     </nav>
 
-    <!-- Offer板块内容 -->
-    <div class="page-content">
-        <div class="section-header">
-            <h1>Offer</h1>
-            <p>我能为你提供的帮助</p>
-        </div>
-
-        <div class="offer-list">
-            <div class="offer-item">
-                <h3>网站开发</h3>
-                <p>从零开始搭建个人网站，包括设计、开发、部署。</p>
-            </div>
-
-            <div class="offer-item">
-                <h3>技术咨询</h3>
-                <p>前端开发、学习路径、技术选型等方面的建议。</p>
-            </div>
-
-            <div class="offer-item">
-                <h3>内容创作</h3>
-                <p>文案撰写、内容策划、品牌故事等。</p>
-            </div>
-
-            <div class="offer-item">
-                <h3>学习陪伴</h3>
-                <p>一起学习、讨论、成长。</p>
-            </div>
-        </div>
+    <div class="mobile-menu">
+        <a href="index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="offer.html" class="mobile-link active"><span class="mobile-menu-index">02</span> Offer</a>
+        <a href="passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="hobby.html" class="mobile-link"><span class="mobile-menu-index">04</span> Hobby</a>
+        <a href="prediction.html" class="mobile-link"><span class="mobile-menu-index">05</span> Prediction</a>
     </div>
 
-    <!-- 页面底部 -->
-    <footer class="footer">
-        <div class="golden-sentence">
-            <p>"无人扶我青云志，我自踏雪至山巅"——佚名</p>
+    <div id="main" class="main">
+        <div class="page-content">
+            <div class="section-header reveal">
+                <span class="section-number">02 / Offer</span>
+                <h1>我能<em>提供</em></h1>
+                <p class="section-desc">每一份帮助，都是一次共同成长的机会。</p>
+            </div>
+
+            <div class="offer-grid">
+                <div class="offer-card reveal" data-index="01">
+                    <h3>网站开发</h3>
+                    <p>从零开始搭建个人网站，包括设计、开发、部署。让想法变成现实。</p>
+                </div>
+                <div class="offer-card reveal delay-1" data-index="02">
+                    <h3>技术咨询</h3>
+                    <p>前端开发、学习路径、技术选型等方面的建议。少走弯路。</p>
+                </div>
+                <div class="offer-card reveal delay-2" data-index="03">
+                    <h3>内容创作</h3>
+                    <p>文案撰写、内容策划、品牌故事。用文字传递价值。</p>
+                </div>
+                <div class="offer-card reveal delay-3" data-index="04">
+                    <h3>学习陪伴</h3>
+                    <p>一起学习、讨论、成长。在探索的路上不孤单。</p>
+                </div>
+            </div>
         </div>
-        <div class="contact-info">
-            <p>微信：iDoWantiDoWill   ||    邮箱：lyijian86@gmail.com ||   GitHub：
-                <a href="https://github.com/Yijian6">github.com/Yijian6</a>
-            </p>
-        </div>
-    </footer>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"无人扶我青云志，我自踏雪至山巅"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：<span class="wechat-trigger">iDoWantiDoWill</span></p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
 
     <script src="js/script.js"></script>
 </body>
