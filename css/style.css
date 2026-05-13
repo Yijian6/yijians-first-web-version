@@ -514,16 +514,15 @@ body::after {
 .portrait-wrapper {
   position: relative;
   width: 100%;
-  max-height: 80vh;
+  height: 70vh;
   overflow: hidden;
 }
 
 .portrait-img {
   width: 100%;
-  height: auto;
-  max-height: 80vh;
+  height: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center 20%;
   display: block;
   filter: grayscale(20%) contrast(1.05);
   transition: filter 0.6s ease;
@@ -1432,8 +1431,7 @@ body::after {
   }
 
   /* Portrait on mobile */
-  .portrait-wrapper { max-height: 60vh; }
-  .portrait-img { max-height: 60vh; }
+  .portrait-wrapper { height: 60vh; }
   .portrait-label { bottom: 16px; left: 20px; }
 
   /* --- Page content --- */
