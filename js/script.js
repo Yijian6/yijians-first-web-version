@@ -283,7 +283,42 @@
   }
 
   /* -------------------------------------------------------
-     12. PARALLAX on scroll (subtle)
+     12. PROJECT IMAGE LIGHTBOX
+  ------------------------------------------------------- */
+  function initProjectLightbox() {
+    var screenshots = $$('.timeline-screenshot');
+    if (!screenshots.length) return;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'project-lightbox-overlay';
+    overlay.innerHTML = '<img src="" alt="Project Screenshot">';
+    document.body.appendChild(overlay);
+    var overlayImg = overlay.querySelector('img');
+
+    screenshots.forEach(function (el) {
+      el.addEventListener('click', function () {
+        var img = el.querySelector('img');
+        if (!img) return;
+        overlayImg.src = img.src;
+        overlayImg.alt = img.alt;
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      });
+    });
+
+    function closeOverlay() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    overlay.addEventListener('click', closeOverlay);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeOverlay();
+    });
+  }
+
+  /* -------------------------------------------------------
+     13. PARALLAX on scroll (subtle)
   ------------------------------------------------------- */
   function initParallax() {
     var bgChar = $('.hero-section');
@@ -312,6 +347,7 @@
     initTabs();
     initPageTransition();
     initLightbox();
+    initProjectLightbox();
     initParallax();
   });
 

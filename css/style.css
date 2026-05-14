@@ -261,7 +261,7 @@ body::after {
   inset: 0;
   background: rgba(10, 10, 10, 0.97);
   backdrop-filter: blur(40px);
-  z-index: 999;
+  z-index: 10001;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -911,6 +911,125 @@ body::after {
 }
 
 .timeline-link:hover::after { transform: translateX(4px); }
+
+/* Timeline Screenshot */
+.timeline-screenshot {
+  margin-top: 20px;
+  overflow: hidden;
+  border: 1px solid var(--white-10);
+  cursor: pointer;
+  transition: border-color 0.4s ease;
+}
+
+.timeline-screenshot:hover {
+  border-color: var(--gold-dim);
+}
+
+.timeline-screenshot img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: grayscale(15%) contrast(1.05);
+  transition: filter 0.5s ease, transform 0.5s var(--ease-out-expo);
+}
+
+.timeline-screenshot:hover img {
+  filter: grayscale(0%) contrast(1);
+  transform: scale(1.02);
+}
+
+/* Project Image Lightbox */
+.project-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: rgba(0, 0, 0, 0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s var(--ease-out-expo), visibility 0.4s;
+  cursor: pointer;
+}
+
+.project-lightbox-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.project-lightbox-overlay img {
+  max-width: 92vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border: 1px solid var(--white-10);
+  transform: scale(0.94);
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.project-lightbox-overlay.open img {
+  transform: scale(1);
+}
+
+/* Page Navigation (连续浏览) */
+.page-nav {
+  margin-top: clamp(60px, 10vh, 120px);
+  padding-top: clamp(32px, 5vh, 56px);
+  border-top: 1px solid var(--white-10);
+}
+
+.page-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: clamp(20px, 3vw, 32px) 0;
+  border: 1px solid var(--white-10);
+  transition: border-color 0.4s ease, background 0.4s ease;
+  text-decoration: none;
+}
+
+.page-nav-link:hover {
+  border-color: var(--gold-dim);
+  background: var(--white-05);
+}
+
+.page-nav-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--white-30);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.page-nav-title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 400;
+  color: var(--white);
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+}
+
+.page-nav-link:hover .page-nav-title {
+  color: var(--gold);
+}
+
+.page-nav-arrow {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  color: var(--white-30);
+  transition: color 0.3s ease, transform 0.3s var(--ease-out-expo);
+}
+
+.page-nav-link:hover .page-nav-arrow {
+  color: var(--gold);
+  transform: translateX(6px);
+}
 
 /* =========================================================
    OFFER PAGE — Grid Cards
