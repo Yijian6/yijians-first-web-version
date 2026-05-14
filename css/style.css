@@ -1280,6 +1280,11 @@ body::after {
   transition: transform 0.8s var(--ease-out-expo);
 }
 
+/* Crop running hero to show 100km achievement */
+.sport-featured .sport-hero img {
+  object-position: center 30%;
+}
+
 .sport-featured:hover .sport-hero img { transform: scale(1.02); }
 
 .sport-hero-overlay {
