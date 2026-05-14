@@ -291,27 +291,42 @@
 
     var overlay = document.createElement('div');
     overlay.className = 'project-lightbox-overlay';
-    overlay.innerHTML = '<img src="" alt="Project Screenshot">';
+    overlay.innerHTML =
+      '<div class="project-lightbox-inner">' +
+        '<button class="lightbox-close" aria-label="Close">×</button>' +
+        '<img src="" alt="Project Screenshot">' +
+      '</div>';
     document.body.appendChild(overlay);
     var overlayImg = overlay.querySelector('img');
+    var closeBtn = overlay.querySelector('.lightbox-close');
+    var inner = overlay.querySelector('.project-lightbox-inner');
 
-    screenshots.forEach(function (el) {
-      el.addEventListener('click', function () {
-        var img = el.querySelector('img');
-        if (!img) return;
-        overlayImg.src = img.src;
-        overlayImg.alt = img.alt;
-        overlay.classList.add('open');
-        document.body.style.overflow = 'hidden';
-      });
-    });
+    function openLightbox(src, alt) {
+      overlayImg.src = src;
+      overlayImg.alt = alt;
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
 
     function closeOverlay() {
       overlay.classList.remove('open');
       document.body.style.overflow = '';
     }
 
-    overlay.addEventListener('click', closeOverlay);
+    screenshots.forEach(function (el) {
+      el.addEventListener('click', function () {
+        var img = el.querySelector('img');
+        if (!img) return;
+        openLightbox(img.src, img.alt);
+      });
+    });
+
+    // Close: click overlay background (not the inner content)
+    overlay.addEventListener('click', function (e) {
+      if (!inner.contains(e.target)) closeOverlay();
+    });
+    closeBtn.addEventListener('click', closeOverlay);
+
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeOverlay();
     });

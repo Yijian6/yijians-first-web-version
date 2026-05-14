@@ -944,7 +944,6 @@ body::after {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.4s var(--ease-out-expo), visibility 0.4s;
-  cursor: pointer;
 }
 
 .project-lightbox-overlay.open {
@@ -952,17 +951,30 @@ body::after {
   visibility: visible;
 }
 
-.project-lightbox-overlay img {
+.project-lightbox-inner {
+  position: relative;
+  max-width: 92vw;
+  max-height: 90vh;
+}
+
+.project-lightbox-inner img {
   max-width: 92vw;
   max-height: 90vh;
   object-fit: contain;
+  display: block;
   border: 1px solid var(--white-10);
   transform: scale(0.94);
   transition: transform 0.5s var(--ease-out-expo);
 }
 
-.project-lightbox-overlay.open img {
+.project-lightbox-overlay.open .project-lightbox-inner img {
   transform: scale(1);
+}
+
+.project-lightbox-inner .lightbox-close {
+  position: absolute;
+  top: -48px;
+  right: 0;
 }
 
 /* =========================================================
