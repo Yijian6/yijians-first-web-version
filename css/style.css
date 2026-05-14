@@ -1269,7 +1269,7 @@ body::after {
 .sport-hero {
   position: relative;
   width: 100%;
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
 }
 
@@ -1292,7 +1292,7 @@ body::after {
 }
 
 .sport-hero-overlay .sport-name {
-  font-size: clamp(32px, 5vw, 56px);
+  font-size: clamp(28px, 4vw, 42px);
   margin-bottom: 12px;
 }
 
