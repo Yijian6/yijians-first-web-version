@@ -774,109 +774,114 @@ body::after {
 }
 
 /* =========================================================
-   WORK PAGE — Brutalist Timeline
+   WORK PAGE — Editorial Gallery
 ========================================================= */
 .timeline {
-  position: relative;
-  padding-left: 0;
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      transparent 0,
-      transparent calc(50% - 0.5px),
-      var(--white-05) calc(50% - 0.5px),
-      var(--white-05) calc(50% + 0.5px),
-      transparent calc(50% + 0.5px)
-    );
-  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(12px, 2vw, 20px);
 }
 
 .timeline-item {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 55fr 45fr;
   gap: 0;
   border: 1px solid var(--white-10);
-  border-bottom: none;
   position: relative;
   transition: border-color 0.4s ease;
 }
 
-.timeline-item:last-child { border-bottom: 1px solid var(--white-10); }
-
 .timeline-item:hover { border-color: var(--gold-dim); }
 
-.timeline-meta {
-  padding: clamp(24px, 4vw, 48px);
+/* ——— Image Column ——— */
+.timeline-image {
+  position: relative;
+  overflow: hidden;
   border-right: 1px solid var(--white-10);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  min-height: 320px;
+  background: var(--bg-surface);
 }
 
-.timeline-year {
-  font-family: var(--font-display);
-  font-size: clamp(48px, 8vw, 96px);
-  font-weight: 400;
-  color: var(--white-10);
-  line-height: 0.85;
-  letter-spacing: -0.04em;
-  transition: color 0.4s ease;
+.timeline-screenshot {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
 }
 
-.timeline-item:hover .timeline-year { color: var(--gold-dim); }
+.timeline-screenshot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  filter: grayscale(100%) contrast(1.1) brightness(0.9);
+  transition: filter 0.7s var(--ease-out-expo),
+              transform 0.7s var(--ease-out-expo);
+}
 
-.timeline-index {
+.timeline-item:hover .timeline-screenshot img {
+  filter: grayscale(0%) contrast(1.05) brightness(1);
+  transform: scale(1.03);
+}
+
+.timeline-screenshot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--gold-dim) 0%, transparent 60%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.timeline-item:hover .timeline-screenshot::after { opacity: 1; }
+
+.timeline-screenshot::before {
+  content: attr(data-index);
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
   font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.2em;
-  color: var(--white-30);
-  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--bg);
+  background: var(--gold);
+  padding: 5px 12px;
+  z-index: 2;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo);
 }
 
-.timeline-body {
-  padding: clamp(24px, 4vw, 48px);
+.timeline-item:hover .timeline-screenshot::before {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ——— Content Column ——— */
+.timeline-content {
+  padding: clamp(28px, 4vw, 48px);
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.timeline-body h3 {
+.timeline-content h3 {
   font-family: var(--font-display);
-  font-size: clamp(24px, 3.5vw, 36px);
+  font-size: clamp(22px, 3vw, 34px);
   font-weight: 400;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   color: var(--white);
   letter-spacing: -0.02em;
 }
 
-.timeline-body p {
-  font-size: clamp(14px, 1.5vw, 16px);
+.timeline-content p {
+  font-size: clamp(13px, 1.4vw, 15px);
   color: var(--white-60);
   margin-bottom: 20px;
   line-height: 1.8;
-}
-
-.timeline-link {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--gold);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: gap 0.3s var(--ease-out-expo);
 }
 
 .timeline-tags {
@@ -903,6 +908,19 @@ body::after {
   color: var(--gold);
 }
 
+.timeline-link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: gap 0.3s var(--ease-out-expo);
+}
+
 .timeline-link:hover { gap: 14px; }
 
 .timeline-link::after {
@@ -912,33 +930,7 @@ body::after {
 
 .timeline-link:hover::after { transform: translateX(4px); }
 
-/* Timeline Screenshot */
-.timeline-screenshot {
-  margin-top: 20px;
-  overflow: hidden;
-  border: 1px solid var(--white-10);
-  cursor: pointer;
-  transition: border-color 0.4s ease;
-}
-
-.timeline-screenshot:hover {
-  border-color: var(--gold-dim);
-}
-
-.timeline-screenshot img {
-  width: 100%;
-  height: auto;
-  display: block;
-  filter: grayscale(15%) contrast(1.05);
-  transition: filter 0.5s ease, transform 0.5s var(--ease-out-expo);
-}
-
-.timeline-screenshot:hover img {
-  filter: grayscale(0%) contrast(1);
-  transform: scale(1.02);
-}
-
-/* Project Image Lightbox */
+/* ——— Image Lightbox ——— */
 .project-lightbox-overlay {
   position: fixed;
   inset: 0;
@@ -1498,15 +1490,25 @@ body::after {
   /* --- Page content --- */
   .page-content { padding: clamp(60px, 8vh, 100px) var(--side-pad); }
 
-  /* Timeline → stacked */
+  /* Timeline → editorial stacked */
   .timeline-item { grid-template-columns: 1fr; }
-  .timeline-meta {
+  .timeline-image {
     border-right: none;
     border-bottom: 1px solid var(--white-10);
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px;
+    min-height: auto;
+    max-height: 260px;
+    overflow: hidden;
+  }
+  .timeline-screenshot img {
+    max-height: 260px;
+    object-fit: cover;
+  }
+  .timeline-content {
+    padding: 24px;
+  }
+  .timeline-screenshot::before {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   /* Offer grid */
