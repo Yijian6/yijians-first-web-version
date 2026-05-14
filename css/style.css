@@ -973,64 +973,6 @@ body::after {
   transform: scale(1);
 }
 
-/* Page Navigation (连续浏览) */
-.page-nav {
-  margin-top: clamp(60px, 10vh, 120px);
-  padding-top: clamp(32px, 5vh, 56px);
-  border-top: 1px solid var(--white-10);
-}
-
-.page-nav-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: clamp(20px, 3vw, 32px) 0;
-  border: 1px solid var(--white-10);
-  transition: border-color 0.4s ease, background 0.4s ease;
-  text-decoration: none;
-}
-
-.page-nav-link:hover {
-  border-color: var(--gold-dim);
-  background: var(--white-05);
-}
-
-.page-nav-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--white-30);
-  margin-bottom: 8px;
-  display: block;
-}
-
-.page-nav-title {
-  font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 40px);
-  font-weight: 400;
-  color: var(--white);
-  letter-spacing: -0.02em;
-  transition: color 0.3s ease;
-}
-
-.page-nav-link:hover .page-nav-title {
-  color: var(--gold);
-}
-
-.page-nav-arrow {
-  font-family: var(--font-mono);
-  font-size: 20px;
-  color: var(--white-30);
-  transition: color 0.3s ease, transform 0.3s var(--ease-out-expo);
-}
-
-.page-nav-link:hover .page-nav-arrow {
-  color: var(--gold);
-  transform: translateX(6px);
-}
-
 /* =========================================================
    OFFER PAGE — Grid Cards
 ========================================================= */
