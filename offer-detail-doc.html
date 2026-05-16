@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档与设计 — 觉</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .detail-hero {
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px var(--side-pad) 60px;
+            background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg) 100%);
+        }
+
+        .detail-hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(36px, 5vw, 56px);
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+
+        .detail-hero p {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--white-60);
+            max-width: 600px;
+        }
+
+        .detail-section {
+            padding: 60px var(--side-pad);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .detail-section h2 {
+            font-family: var(--font-display);
+            font-size: clamp(24px, 3vw, 32px);
+            color: var(--gold);
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--white-10);
+        }
+
+        .detail-section p {
+            font-size: 16px;
+            color: var(--white-60);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-top: 40px;
+        }
+
+        .project-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--white-10);
+            overflow: hidden;
+            transition: transform 0.4s var(--ease-out-expo), border-color 0.4s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold-dim);
+        }
+
+        .project-card-image {
+            width: 100%;
+            aspect-ratio: 16/10;
+            overflow: hidden;
+        }
+
+        .project-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s var(--ease-out-expo);
+        }
+
+        .project-card:hover .project-card-image img {
+            transform: scale(1.05);
+        }
+
+        .project-card-info {
+            padding: 24px;
+        }
+
+        .project-card-info h3 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            color: var(--white);
+            margin-bottom: 8px;
+        }
+
+        .project-card-info p {
+            font-size: 14px;
+            color: var(--white-60);
+            margin-bottom: 16px;
+        }
+
+        .project-card-link {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--gold);
+            text-decoration: none;
+            letter-spacing: 0.05em;
+            padding-bottom: 2px;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .project-card-link:hover {
+            border-bottom-color: var(--gold);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--white-60);
+            text-decoration: none;
+            margin-bottom: 40px;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--gold);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .detail-cta {
+            text-align: center;
+            padding: 80px var(--side-pad);
+            background: var(--bg-surface);
+            margin-top: 60px;
+        }
+
+        .detail-cta h3 {
+            font-family: var(--font-display);
+            font-size: clamp(24px, 3vw, 32px);
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+
+        .detail-cta p {
+            color: var(--white-60);
+            margin-bottom: 32px;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--bg);
+            background: var(--gold);
+            padding: 14px 32px;
+            text-decoration: none;
+            letter-spacing: 0.05em;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--gold-bright);
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <nav class="navbar">
+        <div class="nav-brand">觉</div>
+        <div class="nav-links">
+            <a href="work.html" class="nav-link" data-index="01">Work</a>
+            <a href="offer.html" class="nav-link active" data-index="02">Offer</a>
+            <a href="passion.html" class="nav-link" data-index="03">Passion</a>
+            <a href="hobby.html" class="nav-link" data-index="04">Hobby</a>
+            <a href="prediction.html" class="nav-link" data-index="05">Prediction</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+    </nav>
+
+    <div class="mobile-menu">
+        <a href="index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="offer.html" class="mobile-link active"><span class="mobile-menu-index">02</span> Offer</a>
+        <a href="passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="hobby.html" class="mobile-link"><span class="mobile-menu-index">04</span> Hobby</a>
+        <a href="prediction.html" class="mobile-link"><span class="mobile-menu-index">05</span> Prediction</a>
+    </div>
+
+    <div id="main" class="main">
+        <div class="detail-hero">
+            <div>
+                <h1>文档与设计</h1>
+                <p>从 Word 文档到 HTML 报告，从海报到排版——用设计让内容更有说服力。</p>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <a href="offer.html" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                返回 Offer
+            </a>
+
+            <h2>我能帮你做什么</h2>
+            <p>无论是正式的政策报告、企业分析文档，还是活动宣传海报，我都能帮你做出专业、好看的成品。以下是两个实际交付的项目：</p>
+
+            <div class="project-grid">
+                <div class="project-card">
+                    <div class="project-card-image">
+                        <img src="offer-detail/十五五-preview.jpg" alt="十五五报告预览">
+                    </div>
+                    <div class="project-card-info">
+                        <h3>"十五五"人工智能产业安全发展规划建议稿</h3>
+                        <p>一份正式的政策建议报告，包含封面设计、章节排版、图表展示。采用深色主题，视觉冲击力强。</p>
+                        <a href="十五五人工智能产业安全发展规划建议报告稿-智算7班第3组.html" class="project-card-link" target="_blank">查看完整报告 →</a>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-card-image">
+                        <img src="offer-detail/新第5组-preview.jpg" alt="企业分析报告预览">
+                    </div>
+                    <div class="project-card-info">
+                        <h3>百度、华为、阿里云、腾讯、字节跳动企业分析</h3>
+                        <p>一份 Word 格式的企业分析报告，涵盖五大科技公司的业务布局、技术优势、市场策略对比分析。</p>
+                        <a href="新第5组(百度、华为、阿里云、腾讯、字节跳动).docx" class="project-card-link" download>下载查看 →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-cta">
+            <h3>需要类似的文档或设计？</h3>
+            <p>告诉我你的需求，我帮你做出专业、好看的成品。</p>
+            <a href="offer.html#contact" class="btn-primary">联系我</a>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"无人扶我青云志，我自踏雪至山巅"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：<span class="wechat-trigger">iDoWantiDoWill</span></p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
