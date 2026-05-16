@@ -1035,6 +1035,23 @@ body::after {
   font-size: clamp(14px, 1.5vw, 16px);
   color: var(--white-60);
   line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.offer-link {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.offer-link:hover {
+  border-bottom-color: var(--gold);
 }
 
 /* =========================================================
