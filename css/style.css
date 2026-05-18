@@ -1057,17 +1057,51 @@ body::after {
 /* =========================================================
    ME PAGE — Identity Cards
 ========================================================= */
+
+/* Breathing gradient — INFP atmosphere */
+@keyframes breathe {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.me-breath {
+  position: relative;
+  height: clamp(80px, 12vh, 140px);
+  margin: 0 0 clamp(40px, 6vh, 80px);
+  background: linear-gradient(135deg, #0a1628, #1a0a28, #0a2818, #1a1a0a);
+  background-size: 400% 400%;
+  animation: breathe 10s ease-in-out infinite;
+  border-top: 1px solid var(--white-10);
+  border-bottom: 1px solid var(--white-10);
+}
+
+.me-breath-tag {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--white);
+  opacity: 0.08;
+  transition: opacity 0.6s ease;
+}
+
+.me-breath:hover .me-breath-tag {
+  opacity: 0.15;
+}
+
 .me-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1px;
+  gap: 2px;
   background: var(--white-10);
   border: 1px solid var(--white-10);
 }
 
 .me-card {
   background: var(--bg);
-  padding: clamp(32px, 5vw, 48px);
+  padding: clamp(40px, 6vw, 56px);
   transition: background 0.4s ease;
 }
 
@@ -1076,7 +1110,7 @@ body::after {
 .me-card-icon {
   width: 48px;
   height: 48px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   color: var(--gold);
 }
 
@@ -1089,17 +1123,17 @@ body::after {
   font-family: var(--font-display);
   font-size: clamp(20px, 2.5vw, 26px);
   color: var(--white);
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .me-card p {
   font-size: clamp(14px, 1.5vw, 16px);
   color: var(--white-60);
-  line-height: 1.8;
+  line-height: 1.9;
 }
 
 .me-values {
-  margin-top: var(--section-gap);
+  margin-top: clamp(60px, 10vh, 120px);
   padding: 0 var(--side-pad);
   max-width: 800px;
   margin-left: auto;
@@ -1110,7 +1144,7 @@ body::after {
   font-family: var(--font-display);
   font-size: clamp(24px, 3vw, 32px);
   color: var(--white);
-  margin-bottom: 32px;
+  margin-bottom: 40px;
   text-align: center;
 }
 
@@ -1123,7 +1157,7 @@ body::after {
   display: grid;
   grid-template-columns: 60px 1fr;
   gap: 16px;
-  padding: 24px 0;
+  padding: 28px 0;
   border-bottom: 1px solid var(--white-10);
   align-items: start;
 }
@@ -1140,11 +1174,11 @@ body::after {
 .value-item p {
   font-size: clamp(14px, 1.5vw, 16px);
   color: var(--white-60);
-  line-height: 1.8;
+  line-height: 1.9;
 }
 
 .me-state {
-  margin-top: var(--section-gap);
+  margin-top: clamp(60px, 10vh, 120px);
   padding: 0 var(--side-pad);
   max-width: 800px;
   margin-left: auto;
@@ -1155,7 +1189,7 @@ body::after {
   font-family: var(--font-display);
   font-size: clamp(24px, 3vw, 32px);
   color: var(--white);
-  margin-bottom: 32px;
+  margin-bottom: 40px;
   text-align: center;
 }
 
@@ -1169,7 +1203,7 @@ body::after {
 
 .state-item {
   background: var(--bg);
-  padding: 24px 32px;
+  padding: 28px 32px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1189,10 +1223,29 @@ body::after {
   color: var(--white);
 }
 
+/* Whisper — closing line */
+.me-whisper {
+  margin-top: clamp(60px, 10vh, 120px);
+  padding: 0 var(--side-pad);
+  text-align: center;
+}
+
+.me-whisper p {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--white-30);
+  letter-spacing: 0.02em;
+}
+
 @media (max-width: 768px) {
   .me-grid,
   .state-grid {
     grid-template-columns: 1fr;
+  }
+
+  .me-breath {
+    height: 60px;
   }
 }
 
