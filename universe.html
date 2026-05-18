@@ -15,6 +15,7 @@
             --white-60: rgba(245, 240, 232, 0.6);
             --white-30: rgba(245, 240, 232, 0.3);
             --white-10: rgba(245, 240, 232, 0.1);
+            --red: #e74c3c;
             --font-display: 'Instrument Serif', Georgia, serif;
             --font-body: 'DM Sans', system-ui, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
@@ -31,17 +32,16 @@
             font-family: var(--font-body);
         }
 
-        /* Universe canvas */
+        /* Canvas */
         #universe {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            cursor: crosshair;
         }
 
-        /* Stars background */
+        /* Stars */
         .stars {
             position: fixed;
             top: 0;
@@ -66,7 +66,7 @@
             50% { opacity: 0.6; }
         }
 
-        /* Message bubbles */
+        /* Messages */
         .message {
             position: absolute;
             padding: 12px 16px;
@@ -79,6 +79,7 @@
             opacity: 0;
             transform: scale(0.8);
             animation: fadeIn 1s ease forwards;
+            pointer-events: auto;
         }
 
         .message:hover {
@@ -89,10 +90,7 @@
         }
 
         @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .message-nick {
@@ -109,9 +107,82 @@
             line-height: 1.6;
         }
 
-        /* Asteroid button */
-        .asteroid-btn {
+        .message-delete {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            font-size: 14px;
+            color: var(--white-30);
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .message:hover .message-delete {
+            opacity: 1;
+        }
+
+        .message-delete:hover {
+            color: var(--red);
+        }
+
+        /* UI Elements */
+        .ui-layer {
             position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .ui-layer > * {
+            pointer-events: auto;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--white-30);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .back-btn:hover { color: var(--gold); }
+
+        .hint {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--white-10);
+            letter-spacing: 0.1em;
+            pointer-events: none;
+        }
+
+        .admin-btn {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--white-10);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .admin-btn:hover { color: var(--white-30); }
+
+        /* Asteroid */
+        .asteroid-btn {
+            position: absolute;
             bottom: 32px;
             right: 32px;
             width: 56px;
@@ -124,7 +195,6 @@
             align-items: center;
             justify-content: center;
             transition: all 0.4s ease;
-            z-index: 100;
         }
 
         .asteroid-btn:hover {
@@ -140,11 +210,9 @@
             transition: color 0.4s ease;
         }
 
-        .asteroid-btn:hover svg {
-            color: var(--gold);
-        }
+        .asteroid-btn:hover svg { color: var(--gold); }
 
-        /* Modal */
+        /* Modals */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -159,9 +227,7 @@
             z-index: 200;
         }
 
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal {
             background: var(--bg);
@@ -199,19 +265,12 @@
         }
 
         .modal input:focus,
-        .modal textarea:focus {
-            border-color: var(--gold);
-        }
+        .modal textarea:focus { border-color: var(--gold); }
 
-        .modal textarea {
-            height: 100px;
-            resize: none;
-        }
+        .modal textarea { height: 100px; resize: none; }
 
         .modal input::placeholder,
-        .modal textarea::placeholder {
-            color: var(--white-30);
-        }
+        .modal textarea::placeholder { color: var(--white-30); }
 
         .modal-actions {
             display: flex;
@@ -247,39 +306,20 @@
             transition: all 0.3s ease;
         }
 
-        .btn-submit:hover {
-            background: #e8c84a;
-        }
+        .btn-submit:hover { background: #e8c84a; }
 
-        /* Back button */
-        .back-btn {
-            position: fixed;
-            top: 24px;
-            left: 24px;
+        .btn-danger {
+            background: var(--red);
+            border: none;
+            color: var(--white);
             font-family: var(--font-mono);
             font-size: 13px;
-            color: var(--white-30);
-            text-decoration: none;
-            transition: color 0.3s ease;
-            z-index: 100;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .back-btn:hover {
-            color: var(--gold);
-        }
-
-        /* Hint */
-        .hint {
-            position: fixed;
-            bottom: 32px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--white-10);
-            letter-spacing: 0.1em;
-            pointer-events: none;
-        }
+        .btn-danger:hover { background: #c0392b; }
 
         @media (max-width: 768px) {
             .asteroid-btn {
@@ -288,38 +328,50 @@
                 width: 48px;
                 height: 48px;
             }
-
-            .modal {
-                padding: 24px;
-            }
+            .modal { padding: 24px; }
         }
     </style>
 </head>
 <body>
-    <a href="me.html" class="back-btn">← 返回 Me</a>
-
     <div class="stars" id="stars"></div>
     <canvas id="universe"></canvas>
 
-    <button class="asteroid-btn" id="asteroidBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 8v4l2 2"/>
-            <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
-        </svg>
-    </button>
+    <div class="ui-layer">
+        <a href="me.html" class="back-btn">← 返回 Me</a>
+        <a href="#" class="admin-btn" id="adminBtn">管理</a>
+        <div class="hint">点击右下角星球，留下你的痕迹</div>
+        <button class="asteroid-btn" id="asteroidBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 8v4l2 2"/>
+                <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/>
+            </svg>
+        </button>
+    </div>
 
-    <div class="hint">点击右下角星球，留下你的痕迹</div>
-
-    <div class="modal-overlay" id="modal">
+    <!-- Post modal -->
+    <div class="modal-overlay" id="postModal">
         <div class="modal">
             <h2>留下一颗星</h2>
             <p>在这片小宇宙中，留下你的痕迹。</p>
             <input type="text" id="nickname" placeholder="你的昵称" maxlength="20">
             <textarea id="content" placeholder="想说的话..." maxlength="200"></textarea>
             <div class="modal-actions">
-                <button class="btn-cancel" id="cancelBtn">取消</button>
-                <button class="btn-submit" id="submitBtn">发布</button>
+                <button class="btn-cancel" id="cancelPost">取消</button>
+                <button class="btn-submit" id="submitPost">发布</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin modal -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal">
+            <h2>管理员登录</h2>
+            <p>输入密码管理所有留言。</p>
+            <input type="password" id="adminPassword" placeholder="密码">
+            <div class="modal-actions">
+                <button class="btn-cancel" id="cancelAdmin">取消</button>
+                <button class="btn-submit" id="submitAdmin">登录</button>
             </div>
         </div>
     </div>
@@ -328,9 +380,12 @@
         const API_URL = 'https://universe-api.lyijian86.workers.dev';
         const canvas = document.getElementById('universe');
         const ctx = canvas.getContext('2d');
-        const messagesContainer = document.getElementById('stars');
+        const messagesEl = document.getElementById('messages');
 
-        // Resize canvas
+        let isAdmin = false;
+        let currentNickname = localStorage.getItem('universe_nick') || '';
+
+        // Canvas resize
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -338,7 +393,7 @@
         resize();
         window.addEventListener('resize', resize);
 
-        // Generate background stars
+        // Generate stars
         function generateStars() {
             const starsEl = document.getElementById('stars');
             starsEl.innerHTML = '';
@@ -355,12 +410,10 @@
         }
         generateStars();
 
-        // Floating particles on canvas
+        // Particles
         const particles = [];
         class Particle {
-            constructor() {
-                this.reset();
-            }
+            constructor() { this.reset(); }
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
@@ -383,16 +436,11 @@
             }
         }
 
-        for (let i = 0; i < 50; i++) {
-            particles.push(new Particle());
-        }
+        for (let i = 0; i < 50; i++) particles.push(new Particle());
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
+            particles.forEach(p => { p.update(); p.draw(); });
             requestAnimationFrame(animate);
         }
         animate();
@@ -410,15 +458,9 @@
 
         // Render messages
         function renderMessages(messages) {
-            // Keep back button and hint
-            const backBtn = document.querySelector('.back-btn');
-            const hint = document.querySelector('.hint');
-            const asteroidBtn = document.querySelector('.asteroid-btn');
-            const modal = document.getElementById('modal');
-
-            messagesContainer.innerHTML = '';
-            messagesContainer.appendChild(backBtn);
-            messagesContainer.appendChild(hint);
+            const starsEl = document.getElementById('stars');
+            // Remove old messages but keep stars
+            starsEl.querySelectorAll('.message').forEach(el => el.remove());
 
             messages.forEach((msg, index) => {
                 const el = document.createElement('div');
@@ -426,45 +468,82 @@
                 el.style.left = msg.x + '%';
                 el.style.top = msg.y + '%';
                 el.style.transform = `scale(${msg.size})`;
-                el.style.animationDelay = (index * 0.1) + 's';
+                el.style.animationDelay = (index * 0.05) + 's';
+                el.dataset.id = msg.id;
+                el.dataset.nick = msg.nickname;
+
+                let deleteBtn = '';
+                if (isAdmin || msg.nickname === currentNickname) {
+                    deleteBtn = `<span class="message-delete" data-id="${msg.id}">×</span>`;
+                }
+
                 el.innerHTML = `
+                    ${deleteBtn}
                     <div class="message-nick">${escapeHtml(msg.nickname)}</div>
                     <div class="message-text">${escapeHtml(msg.content)}</div>
                 `;
-                messagesContainer.appendChild(el);
+                starsEl.appendChild(el);
+            });
+
+            // Bind delete events
+            starsEl.querySelectorAll('.message-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.id;
+                    if (confirm('确定删除这条留言？')) {
+                        await deleteMessage(id);
+                    }
+                });
             });
         }
 
-        // Escape HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
 
-        // Modal
-        const modal = document.getElementById('modal');
+        // Delete message
+        async function deleteMessage(id) {
+            try {
+                const headers = { 'Content-Type': 'application/json' };
+                if (isAdmin) {
+                    headers['X-Admin-Token'] = localStorage.getItem('admin_token') || '';
+                }
+                const res = await fetch(`${API_URL}/api/messages/${id}`, {
+                    method: 'DELETE',
+                    headers,
+                });
+                if (res.ok) {
+                    loadMessages();
+                } else {
+                    alert('删除失败');
+                }
+            } catch (err) {
+                alert('网络错误');
+            }
+        }
+
+        // Post modal
+        const postModal = document.getElementById('postModal');
         const asteroidBtn = document.getElementById('asteroidBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const submitBtn = document.getElementById('submitBtn');
+        const cancelPost = document.getElementById('cancelPost');
+        const submitPost = document.getElementById('submitPost');
 
         asteroidBtn.addEventListener('click', () => {
-            modal.classList.add('active');
+            postModal.classList.add('active');
+            if (currentNickname) {
+                document.getElementById('nickname').value = currentNickname;
+            }
             document.getElementById('nickname').focus();
         });
 
-        cancelBtn.addEventListener('click', () => {
-            modal.classList.remove('active');
+        cancelPost.addEventListener('click', () => postModal.classList.remove('active'));
+        postModal.addEventListener('click', (e) => {
+            if (e.target === postModal) postModal.classList.remove('active');
         });
 
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-            }
-        });
-
-        // Submit
-        submitBtn.addEventListener('click', async () => {
+        submitPost.addEventListener('click', async () => {
             const nickname = document.getElementById('nickname').value.trim();
             const content = document.getElementById('content').value.trim();
 
@@ -481,38 +560,85 @@
                 });
 
                 if (res.ok) {
-                    const msg = await res.json();
-                    // Add new message to view
-                    const el = document.createElement('div');
-                    el.className = 'message';
-                    el.style.left = msg.x + '%';
-                    el.style.top = msg.y + '%';
-                    el.style.transform = `scale(${msg.size})`;
-                    el.innerHTML = `
-                        <div class="message-nick">${escapeHtml(msg.nickname)}</div>
-                        <div class="message-text">${escapeHtml(msg.content)}</div>
-                    `;
-                    messagesContainer.appendChild(el);
-
-                    // Clear form and close modal
+                    localStorage.setItem('universe_nick', nickname);
+                    currentNickname = nickname;
                     document.getElementById('nickname').value = '';
                     document.getElementById('content').value = '';
-                    modal.classList.remove('active');
+                    postModal.classList.remove('active');
+                    loadMessages();
                 } else {
                     const err = await res.json();
                     alert(err.error || '发布失败');
                 }
             } catch (err) {
-                alert('网络错误，请重试');
+                alert('网络错误');
             }
         });
 
-        // Keyboard shortcut
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                modal.classList.remove('active');
+        // Admin modal
+        const adminModal = document.getElementById('adminModal');
+        const adminBtn = document.getElementById('adminBtn');
+        const cancelAdmin = document.getElementById('cancelAdmin');
+        const submitAdmin = document.getElementById('submitAdmin');
+
+        adminBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (isAdmin) {
+                isAdmin = false;
+                localStorage.removeItem('admin_token');
+                adminBtn.textContent = '管理';
+                loadMessages();
+            } else {
+                adminModal.classList.add('active');
+                document.getElementById('adminPassword').focus();
             }
         });
+
+        cancelAdmin.addEventListener('click', () => adminModal.classList.remove('active'));
+        adminModal.addEventListener('click', (e) => {
+            if (e.target === adminModal) adminModal.classList.remove('active');
+        });
+
+        submitAdmin.addEventListener('click', async () => {
+            const password = document.getElementById('adminPassword').value;
+            if (!password) return;
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password }),
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    localStorage.setItem('admin_token', data.token);
+                    isAdmin = true;
+                    adminBtn.textContent = '退出管理';
+                    adminModal.classList.remove('active');
+                    document.getElementById('adminPassword').value = '';
+                    loadMessages();
+                } else {
+                    alert('密码错误');
+                }
+            } catch (err) {
+                alert('网络错误');
+            }
+        });
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                postModal.classList.remove('active');
+                adminModal.classList.remove('active');
+            }
+        });
+
+        // Check admin session
+        if (localStorage.getItem('admin_token')) {
+            isAdmin = true;
+            adminBtn.textContent = '退出管理';
+        }
 
         // Init
         loadMessages();
