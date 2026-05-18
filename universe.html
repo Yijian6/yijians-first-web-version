@@ -494,18 +494,19 @@
                 `;
                 starsEl.appendChild(el);
             });
-
-            // Bind delete events
-            starsEl.querySelectorAll('.message-delete').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    const id = btn.dataset.id;
-                    if (confirm('确定删除这条留言？')) {
-                        await deleteMessage(id);
-                    }
-                });
-            });
         }
+
+        // Event delegation for delete buttons
+        document.getElementById('stars').addEventListener('click', async (e) => {
+            const deleteBtn = e.target.closest('.message-delete');
+            if (!deleteBtn) return;
+
+            e.stopPropagation();
+            const id = deleteBtn.dataset.id;
+            if (confirm('确定删除这条留言？')) {
+                await deleteMessage(id);
+            }
+        });
 
         function escapeHtml(text) {
             const div = document.createElement('div');
