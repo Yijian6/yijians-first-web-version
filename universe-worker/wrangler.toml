@@ -1,0 +1,8 @@
+name = "universe-api"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "universe_messages"
+database_name = "universe-messages"
+database_id = "f1d1880b-b4c0-4ac3-ac51-ab3eb0405c8e"

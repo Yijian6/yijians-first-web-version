@@ -1096,6 +1096,8 @@ body::after {
 .me-type {
   display: flex;
   gap: clamp(8px, 1.5vw, 16px);
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .me-type span {
