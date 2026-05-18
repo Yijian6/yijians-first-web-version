@@ -117,6 +117,7 @@
             opacity: 0;
             transition: all 0.3s ease;
             line-height: 1;
+            pointer-events: auto;
         }
 
         .message:hover .message-delete {
@@ -125,6 +126,15 @@
 
         .message-delete:hover {
             color: var(--red);
+        }
+
+        /* Admin mode: always show delete buttons */
+        body.admin-mode .message-delete {
+            opacity: 0.6;
+        }
+
+        body.admin-mode .message:hover .message-delete {
+            opacity: 1;
         }
 
         /* UI Elements */
@@ -585,6 +595,7 @@
             e.preventDefault();
             if (isAdmin) {
                 isAdmin = false;
+                document.body.classList.remove('admin-mode');
                 localStorage.removeItem('admin_token');
                 adminBtn.textContent = '管理';
                 loadMessages();
@@ -614,6 +625,7 @@
                     const data = await res.json();
                     localStorage.setItem('admin_token', data.token);
                     isAdmin = true;
+                    document.body.classList.add('admin-mode');
                     adminBtn.textContent = '退出管理';
                     adminModal.classList.remove('active');
                     document.getElementById('adminPassword').value = '';
@@ -637,6 +649,7 @@
         // Check admin session
         if (localStorage.getItem('admin_token')) {
             isAdmin = true;
+            document.body.classList.add('admin-mode');
             adminBtn.textContent = '退出管理';
         }
 
