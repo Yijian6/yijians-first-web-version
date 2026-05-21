@@ -46,7 +46,7 @@
     animateRing();
 
     // Hover effect on interactive elements
-    var hoverTargets = 'a, button, .offer-card, .info-card, .timeline-item, .moment-row, .prediction-row, .magnetic';
+    var hoverTargets = 'a, button, .offer-card, .info-card, .timeline-item, .moment-row, .statement-section, .magnetic';
     document.addEventListener('mouseover', function (e) {
       if (e.target.closest(hoverTargets)) {
         cursorDot.classList.add('hovering');
