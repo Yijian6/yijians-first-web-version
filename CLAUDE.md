@@ -23,7 +23,7 @@
 - `offer.html` — 技能/服务
 - `passion.html` — 热情/理念
 - `hobby.html` — 爱好（Sports / Music / Books / Skills 四个 Tab）
-- `prediction.html` — 预测/展望
+- `prediction.html` — Becoming（成为）
 - `test.html` — 测试页面
 
 ## Compact Instructions
