@@ -1575,36 +1575,41 @@ body::after {
 .sport-featured:hover .sport-gallery-grid img { transform: scale(1.03); }
 
 /* =========================================================
-   BECOMING PAGE — Cinema-style full-screen scroll
+   BECOMING PAGE
 ========================================================= */
 
-/* Hero */
+/* Hero — matches section-header pattern */
 .becoming-hero {
-  height: 100dvh;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0 var(--side-pad);
+  margin-bottom: clamp(60px, 10vh, 120px);
   position: relative;
+}
+
+.becoming-hero::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--white-10);
+  margin-top: 32px;
 }
 
 .becoming-hero-num {
   font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--white-30);
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.2em;
-  margin-bottom: 40px;
+  color: var(--gold);
+  margin-bottom: 16px;
+  display: block;
 }
 
 .becoming-hero-title {
   font-family: var(--font-display);
   font-size: clamp(56px, 12vw, 140px);
   font-weight: 400;
-  letter-spacing: -0.03em;
   line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--white);
 }
 
 .becoming-hero-title em {
@@ -1613,80 +1618,68 @@ body::after {
 }
 
 .becoming-hero-sub {
-  font-size: clamp(14px, 2vw, 18px);
-  color: var(--white-30);
-  margin-top: 32px;
-  letter-spacing: 0.1em;
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.8vw, 18px);
+  font-weight: 300;
+  color: var(--white-60);
+  margin-top: 20px;
 }
 
-.becoming-scroll-hint {
-  position: absolute;
-  bottom: 40px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--white-30);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  animation: becoming-pulse 2s ease-in-out infinite;
-}
-
-@keyframes becoming-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
-
-/* Statement sections */
+/* Statement rows — brutal bordered */
 .statement-section {
-  min-height: 100dvh;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 100px var(--side-pad);
-  position: relative;
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: clamp(80px, 10vw, 140px) 1fr;
+  gap: 0;
+  border: 1px solid var(--white-10);
+  border-bottom: none;
+  transition: border-color 0.4s ease;
 }
 
-.statement-inner {
-  max-width: 1000px;
-  width: 100%;
+.statement-section:last-of-type {
+  border-bottom: 1px solid var(--white-10);
+}
+
+.statement-section:hover {
+  border-color: var(--gold-dim);
 }
 
 .statement-num {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: clamp(11px, 1.2vw, 13px);
-  color: var(--gold);
-  letter-spacing: 0.2em;
-  margin-bottom: 20px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s var(--ease-out-expo);
+  padding: clamp(28px, 4.5vw, 48px);
+  border-right: 1px solid var(--white-10);
+  font-family: var(--font-display);
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 400;
+  color: var(--white-10);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  transition: color 0.4s ease;
+}
+
+.statement-section:hover .statement-num {
+  color: var(--gold-dim);
+}
+
+.statement-inner {
+  padding: clamp(28px, 4.5vw, 48px);
 }
 
 .statement-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: clamp(11px, 1.2vw, 13px);
-  color: var(--white-30);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s var(--ease-out-expo) 0.1s;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  margin-bottom: 10px;
 }
 
 .statement-title {
   font-family: var(--font-display);
-  font-size: clamp(32px, 7vw, 80px);
+  font-size: clamp(22px, 3vw, 32px);
   font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin-bottom: 24px;
-  opacity: 0;
-  transform: translateY(40px);
-  transition: all 1s var(--ease-out-expo) 0.2s;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  color: var(--white);
 }
 
 .statement-title em {
@@ -1695,78 +1688,16 @@ body::after {
 }
 
 .statement-divider {
-  width: 60px;
+  width: 40px;
   height: 1px;
   background: var(--gold-dim);
-  margin-bottom: 20px;
-  opacity: 0;
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: all 0.8s var(--ease-out-expo) 0.3s;
+  margin-bottom: 12px;
 }
 
 .statement-body {
-  font-size: clamp(15px, 1.8vw, 18px);
+  font-size: clamp(14px, 1.5vw, 16px);
   color: var(--white-60);
   line-height: 1.8;
-  max-width: 600px;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s var(--ease-out-expo) 0.4s;
-}
-
-/* Revealed state */
-.statement-section.revealed .statement-num,
-.statement-section.revealed .statement-label,
-.statement-section.revealed .statement-body {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.statement-section.revealed .statement-title {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.statement-section.revealed .statement-divider {
-  opacity: 1;
-  transform: scaleX(1);
-}
-
-/* Alternating alignment (desktop) */
-@media (min-width: 769px) {
-  .statement-section:nth-child(even) .statement-inner {
-    text-align: right;
-  }
-
-  .statement-section:nth-child(even) .statement-body {
-    margin-left: auto;
-  }
-
-  .statement-section:nth-child(even) .statement-divider {
-    transform-origin: right;
-    margin-left: auto;
-  }
-}
-
-/* Background number watermark */
-.statement-section::before {
-  content: attr(data-num);
-  position: absolute;
-  right: -20px;
-  bottom: -40px;
-  font-family: var(--font-display);
-  font-size: clamp(100px, 20vw, 280px);
-  font-weight: 400;
-  color: var(--white-05);
-  line-height: 1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 1.2s ease 0.3s;
-}
-
-.statement-section.revealed::before {
-  opacity: 1;
 }
 
 /* Building status footer */
@@ -2094,24 +2025,12 @@ body::after {
     padding: 12px 24px;
   }
 
-  /* Becoming — mobile: always left-aligned, smaller watermarks */
-  .statement-section {
-    padding: 80px var(--side-pad);
-  }
-  .statement-section::before {
-    font-size: 80px;
-    right: -10px;
-    bottom: -20px;
-  }
-  .statement-inner {
-    text-align: left;
-  }
-  .statement-body {
-    margin-left: 0;
-  }
-  .statement-divider {
-    transform-origin: left;
-    margin-left: 0;
+  /* Becoming — mobile single column */
+  .statement-section { grid-template-columns: 1fr; }
+  .statement-num {
+    border-right: none;
+    border-bottom: 1px solid var(--white-10);
+    padding: 12px 24px;
   }
 
   /* Tabs */

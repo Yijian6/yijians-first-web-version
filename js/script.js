@@ -76,7 +76,7 @@
       rootMargin: '0px 0px -60px 0px'
     });
 
-    $$('.reveal, .reveal-left, .reveal-scale, .kinetic-text').forEach(function (el) {
+    $$('.reveal, .reveal-left, .reveal-scale, .kinetic-text, .statement-section').forEach(function (el) {
       observer.observe(el);
     });
   }
