@@ -1575,10 +1575,10 @@ body::after {
 .sport-featured:hover .sport-gallery-grid img { transform: scale(1.03); }
 
 /* =========================================================
-   BECOMING PAGE
+   BECOMING PAGE — Cinema experience
 ========================================================= */
 
-/* Hero — matches section-header pattern */
+/* Hero */
 .becoming-hero {
   margin-bottom: clamp(40px, 6vh, 80px);
   position: relative;
@@ -1625,64 +1625,86 @@ body::after {
   margin-top: 20px;
 }
 
-/* Statement rows — brutal bordered */
+/* Statement — full viewport cinema sections */
 .statement-section {
-  display: grid;
-  grid-template-columns: clamp(48px, 8vw, 80px) 1fr;
-  gap: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: clamp(60px, 8vh, 100px) 0;
+}
+
+/* Centered card with brutal border */
+.statement-inner {
   border: 1px solid var(--white-10);
-  border-bottom: none;
-  transition: border-color 0.4s ease;
+  padding: clamp(32px, 5vw, 64px);
+  max-width: 680px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.5s ease;
 }
 
-.statement-section:last-of-type {
-  border-bottom: 1px solid var(--white-10);
-}
-
-.statement-section:hover {
+.statement-section:hover .statement-inner {
   border-color: var(--gold-dim);
 }
 
+/* Big watermark number inside card */
 .statement-num {
-  padding: clamp(16px, 3vw, 32px);
-  border-right: 1px solid var(--white-10);
+  position: absolute;
   font-family: var(--font-display);
-  font-size: clamp(24px, 3.5vw, 42px);
+  font-size: clamp(80px, 15vw, 200px);
   font-weight: 400;
-  color: var(--white-10);
-  line-height: 0.85;
+  color: var(--white-05);
+  line-height: 0.8;
   letter-spacing: -0.04em;
-  transition: color 0.4s ease;
-  display: flex;
-  align-items: flex-start;
-  padding-top: clamp(20px, 3.5vw, 36px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease 0.2s;
+  z-index: 0;
 }
 
-.statement-section:hover .statement-num {
-  color: var(--gold-dim);
+/* Even = top-left, Odd = bottom-right */
+.statement-section:nth-child(odd) .statement-num {
+  top: -10px;
+  right: -10px;
 }
 
-.statement-inner {
-  padding: clamp(16px, 3vw, 32px);
+.statement-section:nth-child(even) .statement-num {
+  bottom: -10px;
+  left: -10px;
 }
 
+.statement-section.revealed .statement-num {
+  opacity: 1;
+}
+
+/* Label */
 .statement-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--gold);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
 }
 
+/* Title — large cinematic type */
 .statement-title {
   font-family: var(--font-display);
-  font-size: clamp(20px, 2.8vw, 30px);
+  font-size: clamp(32px, 6vw, 64px);
   font-weight: 400;
-  line-height: 1.2;
-  margin-bottom: 8px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
   color: var(--white);
+  position: relative;
+  z-index: 1;
 }
 
 .statement-title em {
@@ -1690,30 +1712,35 @@ body::after {
   color: var(--gold);
 }
 
+/* Divider */
 .statement-divider {
-  width: 32px;
+  width: 48px;
   height: 1px;
-  background: var(--gold-dim);
-  margin-bottom: 8px;
+  background: var(--gold);
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
 }
 
+/* Body */
 .statement-body {
-  font-size: clamp(13px, 1.4vw, 15px);
+  font-size: clamp(15px, 1.8vw, 18px);
   color: var(--white-60);
-  line-height: 1.7;
+  line-height: 1.8;
+  position: relative;
+  z-index: 1;
 }
 
-/* Alternating alignment — all screen sizes */
+/* Alternating card alignment */
 .statement-section:nth-child(even) .statement-inner {
   text-align: right;
 }
 
-.statement-section:nth-child(even) .statement-body {
+.statement-section:nth-child(even) .statement-divider {
   margin-left: auto;
 }
 
-.statement-section:nth-child(even) .statement-divider {
-  transform-origin: right;
+.statement-section:nth-child(even) .statement-body {
   margin-left: auto;
 }
 
@@ -2043,12 +2070,26 @@ body::after {
   }
 
   /* Becoming — mobile */
-  .statement-section { grid-template-columns: 48px 1fr; }
-  .statement-num {
-    padding: 14px;
-    font-size: 22px;
+  .statement-section {
+    padding: 48px 0;
+    min-height: auto;
   }
-  .statement-inner { padding: 14px; }
+  .statement-inner {
+    padding: 28px 20px;
+    margin: 0 16px;
+  }
+  .statement-num {
+    font-size: clamp(60px, 20vw, 100px);
+  }
+  .statement-section:nth-child(even) .statement-inner {
+    text-align: left;
+  }
+  .statement-section:nth-child(even) .statement-divider {
+    margin-left: 0;
+  }
+  .statement-section:nth-child(even) .statement-body {
+    margin-left: 0;
+  }
 
   /* Tabs */
   .tabs { flex-direction: column; }
