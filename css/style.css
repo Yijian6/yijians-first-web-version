@@ -1578,41 +1578,38 @@ body::after {
    BECOMING PAGE — Cinema experience
 ========================================================= */
 
-/* Hero — full viewport cinematic opener */
+/* Hero — section-header style, left-aligned */
 .becoming-hero {
-  height: 100vh;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 0 var(--side-pad);
+  margin-bottom: clamp(60px, 10vh, 120px);
   position: relative;
+}
+
+.becoming-hero::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--white-10);
+  margin-top: 32px;
 }
 
 .becoming-hero-num {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.2em;
-  color: var(--white-30);
-  margin-bottom: 40px;
+  color: var(--gold);
+  margin-bottom: 16px;
   display: block;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s var(--ease-out-expo);
 }
 
 .becoming-hero-title {
   font-family: var(--font-display);
-  font-size: clamp(64px, 14vw, 160px);
+  font-size: clamp(56px, 12vw, 140px);
   font-weight: 400;
-  line-height: 0.85;
+  line-height: 0.9;
   letter-spacing: -0.04em;
   color: var(--white);
-  opacity: 0;
-  transform: translateY(50px);
-  transition: all 1.2s var(--ease-out-expo) 0.15s;
 }
 
 .becoming-hero-title em {
@@ -1621,36 +1618,11 @@ body::after {
 }
 
 .becoming-hero-sub {
-  font-size: clamp(15px, 2vw, 20px);
-  color: var(--white-30);
-  margin-top: 32px;
-  letter-spacing: 0.12em;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s var(--ease-out-expo) 0.35s;
-}
-
-.becoming-hero .scroll-hint {
-  position: absolute;
-  bottom: 40px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--white-30);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  animation: becoming-pulse 2s ease-in-out infinite;
-}
-
-@keyframes becoming-pulse {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 1; }
-}
-
-.becoming-hero.revealed .becoming-hero-num,
-.becoming-hero.revealed .becoming-hero-title,
-.becoming-hero.revealed .becoming-hero-sub {
-  opacity: 1;
-  transform: translateY(0);
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.8vw, 18px);
+  font-weight: 300;
+  color: var(--white-60);
+  margin-top: 20px;
 }
 
 /* Statement — full viewport cinema sections */
@@ -2116,19 +2088,14 @@ body::after {
 
   /* Becoming — mobile: compact cinema */
   .becoming-hero {
-    height: calc(100vh - var(--nav-h));
-    height: calc(100dvh - var(--nav-h));
-    padding: 40px var(--side-pad);
+    margin-bottom: clamp(40px, 6vh, 80px);
   }
   .becoming-hero-title {
     font-size: clamp(44px, 14vw, 80px);
   }
   .becoming-hero-sub {
-    margin-top: 20px;
+    margin-top: 12px;
     font-size: 14px;
-  }
-  .becoming-hero .scroll-hint {
-    bottom: 24px;
   }
 
   .statement-section {
