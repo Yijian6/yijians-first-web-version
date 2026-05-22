@@ -1578,38 +1578,41 @@ body::after {
    BECOMING PAGE — Cinema experience
 ========================================================= */
 
-/* Hero */
+/* Hero — full viewport cinematic opener */
 .becoming-hero {
-  margin-bottom: clamp(40px, 6vh, 80px);
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 var(--side-pad);
   position: relative;
-}
-
-.becoming-hero::after {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: var(--white-10);
-  margin-top: 32px;
 }
 
 .becoming-hero-num {
   font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
   letter-spacing: 0.2em;
-  color: var(--gold);
-  margin-bottom: 16px;
+  color: var(--white-30);
+  margin-bottom: 40px;
   display: block;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s var(--ease-out-expo);
 }
 
 .becoming-hero-title {
   font-family: var(--font-display);
-  font-size: clamp(56px, 12vw, 140px);
+  font-size: clamp(64px, 14vw, 160px);
   font-weight: 400;
-  line-height: 0.9;
+  line-height: 0.85;
   letter-spacing: -0.04em;
   color: var(--white);
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 1.2s var(--ease-out-expo) 0.15s;
 }
 
 .becoming-hero-title em {
@@ -1618,11 +1621,36 @@ body::after {
 }
 
 .becoming-hero-sub {
-  font-family: var(--font-body);
-  font-size: clamp(15px, 1.8vw, 18px);
-  font-weight: 300;
-  color: var(--white-60);
-  margin-top: 20px;
+  font-size: clamp(15px, 2vw, 20px);
+  color: var(--white-30);
+  margin-top: 32px;
+  letter-spacing: 0.12em;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s var(--ease-out-expo) 0.35s;
+}
+
+.becoming-hero .scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--white-30);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  animation: becoming-pulse 2s ease-in-out infinite;
+}
+
+@keyframes becoming-pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+.becoming-hero.revealed .becoming-hero-num,
+.becoming-hero.revealed .becoming-hero-title,
+.becoming-hero.revealed .becoming-hero-sub {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Statement — full viewport cinema sections */
@@ -1633,78 +1661,73 @@ body::after {
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: clamp(60px, 8vh, 100px) 0;
-}
-
-/* Centered card with brutal border */
-.statement-inner {
-  border: 1px solid var(--white-10);
-  padding: clamp(32px, 5vw, 64px);
-  max-width: 680px;
-  width: 100%;
-  position: relative;
+  padding: clamp(80px, 10vh, 120px) var(--side-pad);
   overflow: hidden;
-  transition: border-color 0.5s ease;
 }
 
-.statement-section:hover .statement-inner {
-  border-color: var(--gold-dim);
-}
-
-/* Big watermark number inside card */
+/* Watermark number — behind everything */
 .statement-num {
   position: absolute;
   font-family: var(--font-display);
-  font-size: clamp(80px, 15vw, 200px);
+  font-size: clamp(140px, 25vw, 320px);
   font-weight: 400;
   color: var(--white-05);
-  line-height: 0.8;
-  letter-spacing: -0.04em;
+  line-height: 0.75;
+  letter-spacing: -0.05em;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 1.2s ease 0.2s;
+  transition: opacity 1.5s ease 0.1s;
   z-index: 0;
 }
 
-/* Even = top-left, Odd = bottom-right */
 .statement-section:nth-child(odd) .statement-num {
-  top: -10px;
-  right: -10px;
+  top: 5%;
+  right: -5%;
 }
 
 .statement-section:nth-child(even) .statement-num {
-  bottom: -10px;
-  left: -10px;
+  bottom: 5%;
+  left: -5%;
 }
 
 .statement-section.revealed .statement-num {
   opacity: 1;
 }
 
+/* Card — centered brutal frame */
+.statement-inner {
+  max-width: 900px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
 /* Label */
 .statement-label {
   display: block;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   color: var(--gold);
-  margin-bottom: 16px;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s var(--ease-out-expo) 0.05s;
 }
 
 /* Title — large cinematic type */
 .statement-title {
   font-family: var(--font-display);
-  font-size: clamp(32px, 6vw, 64px);
+  font-size: clamp(40px, 8vw, 90px);
   font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin-bottom: 16px;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
   color: var(--white);
-  position: relative;
-  z-index: 1;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 1s var(--ease-out-expo) 0.15s;
 }
 
 .statement-title em {
@@ -1714,29 +1737,51 @@ body::after {
 
 /* Divider */
 .statement-divider {
-  width: 48px;
-  height: 1px;
+  width: 60px;
+  height: 2px;
   background: var(--gold);
-  margin-bottom: 16px;
-  position: relative;
-  z-index: 1;
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: all 0.8s var(--ease-out-expo) 0.3s;
 }
 
 /* Body */
 .statement-body {
-  font-size: clamp(15px, 1.8vw, 18px);
+  font-size: clamp(16px, 2vw, 20px);
   color: var(--white-60);
-  line-height: 1.8;
-  position: relative;
-  z-index: 1;
+  line-height: 1.9;
+  max-width: 580px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s var(--ease-out-expo) 0.4s;
 }
 
-/* Alternating card alignment */
+/* Revealed — staggered entrance */
+.statement-section.revealed .statement-label,
+.statement-section.revealed .statement-body {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.statement-section.revealed .statement-title {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.statement-section.revealed .statement-divider {
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+/* Alternating alignment */
 .statement-section:nth-child(even) .statement-inner {
   text-align: right;
 }
 
 .statement-section:nth-child(even) .statement-divider {
+  transform-origin: right;
   margin-left: auto;
 }
 
@@ -2070,21 +2115,29 @@ body::after {
   }
 
   /* Becoming — mobile */
-  .statement-section {
-    padding: 48px 0;
-    min-height: auto;
+  .becoming-hero {
+    padding: 0 var(--side-pad);
   }
-  .statement-inner {
-    padding: 28px 20px;
-    margin: 0 16px;
+  .becoming-hero-title {
+    font-size: clamp(48px, 16vw, 100px);
+  }
+  .statement-section {
+    padding: 60px var(--side-pad);
   }
   .statement-num {
-    font-size: clamp(60px, 20vw, 100px);
+    font-size: clamp(100px, 30vw, 200px);
+  }
+  .statement-title {
+    font-size: clamp(30px, 9vw, 52px);
+  }
+  .statement-body {
+    font-size: 15px;
   }
   .statement-section:nth-child(even) .statement-inner {
     text-align: left;
   }
   .statement-section:nth-child(even) .statement-divider {
+    transform-origin: left;
     margin-left: 0;
   }
   .statement-section:nth-child(even) .statement-body {
