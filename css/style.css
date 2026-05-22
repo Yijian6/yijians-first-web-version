@@ -731,7 +731,6 @@ body::after {
 .marquee-track {
   display: flex;
   gap: 60px;
-  animation: marqueeScroll 20s linear infinite;
   white-space: nowrap;
   will-change: transform;
 }
@@ -755,11 +754,6 @@ body::after {
   color: var(--gold);
   font-size: 13px;
   letter-spacing: 0.2em;
-}
-
-@keyframes marqueeScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
 }
 
 /* =========================================================
@@ -2060,7 +2054,7 @@ body::after {
 
   /* Marquee on mobile */
   .marquee-strip { padding: 14px 0; }
-  .marquee-track { gap: 40px; animation-duration: 25s; backface-visibility: hidden; }
+  .marquee-track { gap: 40px; }
 
   /* --- Page content --- */
   .page-content { padding: clamp(60px, 8vh, 100px) var(--side-pad); }

@@ -348,7 +348,39 @@
   }
 
   /* -------------------------------------------------------
-     14. TYPEWRITER EFFECT (Hero subtitle)
+     14. MARQUEE — JS-driven infinite scroll
+  ------------------------------------------------------- */
+  function initMarquee() {
+    var strip = $('.marquee-strip');
+    if (!strip) return;
+
+    var track = strip.querySelector('.marquee-track');
+    if (!track) return;
+
+    // Clone children for seamless loop
+    var children = Array.from(track.children);
+    children.forEach(function (child) {
+      track.appendChild(child.cloneNode(true));
+    });
+
+    var pos = 0;
+    var speed = window.innerWidth < 769 ? 0.5 : 0.8;
+
+    function tick() {
+      pos -= speed;
+      var halfWidth = track.scrollWidth / 2;
+      if (Math.abs(pos) >= halfWidth) {
+        pos += halfWidth;
+      }
+      track.style.transform = 'translateX(' + pos + 'px)';
+      requestAnimationFrame(tick);
+    }
+
+    requestAnimationFrame(tick);
+  }
+
+  /* -------------------------------------------------------
+     15. TYPEWRITER EFFECT (Hero subtitle)
   ------------------------------------------------------- */
   function initTypewriter() {
     var el = $('.typewriter');
@@ -397,6 +429,7 @@
     initPageTransition();
     initLightbox();
     initProjectLightbox();
+    initMarquee();
     initTypewriter();
     initParallax();
   });
