@@ -682,9 +682,9 @@ body::after {
 ========================================================= */
 .marquee-strip {
   overflow: hidden;
-  border-top: 1px solid var(--white-05);
-  border-bottom: 1px solid var(--white-05);
-  padding: 16px 0;
+  border-top: 2px solid var(--white-10);
+  border-bottom: 2px solid var(--white-10);
+  padding: 20px 0;
   background: var(--bg);
 }
 
@@ -697,7 +697,7 @@ body::after {
 
 .marquee-track span {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -708,6 +708,12 @@ body::after {
 .marquee-track span em {
   font-style: normal;
   color: var(--gold);
+}
+
+.marquee-track .marquee-name {
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 0.2em;
 }
 
 @keyframes marqueeScroll {
