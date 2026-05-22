@@ -1980,7 +1980,7 @@ body::after {
 
   /* --- HERO: Magazine-style mobile layout --- */
   .hero-section {
-    min-height: 100svh;
+    min-height: calc(100svh - var(--nav-h));
     padding: 0 24px;
     display: flex;
     flex-direction: column;
