@@ -1578,14 +1578,15 @@ body::after {
    BECOMING PAGE — Cinema experience
 ========================================================= */
 
-/* Becoming hero — outside .page-content, needs its own top padding */
+/* Becoming hero — outside .page-content, needs its own padding */
 .main > .section-header {
-  padding-top: var(--section-gap);
+  padding: var(--section-gap) var(--side-pad) 0;
 }
 
-/* English title is visually smaller than Chinese at same font-size */
+/* English title: larger size + heavier weight to match Chinese visual volume */
 .main > .section-header h1 {
   font-size: clamp(70px, 15vw, 180px);
+  font-weight: 500;
 }
 
 /* Statement — full viewport cinema sections */
@@ -2015,7 +2016,7 @@ body::after {
 
   /* --- Page content --- */
   .page-content { padding: clamp(60px, 8vh, 100px) var(--side-pad); }
-  .main > .section-header { padding-top: clamp(60px, 8vh, 100px); }
+  .main > .section-header { padding: clamp(60px, 8vh, 100px) var(--side-pad) 0; }
 
   /* Timeline → editorial stacked */
   .timeline-item { grid-template-columns: 1fr; }
@@ -2104,7 +2105,7 @@ body::after {
 @media (max-width: 480px) {
   .hero-title { font-size: clamp(38px, 14vw, 60px); }
   .section-header h1 { font-size: clamp(40px, 14vw, 72px); }
-  .main > .section-header h1 { font-size: clamp(48px, 16vw, 85px); }
+  .main > .section-header h1 { font-size: clamp(48px, 16vw, 85px); font-weight: 500; }
 }
 
 /* =========================================================
