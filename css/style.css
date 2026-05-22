@@ -2114,25 +2114,46 @@ body::after {
     padding: 12px 24px;
   }
 
-  /* Becoming — mobile */
+  /* Becoming — mobile: compact cinema */
   .becoming-hero {
-    padding: 0 var(--side-pad);
+    height: calc(100vh - var(--nav-h));
+    height: calc(100dvh - var(--nav-h));
+    padding: 40px var(--side-pad);
   }
   .becoming-hero-title {
-    font-size: clamp(48px, 16vw, 100px);
+    font-size: clamp(44px, 14vw, 80px);
   }
+  .becoming-hero-sub {
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  .becoming-hero .scroll-hint {
+    bottom: 24px;
+  }
+
   .statement-section {
-    padding: 60px var(--side-pad);
+    min-height: auto;
+    padding: clamp(48px, 6vh, 80px) var(--side-pad);
   }
   .statement-num {
-    font-size: clamp(100px, 30vw, 200px);
+    font-size: clamp(80px, 25vw, 140px);
+    top: -5px !important;
+    right: -5px !important;
+    bottom: auto !important;
+    left: auto !important;
   }
   .statement-title {
-    font-size: clamp(30px, 9vw, 52px);
+    font-size: clamp(28px, 8vw, 44px);
   }
   .statement-body {
     font-size: 15px;
+    max-width: 100%;
   }
+  .statement-divider {
+    width: 40px;
+  }
+
+  /* Mobile: always left-aligned */
   .statement-section:nth-child(even) .statement-inner {
     text-align: left;
   }
