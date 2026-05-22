@@ -467,8 +467,8 @@ body::after {
   min-height: calc(100vh - var(--nav-h));
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: var(--section-gap) var(--side-pad);
+  justify-content: flex-start;
+  padding: clamp(80px, 15vh, 180px) var(--side-pad) var(--section-gap);
   position: relative;
   overflow: hidden;
 }
