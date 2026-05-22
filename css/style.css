@@ -712,6 +712,7 @@ body::after {
   gap: 60px;
   animation: marqueeScroll 20s linear infinite;
   white-space: nowrap;
+  will-change: transform;
 }
 
 .marquee-track span {
@@ -2038,6 +2039,10 @@ body::after {
   /* Portrait on mobile */
   .portrait-wrapper { height: 60vh; }
   .portrait-label { bottom: 16px; left: 20px; }
+
+  /* Marquee on mobile */
+  .marquee-strip { padding: 14px 0; }
+  .marquee-track { gap: 36px; animation-duration: 30s; }
 
   /* --- Page content --- */
   .page-content { padding: clamp(60px, 8vh, 100px) var(--side-pad); }
