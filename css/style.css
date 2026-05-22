@@ -1583,6 +1583,11 @@ body::after {
   padding-top: var(--section-gap);
 }
 
+/* English title is visually smaller than Chinese at same font-size */
+.main > .section-header h1 {
+  font-size: clamp(70px, 15vw, 180px);
+}
+
 /* Statement — full viewport cinema sections */
 .statement-section {
   min-height: 100vh;
@@ -2099,6 +2104,7 @@ body::after {
 @media (max-width: 480px) {
   .hero-title { font-size: clamp(38px, 14vw, 60px); }
   .section-header h1 { font-size: clamp(40px, 14vw, 72px); }
+  .main > .section-header h1 { font-size: clamp(48px, 16vw, 85px); }
 }
 
 /* =========================================================
