@@ -1985,6 +1985,7 @@ body::after {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: flex-start;
     position: relative;
   }
 
@@ -2023,34 +2024,38 @@ body::after {
   .hero-subtitle {
     font-size: 14px;
     line-height: 1.7;
-    margin-top: 20px;
+    margin-top: 16px;
     margin-bottom: 0;
     max-width: 100%;
   }
 
-  .hero-cta {
-    display: flex;
-    justify-content: center;
-    padding: 18px 24px;
-    font-size: 11px;
-  }
-
+  /* Scroll hint: absolute at bottom, out of flex flow */
   .hero-scroll-hint {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    margin: 48px auto 32px;
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
     font-size: 9px;
+    flex-direction: column;
+    gap: 8px;
   }
 
   .hero-scroll-hint::before {
     width: 1px;
-    height: 28px;
+    height: 24px;
+    margin: 0 auto 6px;
   }
 
   /* Portrait on mobile */
   .portrait-wrapper { height: 60vh; }
   .portrait-label { bottom: 16px; left: 20px; }
+
+  /* CTA on mobile */
+  .cta-section {
+    padding: clamp(40px, 6vh, 60px) var(--side-pad);
+    gap: 16px;
+  }
 
   /* Marquee on mobile */
   .marquee-strip { padding: 14px 0; }
