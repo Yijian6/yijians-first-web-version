@@ -570,6 +570,27 @@ body::after {
   border: 1px solid var(--white-10);
 }
 
+/* =========================================================
+   SECTION: CTA (between Portrait and Marquee)
+========================================================= */
+.cta-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: clamp(60px, 10vh, 120px) var(--side-pad);
+  border-bottom: 1px solid var(--white-05);
+}
+
+.cta-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--white-30);
+}
+
 .hero-label {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -2016,7 +2037,6 @@ body::after {
   }
 
   .hero-cta {
-    margin: 32px 24px 0;
     display: flex;
     justify-content: center;
     padding: 18px 24px;
