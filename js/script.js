@@ -348,6 +348,40 @@
   }
 
   /* -------------------------------------------------------
+     14. TYPEWRITER EFFECT (Hero subtitle)
+  ------------------------------------------------------- */
+  function initTypewriter() {
+    var el = $('.typewriter');
+    if (!el) return;
+
+    var text = el.getAttribute('data-text');
+    if (!text) return;
+
+    var started = false;
+
+    function startTyping() {
+      if (started) return;
+      started = true;
+      el.textContent = '';
+      var i = 0;
+      var interval = setInterval(function () {
+        if (i < text.length) {
+          el.textContent += text[i];
+          i++;
+        } else {
+          clearInterval(interval);
+          el.classList.add('done');
+        }
+      }, 45);
+    }
+
+    // Start after intro animation + reveal transition
+    var intro = $('#intro');
+    var delay = intro ? 4200 : 800;
+    setTimeout(startTyping, delay);
+  }
+
+  /* -------------------------------------------------------
      BOOT
   ------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -363,6 +397,7 @@
     initPageTransition();
     initLightbox();
     initProjectLightbox();
+    initTypewriter();
     initParallax();
   });
 

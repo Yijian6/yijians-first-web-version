@@ -180,6 +180,11 @@ body::after {
   color: var(--gold);
 }
 
+.nav-brand span {
+  color: var(--white-30);
+  margin: 0 2px;
+}
+
 .nav-links {
   display: flex;
   gap: clamp(24px, 4vw, 48px);
@@ -609,6 +614,20 @@ body::after {
   max-width: 520px;
   line-height: 1.8;
   margin-bottom: 48px;
+}
+
+.typewriter {
+  border-right: 2px solid var(--gold);
+  padding-right: 2px;
+}
+
+.typewriter.done {
+  border-right-color: transparent;
+  animation: blink 0.8s step-end infinite;
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
 }
 
 .hero-cta {

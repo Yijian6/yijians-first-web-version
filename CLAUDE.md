@@ -9,6 +9,12 @@
 - 部署：Cloudflare Pages（项目名 `yijian6`）
 - 仓库：https://github.com/Yijian6/yijians-first-web-version
 
+## 设计原则
+
+- **手机端优先**：所有页面改动先保证手机端观感最佳，桌面端是增强体验
+- 实现顺序：先调手机端 → 再适配桌面端
+- 字号、间距、动画效果以手机端表现为基准
+
 ## 部署流程
 
 每次代码变更后必须：
