@@ -1578,6 +1578,11 @@ body::after {
    BECOMING PAGE — Cinema experience
 ========================================================= */
 
+/* Becoming hero — outside .page-content, needs its own top padding */
+.main > .section-header {
+  padding-top: var(--section-gap);
+}
+
 /* Statement — full viewport cinema sections */
 .statement-section {
   min-height: 100vh;
@@ -2005,6 +2010,7 @@ body::after {
 
   /* --- Page content --- */
   .page-content { padding: clamp(60px, 8vh, 100px) var(--side-pad); }
+  .main > .section-header { padding-top: clamp(60px, 8vh, 100px); }
 
   /* Timeline → editorial stacked */
   .timeline-item { grid-template-columns: 1fr; }
