@@ -496,8 +496,8 @@
             });
         }
 
-        // Event delegation for delete buttons
-        document.getElementById('stars').addEventListener('click', async (e) => {
+        // Event delegation for delete buttons (on document to bypass pointer-events:none)
+        document.addEventListener('click', async (e) => {
             const deleteBtn = e.target.closest('.message-delete');
             if (!deleteBtn) return;
 
