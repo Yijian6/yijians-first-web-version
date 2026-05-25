@@ -111,13 +111,15 @@
             position: absolute;
             top: 4px;
             right: 6px;
-            font-size: 14px;
+            font-size: 16px;
             color: var(--white-30);
             cursor: pointer;
             opacity: 0;
             transition: all 0.3s ease;
             line-height: 1;
+            padding: 6px;
             pointer-events: auto;
+            z-index: 20;
         }
 
         .message:hover .message-delete {
@@ -482,31 +484,32 @@
                 el.dataset.id = msg.id;
                 el.dataset.nick = msg.nickname;
 
-                let deleteBtn = '';
                 if (isAdmin || msg.nickname === currentNickname) {
-                    deleteBtn = `<span class="message-delete" data-id="${msg.id}">×</span>`;
+                    const del = document.createElement('span');
+                    del.className = 'message-delete';
+                    del.textContent = '×';
+                    del.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        if (confirm('确定删除这条留言？')) {
+                            await deleteMessage(msg.id);
+                        }
+                    });
+                    el.appendChild(del);
                 }
 
-                el.innerHTML = `
-                    ${deleteBtn}
-                    <div class="message-nick">${escapeHtml(msg.nickname)}</div>
-                    <div class="message-text">${escapeHtml(msg.content)}</div>
-                `;
+                const nick = document.createElement('div');
+                nick.className = 'message-nick';
+                nick.textContent = msg.nickname;
+                el.appendChild(nick);
+
+                const text = document.createElement('div');
+                text.className = 'message-text';
+                text.textContent = msg.content;
+                el.appendChild(text);
+
                 starsEl.appendChild(el);
             });
         }
-
-        // Event delegation for delete buttons (on document to bypass pointer-events:none)
-        document.addEventListener('click', async (e) => {
-            const deleteBtn = e.target.closest('.message-delete');
-            if (!deleteBtn) return;
-
-            e.stopPropagation();
-            const id = deleteBtn.dataset.id;
-            if (confirm('确定删除这条留言？')) {
-                await deleteMessage(id);
-            }
-        });
 
         function escapeHtml(text) {
             const div = document.createElement('div');
