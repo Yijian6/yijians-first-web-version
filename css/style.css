@@ -624,6 +624,10 @@ img { max-width: 100%; display: block; }
   color: var(--gold);
 }
 
+.hero-title em.warm {
+  color: var(--accent2);
+}
+
 .hero-subtitle {
   font-family: var(--font-body);
   font-size: clamp(16px, 2vw, 20px);
