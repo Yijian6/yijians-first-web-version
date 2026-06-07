@@ -1401,78 +1401,107 @@ img { max-width: 100%; display: block; }
   border-left: 1px solid var(--white-10);
 }
 
-/* — Portrait —————————————————————————————————————————— */
+/* — Portrait — Full-bleed cinematic ——————————————————— */
 .home-portrait {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  padding: clamp(64px, 12vh, 140px) var(--side-pad);
-  border-top: 1px solid var(--white-10);
-}
-
-.home-portrait-frame {
-  width: clamp(200px, 50vw, 300px);
-  aspect-ratio: 3 / 4;
-  overflow: hidden;
   position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-top: 1px solid var(--white-10);
+  border-bottom: 1px solid var(--white-10);
 }
 
-.home-portrait-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border: 1px solid var(--white-10);
-  pointer-events: none;
+.home-portrait-wrapper {
+  position: relative;
+  width: 100%;
+  height: 75vh;
+  height: 75dvh;
+  overflow: hidden;
 }
 
-.home-portrait-frame img {
+.home-portrait-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center 20%;
-  filter: grayscale(20%) contrast(1.02);
-  transition: filter 1s ease;
+  display: block;
+  filter: grayscale(30%) contrast(1.08) brightness(0.92);
+  transition: filter 0.8s var(--ease-out-expo);
 }
 
-.home-portrait-caption {
+.home-portrait:hover .home-portrait-img {
+  filter: grayscale(0%) contrast(1.02) brightness(1);
+}
+
+.home-portrait-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(12, 14, 11, 0.1) 0%,
+    transparent 40%,
+    transparent 60%,
+    rgba(12, 14, 11, 0.4) 100%
+  );
+  pointer-events: none;
+}
+
+.home-portrait-label {
+  position: absolute;
+  bottom: 20px;
+  left: var(--side-pad);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 12px;
+  z-index: 2;
 }
 
-.home-portrait-name {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  color: var(--white-60);
-}
-
-.home-portrait-meta {
+.home-portrait-tag {
   font-family: var(--font-mono);
   font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--gold);
+  padding: 5px 12px;
+}
+
+.home-portrait-index {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
   letter-spacing: 0.15em;
-  color: var(--white-30);
+  color: var(--white-60);
+  background: rgba(12, 14, 11, 0.7);
+  backdrop-filter: blur(8px);
+  padding: 5px 10px;
+  border: 1px solid var(--white-10);
 }
 
 /* — Quote ————————————————————————————————————————————— */
 .home-quote {
-  padding: clamp(64px, 14vh, 160px) var(--side-pad);
+  padding: clamp(56px, 12vh, 140px) var(--side-pad);
   display: flex;
-  justify-content: center;
-  border-top: 1px solid var(--white-10);
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(24px, 4vh, 40px);
+}
+
+.home-quote-line {
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+  opacity: 0.3;
 }
 
 .home-quote-text {
   font-family: var(--font-display);
-  font-size: clamp(22px, 5.5vw, 48px);
+  font-size: clamp(24px, 6vw, 52px);
   font-weight: 400;
   font-style: italic;
   color: var(--white-90);
   line-height: 1.6;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-align: center;
   margin: 0;
   display: flex;
@@ -1482,7 +1511,7 @@ img { max-width: 100%; display: block; }
 
 .home-quote-second {
   color: var(--accent2);
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 /* — Navigation ———————————————————————————————————————— */
@@ -1564,21 +1593,6 @@ img { max-width: 100%; display: block; }
 
 /* ————— Desktop: Homepage ————— */
 @media (min-width: 769px) {
-  .home-portrait {
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 48px;
-  }
-
-  .home-portrait-caption {
-    align-items: flex-start;
-  }
-
-  .home-portrait-frame {
-    width: min(300px, 25vw);
-  }
-
   .home-nav-list {
     max-width: 600px;
   }
