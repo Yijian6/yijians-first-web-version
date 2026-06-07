@@ -1413,9 +1413,16 @@ img { max-width: 100%; display: block; }
 .home-portrait-wrapper {
   position: relative;
   width: 100%;
-  height: 75vh;
-  height: 75dvh;
+  height: 55vh;
+  height: 55dvh;
   overflow: hidden;
+}
+
+@media (min-width: 769px) {
+  .home-portrait-wrapper {
+    height: 75vh;
+    height: 75dvh;
+  }
 }
 
 .home-portrait-img {
@@ -1917,8 +1924,8 @@ img { max-width: 100%; display: block; }
 
 /* English title: larger size + heavier weight to match Chinese visual volume */
 .main > .section-header h1 {
-  font-size: clamp(70px, 15vw, 180px);
-  font-weight: 500;
+  font-size: clamp(56px, 12vw, 140px);
+  font-weight: 400;
 }
 
 /* Statement — full viewport cinema sections */
@@ -2443,7 +2450,7 @@ img { max-width: 100%; display: block; }
 @media (max-width: 480px) {
   .hero-title { font-size: clamp(38px, 14vw, 60px); }
   .section-header h1 { font-size: clamp(40px, 14vw, 72px); }
-  .main > .section-header h1 { font-size: clamp(48px, 16vw, 85px); font-weight: 500; }
+  .main > .section-header h1 { font-size: clamp(40px, 14vw, 72px); }
 }
 
 /* =========================================================
