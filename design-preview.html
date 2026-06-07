@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Direction Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: #0a0a0a;
+  color: #e8e0d4;
+  overflow-x: hidden;
+}
+
+/* === DIRECTION SWITCHER === */
+.switcher {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.switcher button {
+  flex: 1;
+  padding: 18px 16px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  position: relative;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+.switcher button:last-child { border-right: none; }
+
+.switcher button.active {
+  color: #fff;
+  background: rgba(255,255,255,0.04);
+}
+
+.switcher button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  width: 60%;
+  height: 2px;
+  transform: scaleX(0);
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+.switcher button.active::after { transform: scaleX(1); }
+
+.switcher button[data-dir="A"]::after { background: #c2785a; }
+.switcher button[data-dir="B"]::after { background: #c4867a; }
+.switcher button[data-dir="C"]::after { background: #a8b490; }
+
+.switcher .dir-hint {
+  display: block;
+  font-size: 10px;
+  margin-top: 4px;
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+/* === PANELS === */
+.panel {
+  display: none;
+  min-height: 100vh;
+  padding-top: 80px;
+}
+
+.panel.active { display: block; }
+
+/* ====================================================
+   DIRECTION A — 暮光陶土 Dusk Terracotta
+   ==================================================== */
+.dir-a {
+  --bg: #110f0d;
+  --bg2: #1a1714;
+  --accent: #c2785a;
+  --accent-dim: rgba(194,120,90,0.12);
+  --accent-glow: rgba(194,120,90,0.06);
+  --text: #e8e0d4;
+  --text-60: rgba(232,224,212,0.6);
+  --text-30: rgba(232,224,212,0.3);
+  --text-10: rgba(232,224,212,0.08);
+  --font-display: 'Fraunces', 'Noto Serif SC', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.dir-a .hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px, 8vh, 80px) clamp(24px, 6vw, 100px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Warm ambient glow instead of grain */
+.dir-a .hero::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -15%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(194,120,90,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.dir-a .hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, rgba(194,120,90,0.03) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.dir-a .hero-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  color: var(--accent);
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-weight: 400;
+}
+
+.dir-a .hero-label::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+.dir-a .hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 9vw, 120px);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 36px;
+  max-width: 800px;
+  font-optical-sizing: auto;
+}
+
+.dir-a .hero-title em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.dir-a .hero-sub {
+  font-family: var(--font-body);
+  font-size: clamp(16px, 1.8vw, 19px);
+  font-weight: 300;
+  color: var(--text-60);
+  max-width: 460px;
+  line-height: 1.9;
+  margin-bottom: 56px;
+}
+
+.dir-a .hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  background: none;
+  border: 1px solid rgba(194,120,90,0.3);
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+  text-decoration: none;
+}
+
+.dir-a .hero-cta:hover {
+  background: rgba(194,120,90,0.08);
+  border-color: rgba(194,120,90,0.6);
+  transform: translateY(-1px);
+}
+
+.dir-a .hero-cta svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+.dir-a .hero-cta:hover svg { transform: translateX(4px); }
+
+/* Divider */
+.dir-a .warm-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--text-10) 20%, var(--accent-dim) 50%, var(--text-10) 80%, transparent);
+}
+
+/* Content section */
+.dir-a .content-section {
+  padding: clamp(60px, 10vh, 120px) clamp(24px, 6vw, 100px);
+  max-width: 1100px;
+}
+
+.dir-a .section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.dir-a .section-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 6vw, 64px);
+  font-weight: 300;
+  line-height: 1.1;
+  margin-bottom: 32px;
+  letter-spacing: -0.02em;
+}
+
+.dir-a .section-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+/* Cards — soft warm panels */
+.dir-a .card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.dir-a .card {
+  background: var(--bg2);
+  border: 1px solid var(--text-10);
+  padding: 32px 28px;
+  transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+  overflow: hidden;
+}
+
+.dir-a .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+
+.dir-a .card:hover {
+  border-color: rgba(194,120,90,0.2);
+  transform: translateY(-2px);
+}
+
+.dir-a .card:hover::before { transform: scaleX(1); }
+
+.dir-a .card-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.dir-a .card-desc {
+  font-size: 14px;
+  color: var(--text-60);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ====================================================
+   DIRECTION B — 墨与玫瑰 Ink & Rose
+   ==================================================== */
+.dir-b {
+  --bg: #0f0d10;
+  --bg2: #17141a;
+  --accent: #c4867a;
+  --accent2: #a89db8;
+  --accent-dim: rgba(196,134,122,0.1);
+  --text: #ebe4dc;
+  --text-60: rgba(235,228,220,0.55);
+  --text-30: rgba(235,228,220,0.25);
+  --text-10: rgba(235,228,220,0.07);
+  --font-display: 'Lora', 'Noto Serif SC', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.dir-b .hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0 clamp(24px, 6vw, 100px);
+  position: relative;
+  overflow: hidden;
+  gap: 40px;
+}
+
+@media (max-width: 768px) {
+  .dir-b .hero {
+    grid-template-columns: 1fr;
+    padding-top: 80px;
+    padding-bottom: 60px;
+  }
+}
+
+.dir-b .hero::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1px;
+  height: 40%;
+  background: linear-gradient(to bottom, transparent, var(--text-10) 30%, var(--accent-dim) 50%, var(--text-10) 70%, transparent);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 768px) {
+  .dir-b .hero::before { display: none; }
+}
+
+.dir-b .hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dir-b .hero-right {
+  padding-left: 60px;
+}
+
+@media (max-width: 768px) {
+  .dir-b .hero-right { padding-left: 0; }
+}
+
+.dir-b .hero-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  margin-bottom: 28px;
+  opacity: 0.7;
+}
+
+.dir-b .hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 8vw, 100px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 0;
+}
+
+.dir-b .hero-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.dir-b .hero-title .line2 {
+  display: block;
+  margin-left: clamp(20px, 4vw, 60px);
+  margin-top: 4px;
+}
+
+.dir-b .hero-sub {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.6vw, 18px);
+  font-weight: 300;
+  color: var(--text-60);
+  line-height: 2;
+  margin-bottom: 40px;
+  max-width: 380px;
+}
+
+.dir-b .hero-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(18px, 2.5vw, 26px);
+  color: var(--text-60);
+  line-height: 1.6;
+  position: relative;
+  padding-left: 24px;
+  border-left: 1px solid var(--accent);
+  max-width: 360px;
+}
+
+.dir-b .hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--accent);
+  padding: 0 0 6px 0;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  text-decoration: none;
+}
+
+.dir-b .hero-cta:hover {
+  color: var(--accent);
+  padding-bottom: 10px;
+}
+
+.dir-b .hero-cta svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+.dir-b .hero-cta:hover svg { transform: translateX(4px); }
+
+/* Divider */
+.dir-b .warm-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--text-10), var(--accent-dim) 50%, var(--text-10), transparent);
+}
+
+/* Content */
+.dir-b .content-section {
+  padding: clamp(60px, 10vh, 120px) clamp(24px, 6vw, 100px);
+  max-width: 1100px;
+}
+
+.dir-b .section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--accent2);
+  margin-bottom: 20px;
+  opacity: 0.6;
+}
+
+.dir-b .section-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.5vw, 56px);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 32px;
+}
+
+.dir-b .section-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.dir-b .card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px;
+  margin-top: 40px;
+  background: var(--text-10);
+}
+
+.dir-b .card {
+  background: var(--bg);
+  padding: 36px 28px;
+  transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+}
+
+.dir-b .card:hover {
+  background: var(--bg2);
+}
+
+.dir-b .card-num {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-style: italic;
+  color: var(--accent);
+  opacity: 0.3;
+  margin-bottom: 16px;
+  transition: opacity 0.4s ease;
+}
+
+.dir-b .card:hover .card-num { opacity: 0.7; }
+
+.dir-b .card-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+
+.dir-b .card-desc {
+  font-size: 14px;
+  color: var(--text-60);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ====================================================
+   DIRECTION C — 深林暖光 Forest Warmth
+   ==================================================== */
+.dir-c {
+  --bg: #0c0e0b;
+  --bg2: #141812;
+  --accent: #a8b490;
+  --accent2: #d4a06a;
+  --accent-dim: rgba(168,180,144,0.1);
+  --text: #e4e0d8;
+  --text-60: rgba(228,224,216,0.55);
+  --text-30: rgba(228,224,216,0.25);
+  --text-10: rgba(228,224,216,0.07);
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.dir-c .hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: clamp(40px, 8vh, 80px) clamp(24px, 6vw, 100px);
+  padding-bottom: clamp(60px, 12vh, 120px);
+  position: relative;
+  overflow: hidden;
+}
+
+.dir-c .hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40vh;
+  background: linear-gradient(to bottom, rgba(168,180,144,0.03), transparent);
+  pointer-events: none;
+}
+
+/* Organic circle */
+.dir-c .hero::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  right: 8%;
+  width: clamp(120px, 20vw, 300px);
+  height: clamp(120px, 20vw, 300px);
+  border-radius: 50%;
+  border: 1px solid rgba(168,180,144,0.1);
+  pointer-events: none;
+  animation: breathe 8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.08); opacity: 0.7; }
+}
+
+.dir-c .hero-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dir-c .hero-eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent2);
+  opacity: 0.6;
+}
+
+.dir-c .hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 8vw, 100px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 28px;
+  max-width: 700px;
+}
+
+.dir-c .hero-title em {
+  color: var(--accent2);
+  font-style: normal;
+  font-weight: 300;
+}
+
+.dir-c .hero-title .accent-green {
+  color: var(--accent);
+}
+
+.dir-c .hero-sub {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.6vw, 18px);
+  font-weight: 300;
+  color: var(--text-60);
+  max-width: 440px;
+  line-height: 1.9;
+  margin-bottom: 48px;
+}
+
+.dir-c .hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.dir-c .hero-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 14px 28px;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+  text-decoration: none;
+}
+
+.dir-c .hero-cta-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(168,180,144,0.15);
+}
+
+.dir-c .hero-cta-primary svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+
+.dir-c .hero-cta-primary:hover svg { transform: translateX(3px); }
+
+.dir-c .hero-cta-secondary {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-60);
+  text-decoration: none;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--text-10);
+  transition: all 0.3s ease;
+}
+
+.dir-c .hero-cta-secondary:hover {
+  color: var(--accent2);
+  border-color: var(--accent2);
+}
+
+/* Divider */
+.dir-c .warm-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--accent-dim) 30%, rgba(212,160,106,0.08) 70%, transparent);
+}
+
+/* Content */
+.dir-c .content-section {
+  padding: clamp(60px, 10vh, 120px) clamp(24px, 6vw, 100px);
+  max-width: 1100px;
+}
+
+.dir-c .section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  margin-bottom: 20px;
+}
+
+.dir-c .section-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.5vw, 56px);
+  font-weight: 400;
+  line-height: 1.1;
+  margin-bottom: 32px;
+  letter-spacing: -0.02em;
+}
+
+.dir-c .section-title em {
+  color: var(--accent2);
+  font-style: normal;
+  font-weight: 300;
+}
+
+.dir-c .card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.dir-c .card {
+  background: var(--bg2);
+  border: 1px solid var(--text-10);
+  border-radius: 4px;
+  padding: 32px 24px;
+  transition: all 0.5s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+}
+
+.dir-c .card:hover {
+  border-color: var(--accent-dim);
+  transform: translateY(-2px);
+}
+
+.dir-c .card-icon {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-bottom: 20px;
+  transition: transform 0.4s ease;
+}
+
+.dir-c .card:nth-child(1) .card-icon { background: var(--accent); }
+.dir-c .card:nth-child(2) .card-icon { background: var(--accent2); }
+.dir-c .card:nth-child(3) .card-icon { background: var(--accent); opacity: 0.6; }
+
+.dir-c .card:hover .card-icon { transform: scale(1.5); }
+
+.dir-c .card-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+
+.dir-c .card-desc {
+  font-size: 14px;
+  color: var(--text-60);
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* ====================================================
+   COLOR PALETTE DISPLAY
+   ==================================================== */
+.palette-section {
+  padding: 48px clamp(24px, 6vw, 100px);
+}
+
+.palette-title {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.4;
+  margin-bottom: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.palette-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.palette-chip {
+  width: 64px;
+  height: 64px;
+  border-radius: 2px;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.palette-chip span {
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  opacity: 0.4;
+  white-space: nowrap;
+}
+
+/* ====================================================
+   DESCRIPTION BLOCK
+   ==================================================== */
+.direction-desc {
+  padding: 40px clamp(24px, 6vw, 100px);
+  border-top: 1px solid rgba(255,255,255,0.05);
+  margin-top: 20px;
+}
+
+.direction-desc h2 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.direction-desc p {
+  font-size: 14px;
+  line-height: 1.8;
+  opacity: 0.6;
+  max-width: 600px;
+}
+
+.direction-desc .keywords {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.direction-desc .kw {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  padding: 6px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+/* ====================================================
+   FOOTER NOTE
+   ==================================================== */
+.preview-footer {
+  text-align: center;
+  padding: 60px 24px;
+  font-size: 12px;
+  opacity: 0.3;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+</style>
+</head>
+<body>
+
+<!-- Direction Switcher -->
+<div class="switcher">
+  <button data-dir="A" class="active">
+    A. 暮光陶土
+    <span class="dir-hint">Dusk Terracotta</span>
+  </button>
+  <button data-dir="B">
+    B. 墨与玫瑰
+    <span class="dir-hint">Ink & Rose</span>
+  </button>
+  <button data-dir="C">
+    C. 深林暖光
+    <span class="dir-hint">Forest Warmth</span>
+  </button>
+</div>
+
+<!-- ============================================
+     DIRECTION A — 暮光陶土
+     ============================================ -->
+<div class="panel dir-a active" id="panel-A">
+
+  <section class="hero">
+    <div class="hero-label">Personal Portfolio — Est. 2026</div>
+    <h1 class="hero-title">
+      我在<em>觉醒</em>中<br>寻找方向
+    </h1>
+    <p class="hero-sub">
+      从零开始，用代码和思考构建自己的世界。每一行代码，都是一次对自我的探索。
+    </p>
+    <a href="#" class="hero-cta">
+      开始探索
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </section>
+
+  <div class="warm-divider"></div>
+
+  <div class="content-section">
+    <div class="section-label">WHAT I OFFER</div>
+    <h2 class="section-title">我能提供的<em>价值</em></h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title">前端开发</div>
+        <div class="card-desc">从空白画布到完整网站，用代码将想法变为现实。注重细节，追求每一个像素的精准。</div>
+      </div>
+      <div class="card">
+        <div class="card-title">AI 协作</div>
+        <div class="card-desc">探索人与 AI 协作的边界，用智能工具放大创造力，而非替代思考。</div>
+      </div>
+      <div class="card">
+        <div class="card-title">文档设计</div>
+        <div class="card-desc">将混乱的信息梳理成清晰的结构，让每一份文档都值得被认真阅读。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-desc">
+    <h2>关于这个方向</h2>
+    <p>
+      暮光陶土——像黄昏时分温暖的光线落在陶器上。Fraunces 字体有一种手工感和人文温度，陶土色调让人联想到大地、手作、温暖的壁炉。整体克制但不冰冷，安静但有力量。
+    </p>
+    <div class="keywords">
+      <span class="kw">WARM</span>
+      <span class="kw">EARTHY</span>
+      <span class="kw">HANDCRAFTED</span>
+      <span class="kw">INTIMATE</span>
+    </div>
+  </div>
+
+  <div class="palette-section">
+    <div class="palette-title">Color Palette</div>
+    <div class="palette-row">
+      <div class="palette-chip" style="background: #110f0d;"><span>#110f0d</span></div>
+      <div class="palette-chip" style="background: #1a1714;"><span>#1a1714</span></div>
+      <div class="palette-chip" style="background: #c2785a;"><span>#c2785a</span></div>
+      <div class="palette-chip" style="background: #e8e0d4;"><span>#e8e0d4</span></div>
+      <div class="palette-chip" style="background: rgba(232,224,212,0.6);"><span>text-60</span></div>
+      <div class="palette-chip" style="background: rgba(232,224,212,0.3);"><span>text-30</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     DIRECTION B — 墨与玫瑰
+     ============================================ -->
+<div class="panel dir-b" id="panel-B">
+
+  <section class="hero">
+    <div class="hero-left">
+      <div class="hero-label">PORTFOLIO — 2026</div>
+      <h1 class="hero-title">
+        我在<em>觉醒</em>中
+        <span class="line2">寻找方向</span>
+      </h1>
+      <div style="margin-top: 40px;">
+        <a href="#" class="hero-cta">
+          开始探索
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <p class="hero-sub">
+        从零开始，用代码和思考构建自己的世界。每一行代码，都是一次对自我的探索。
+      </p>
+      <div class="hero-quote">
+        "无人扶我青云志，<br>我自踏雪至山巅"
+      </div>
+    </div>
+  </section>
+
+  <div class="warm-divider"></div>
+
+  <div class="content-section">
+    <div class="section-label">WHAT I OFFER</div>
+    <h2 class="section-title">我能提供的<em>价值</em></h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-num">01</div>
+        <div class="card-title">前端开发</div>
+        <div class="card-desc">从空白画布到完整网站，用代码将想法变为现实。注重细节，追求每一个像素的精准。</div>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <div class="card-title">AI 协作</div>
+        <div class="card-desc">探索人与 AI 协作的边界，用智能工具放大创造力，而非替代思考。</div>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <div class="card-title">文档设计</div>
+        <div class="card-desc">将混乱的信息梳理成清晰的结构，让每一份文档都值得被认真阅读。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-desc">
+    <h2>关于这个方向</h2>
+    <p>
+      墨与玫瑰——像一本翻旧了的诗集，夹着干花。Lora 字体优雅但不张扬，玫瑰粉带着一点淡淡的忧郁和诗意。双栏布局让内容呼吸，引用区块强调你的个人气质。适合想表达"温柔但有深度"的人。
+    </p>
+    <div class="keywords">
+      <span class="kw">POETIC</span>
+      <span class="kw">GENTLE</span>
+      <span class="kw">REFINED</span>
+      <span class="kw">CONTEMPLATIVE</span>
+    </div>
+  </div>
+
+  <div class="palette-section">
+    <div class="palette-title">Color Palette</div>
+    <div class="palette-row">
+      <div class="palette-chip" style="background: #0f0d10;"><span>#0f0d10</span></div>
+      <div class="palette-chip" style="background: #17141a;"><span>#17141a</span></div>
+      <div class="palette-chip" style="background: #c4867a;"><span>#c4867a</span></div>
+      <div class="palette-chip" style="background: #a89db8;"><span>#a89db8</span></div>
+      <div class="palette-chip" style="background: #ebe4dc;"><span>#ebe4dc</span></div>
+      <div class="palette-chip" style="background: rgba(235,228,220,0.55);"><span>text-60</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================
+     DIRECTION C — 深林暖光
+     ============================================ -->
+<div class="panel dir-c" id="panel-C">
+
+  <section class="hero">
+    <div class="hero-eyebrow">Portfolio — 2026</div>
+    <h1 class="hero-title">
+      我在<em>觉醒</em>中<br>寻找<span class="accent-green">方向</span>
+    </h1>
+    <p class="hero-sub">
+      从零开始，用代码和思考构建自己的世界。每一行代码，都是一次对自我的探索。
+    </p>
+    <div class="hero-actions">
+      <a href="#" class="hero-cta-primary">
+        开始探索
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#" class="hero-cta-secondary">VIEW PROJECTS</a>
+    </div>
+  </section>
+
+  <div class="warm-divider"></div>
+
+  <div class="content-section">
+    <div class="section-label">WHAT I OFFER</div>
+    <h2 class="section-title">我能提供的<em>价值</em></h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-icon"></div>
+        <div class="card-title">前端开发</div>
+        <div class="card-desc">从空白画布到完整网站，用代码将想法变为现实。注重细节，追求每一个像素的精准。</div>
+      </div>
+      <div class="card">
+        <div class="card-icon"></div>
+        <div class="card-title">AI 协作</div>
+        <div class="card-desc">探索人与 AI 协作的边界，用智能工具放大创造力，而非替代思考。</div>
+      </div>
+      <div class="card">
+        <div class="card-icon"></div>
+        <div class="card-title">文档设计</div>
+        <div class="card-desc">将混乱的信息梳理成清晰的结构，让每一份文档都值得被认真阅读。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="direction-desc">
+    <h2>关于这个方向</h2>
+    <p>
+      深林暖光——像阳光穿过树叶缝隙洒下来的温暖。Space Grotesk 字体现代而友好，鼠尾草绿 + 暖琥珀的双色搭配自然而不俗套。内容沉在底部的布局打破常规，呼吸感的圆形动画像是有生命力的点缀。适合想表达"自然、真实、有生长力"的人。
+    </p>
+    <div class="keywords">
+      <span class="kw">ORGANIC</span>
+      <span class="kw">GROUNDED</span>
+      <span class="kw">GROWING</span>
+      <span class="kw">NATURAL</span>
+    </div>
+  </div>
+
+  <div class="palette-section">
+    <div class="palette-title">Color Palette</div>
+    <div class="palette-row">
+      <div class="palette-chip" style="background: #0c0e0b;"><span>#0c0e0b</span></div>
+      <div class="palette-chip" style="background: #141812;"><span>#141812</span></div>
+      <div class="palette-chip" style="background: #a8b490;"><span>#a8b490</span></div>
+      <div class="palette-chip" style="background: #d4a06a;"><span>#d4a06a</span></div>
+      <div class="palette-chip" style="background: #e4e0d8;"><span>#e4e0d8</span></div>
+      <div class="palette-chip" style="background: rgba(228,224,216,0.55);"><span>text-60</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="preview-footer">
+  点击顶部标签切换方向 — 这只是预览，选定后会应用到整站
+</div>
+
+<script>
+(function() {
+  var buttons = document.querySelectorAll('.switcher button');
+  var panels = document.querySelectorAll('.panel');
+
+  buttons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var dir = btn.dataset.dir;
+      buttons.forEach(function(b) { b.classList.remove('active'); });
+      panels.forEach(function(p) { p.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById('panel-' + dir).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

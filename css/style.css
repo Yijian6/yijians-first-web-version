@@ -6,28 +6,30 @@
    dark gallery where typography is the art.
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;700&display=swap');
 
 /* =========================================================
    DESIGN TOKENS
 ========================================================= */
 :root {
-  --bg: #0a0a0a;
-  --bg-surface: #111111;
-  --gold: #d4af37;
-  --gold-bright: #f0d060;
-  --gold-dim: rgba(212, 175, 55, 0.15);
-  --gold-glow: rgba(212, 175, 55, 0.08);
-  --white: #f5f0e8;
-  --white-90: rgba(245, 240, 232, 0.9);
-  --white-60: rgba(245, 240, 232, 0.6);
-  --white-30: rgba(245, 240, 232, 0.3);
-  --white-10: rgba(245, 240, 232, 0.1);
-  --white-05: rgba(245, 240, 232, 0.05);
-  --brutal-border: 3px solid var(--white-10);
-  --brutal-border-gold: 3px solid var(--gold-dim);
+  --bg: #0c0e0b;
+  --bg-surface: #141812;
+  --gold: #a8b490;
+  --gold-bright: #c2cca8;
+  --gold-dim: rgba(168, 180, 144, 0.12);
+  --gold-glow: rgba(168, 180, 144, 0.06);
+  --accent2: #d4a06a;
+  --accent2-dim: rgba(212, 160, 106, 0.12);
+  --white: #e4e0d8;
+  --white-90: rgba(228, 224, 216, 0.9);
+  --white-60: rgba(228, 224, 216, 0.55);
+  --white-30: rgba(228, 224, 216, 0.25);
+  --white-10: rgba(228, 224, 216, 0.07);
+  --white-05: rgba(228, 224, 216, 0.04);
+  --brutal-border: 2px solid var(--white-10);
+  --brutal-border-gold: 2px solid var(--gold-dim);
 
-  --font-display: 'Instrument Serif', 'Noto Serif SC', Georgia, serif;
+  --font-display: 'Lora', 'Noto Serif SC', Georgia, serif;
   --font-body: 'DM Sans', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
 
@@ -67,21 +69,11 @@ body {
 a { color: var(--gold); text-decoration: none; cursor: none; }
 button { cursor: none; }
 img { max-width: 100%; display: block; }
-::selection { background: var(--gold); color: var(--bg); }
+::selection { background: var(--accent2); color: var(--bg); }
 
 /* =========================================================
-   GRAIN TEXTURE OVERLAY
+   AMBIENT TEXTURE (removed grain — clean dark surface)
 ========================================================= */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 99998;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 200px;
-}
 
 /* =========================================================
    CUSTOM CURSOR
@@ -91,44 +83,48 @@ body::after {
   width: 8px;
   height: 8px;
   background: var(--gold);
-  border-radius: 50%;
+  border-radius: 1px;
   z-index: 99999;
   pointer-events: none;
   transform: translate(-50%, -50%);
   transition: width 0.3s var(--ease-out-expo),
               height 0.3s var(--ease-out-expo),
-              background 0.3s ease;
+              background 0.3s ease,
+              border-radius 0.3s ease;
   mix-blend-mode: difference;
 }
 
 .cursor-ring {
   position: fixed;
-  width: 40px;
-  height: 40px;
-  border: 1.5px solid var(--gold);
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--gold);
+  border-radius: 2px;
   z-index: 99999;
   pointer-events: none;
   transform: translate(-50%, -50%);
   transition: width 0.4s var(--ease-out-expo),
               height 0.4s var(--ease-out-expo),
               border-color 0.3s ease,
+              border-radius 0.3s ease,
               opacity 0.3s ease;
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 .cursor-dot.hovering {
-  width: 60px;
-  height: 60px;
-  background: rgba(212, 175, 55, 0.15);
+  width: 48px;
+  height: 48px;
+  background: rgba(168, 180, 144, 0.1);
+  border-radius: 2px;
   mix-blend-mode: normal;
 }
 
 .cursor-ring.hovering {
-  width: 80px;
-  height: 80px;
-  border-color: var(--gold);
-  opacity: 1;
+  width: 64px;
+  height: 64px;
+  border-color: var(--accent2);
+  border-radius: 4px;
+  opacity: 0.8;
 }
 
 /* =========================================================
@@ -165,7 +161,7 @@ body::after {
   align-items: center;
   padding: 0 var(--side-pad);
   z-index: 1000;
-  background: rgba(10, 10, 10, 0.6);
+  background: rgba(12, 14, 11, 0.6);
   backdrop-filter: blur(24px) saturate(1.2);
   -webkit-backdrop-filter: blur(24px) saturate(1.2);
   border-bottom: 1px solid var(--white-05);
@@ -264,7 +260,7 @@ body::after {
 .mobile-menu {
   position: fixed;
   inset: 0;
-  background: rgba(10, 10, 10, 0.97);
+  background: rgba(12, 14, 11, 0.97);
   backdrop-filter: blur(40px);
   z-index: 10001;
   display: flex;
@@ -473,19 +469,20 @@ body::after {
   overflow: hidden;
 }
 
+/* Warm ambient glow — top right */
 .hero-section::before {
   content: '';
   position: absolute;
-  top: 20%;
-  right: -10%;
-  width: clamp(300px, 40vw, 600px);
-  height: clamp(300px, 40vw, 600px);
-  border: 1px solid var(--white-05);
-  border-radius: 50%;
+  top: -10%;
+  right: -15%;
+  width: clamp(300px, 50vw, 700px);
+  height: clamp(300px, 50vw, 700px);
+  background: radial-gradient(circle, rgba(168, 180, 144, 0.04) 0%, transparent 70%);
   pointer-events: none;
-  animation: heroOrbit 20s linear infinite;
+  animation: heroBreath 8s ease-in-out infinite;
 }
 
+/* Watermark character */
 .hero-section::after {
   content: '觉';
   position: absolute;
@@ -500,9 +497,9 @@ body::after {
   user-select: none;
 }
 
-@keyframes heroOrbit {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+@keyframes heroBreath {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.05); opacity: 1; }
 }
 
 /* =========================================================
@@ -564,7 +561,7 @@ body::after {
   font-weight: 700;
   letter-spacing: 0.15em;
   color: var(--white-60);
-  background: rgba(10, 10, 10, 0.7);
+  background: rgba(12, 14, 11, 0.7);
   backdrop-filter: blur(8px);
   padding: 6px 12px;
   border: 1px solid var(--white-10);
@@ -661,16 +658,17 @@ body::after {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--bg);
-  background: var(--gold);
+  background: var(--accent2);
   padding: 16px 32px;
   border: none;
+  border-radius: 2px;
   transition: transform 0.3s var(--ease-out-expo),
               box-shadow 0.3s ease;
 }
 
 .hero-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(212, 160, 106, 0.2);
   color: var(--bg);
 }
 
@@ -801,7 +799,7 @@ body::after {
 
 .section-header h1 em {
   font-style: italic;
-  color: var(--gold);
+  color: var(--accent2);
 }
 
 .section-desc {
