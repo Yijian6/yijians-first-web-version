@@ -14,12 +14,12 @@
 :root {
   --bg: #0c0e0b;
   --bg-surface: #141812;
-  --gold: #a8b490;
-  --gold-bright: #c2cca8;
-  --gold-dim: rgba(168, 180, 144, 0.12);
-  --gold-glow: rgba(168, 180, 144, 0.06);
-  --accent2: #d4a06a;
-  --accent2-dim: rgba(212, 160, 106, 0.12);
+  --gold: #a8cc88;
+  --gold-bright: #c0e0a0;
+  --gold-dim: rgba(168, 204, 136, 0.14);
+  --gold-glow: rgba(168, 204, 136, 0.07);
+  --accent2: #c88070;
+  --accent2-dim: rgba(200, 128, 112, 0.14);
   --white: #e4e0d8;
   --white-90: rgba(228, 224, 216, 0.9);
   --white-60: rgba(228, 224, 216, 0.55);
@@ -114,7 +114,7 @@ img { max-width: 100%; display: block; }
 .cursor-dot.hovering {
   width: 48px;
   height: 48px;
-  background: rgba(168, 180, 144, 0.1);
+  background: rgba(168, 204, 136, 0.1);
   border-radius: 2px;
   mix-blend-mode: normal;
 }
@@ -477,7 +477,7 @@ img { max-width: 100%; display: block; }
   right: -15%;
   width: clamp(300px, 50vw, 700px);
   height: clamp(300px, 50vw, 700px);
-  background: radial-gradient(circle, rgba(168, 180, 144, 0.04) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(168, 204, 136, 0.04) 0%, transparent 70%);
   pointer-events: none;
   animation: heroBreath 8s ease-in-out infinite;
 }
@@ -672,7 +672,7 @@ img { max-width: 100%; display: block; }
 
 .hero-cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(212, 160, 106, 0.2);
+  box-shadow: 0 8px 24px rgba(200, 128, 112, 0.2);
   color: var(--bg);
 }
 
@@ -1335,7 +1335,7 @@ img { max-width: 100%; display: block; }
   right: 0;
   width: clamp(200px, 40vw, 500px);
   height: clamp(200px, 40vw, 500px);
-  background: radial-gradient(circle, rgba(168, 180, 144, 0.03) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(168, 204, 136, 0.03) 0%, transparent 70%);
   pointer-events: none;
 }
 
