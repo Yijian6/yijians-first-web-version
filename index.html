@@ -11,15 +11,6 @@
     <!-- Scroll Progress -->
     <div class="progress-track"><div class="progress-bar"></div></div>
 
-    <!-- Boot Sequence -->
-    <div id="intro" class="intro">
-        <div class="intro-content">
-            <h1 class="intro-name">觉</h1>
-            <p class="intro-subtitle">THE AWAKENING</p>
-            <div class="intro-line"></div>
-        </div>
-    </div>
-
     <!-- Mobile Menu (outside #main to avoid transform containing block) -->
     <div class="mobile-menu">
         <a href="index.html" class="mobile-link active"><span class="mobile-menu-index">00</span> Home</a>
@@ -31,7 +22,7 @@
     </div>
 
     <!-- Main -->
-    <div id="main" class="main hidden">
+    <div id="main" class="main">
 
         <!-- Navigation -->
         <nav class="navbar">
@@ -48,62 +39,77 @@
             </button>
         </nav>
 
-        <!-- Hero -->
-        <section class="hero-section">
-            <div class="hero-label reveal">Personal Portfolio — Est. 2026</div>
-            <h1 class="hero-title reveal delay-1">
-                我在<em class="warm">觉醒</em>中<br>寻找<em>方向</em>
-            </h1>
-            <p class="hero-subtitle reveal delay-2">
-                <span class="typewriter" data-text="从零开始，用代码和思考构建自己的世界。"></span>
-            </p>
-            <div class="hero-scroll-hint">Scroll</div>
+        <!-- Scene 1: 静 — The Character -->
+        <section class="scene scene-still">
+            <div class="scene-still-char">觉</div>
         </section>
 
-        <!-- Portrait -->
-        <section class="portrait-section reveal-scale">
-            <div class="portrait-wrapper">
-                <img src="照片.jpg" alt="刘奕健 / Yijian Liu" class="portrait-img">
-                <div class="portrait-label">
-                    <span class="portrait-label-tag">Portrait</span>
-                    <span class="portrait-label-index">001</span>
+        <!-- Scene 2: 声 — The Statement -->
+        <section class="scene scene-voice">
+            <h1 class="scene-voice-title reveal">
+                我在<em class="warm">觉醒</em>中
+            </h1>
+            <h1 class="scene-voice-title scene-voice-offset reveal delay-1">
+                寻找<em>方向</em>
+            </h1>
+            <p class="scene-voice-sub reveal delay-3">
+                从零开始，用代码和思考<br>构建自己的世界
+            </p>
+        </section>
+
+        <!-- Scene 3: 像 — The Portrait -->
+        <section class="scene scene-portrait">
+            <div class="scene-portrait-wrap">
+                <div class="scene-portrait-text reveal">
+                    <span class="scene-portrait-name">刘奕健</span>
+                    <span class="scene-portrait-tag">Yijian Liu, b. 2006</span>
+                </div>
+                <div class="scene-portrait-photo reveal-scale">
+                    <img src="照片.jpg" alt="刘奕健 / Yijian Liu">
                 </div>
             </div>
         </section>
 
-        <!-- CTA -->
-        <section class="cta-section reveal">
-            <span class="cta-label">START EXPLORING</span>
-            <a href="work.html" class="hero-cta magnetic">
-                开始探索
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </a>
+        <!-- Scene 4: 言 — The Words -->
+        <section class="scene scene-words">
+            <blockquote class="scene-words-quote reveal">
+                无人扶我青云志
+            </blockquote>
+            <blockquote class="scene-words-quote scene-words-second reveal delay-2">
+                我自踏雪至山巅
+            </blockquote>
         </section>
 
-        <!-- Marquee Strip -->
-        <div class="marquee-strip">
-            <div class="marquee-track">
-                <span>清晰思考 <em>/</em> CLEAR THINKING</span>
-                <span>前端开发 <em>/</em> FRONTEND</span>
-                <span>AI 协作 <em>/</em> AI COLLABORATION</span>
-                <span class="marquee-name">刘奕健 <em>|</em> Yijian Liu</span>
-                <span>工具创造 <em>/</em> TOOL BUILDING</span>
-                <span>英语阅读 <em>/</em> ENGLISH READING</span>
-                <span>投资思考 <em>/</em> INVESTING</span>
+        <!-- Scene 5: 路 — The Path -->
+        <section class="scene scene-path">
+            <div class="scene-path-label reveal">EXPLORE</div>
+            <nav class="scene-path-grid">
+                <a href="work.html" class="scene-path-link reveal delay-1">
+                    <span class="scene-path-name">Work</span>
+                    <span class="scene-path-desc">项目与作品</span>
+                </a>
+                <a href="offer.html" class="scene-path-link reveal delay-2">
+                    <span class="scene-path-name">Offer</span>
+                    <span class="scene-path-desc">我能提供的</span>
+                </a>
+                <a href="me.html" class="scene-path-link reveal delay-3">
+                    <span class="scene-path-name">Me</span>
+                    <span class="scene-path-desc">关于我</span>
+                </a>
+                <a href="passion.html" class="scene-path-link reveal delay-4">
+                    <span class="scene-path-name">Passion</span>
+                    <span class="scene-path-desc">热爱的事</span>
+                </a>
+                <a href="prediction.html" class="scene-path-link reveal delay-5">
+                    <span class="scene-path-name">Becoming</span>
+                    <span class="scene-path-desc">我在成为</span>
+                </a>
+            </nav>
+            <div class="scene-path-contact reveal delay-6">
+                <p><a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
             </div>
-        </div>
+        </section>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-quote reveal">
-                "无人扶我青云志，我自踏雪至山巅"
-            </div>
-            <div class="footer-contact reveal delay-1">
-                <p>微信：<span class="wechat-trigger">iDoWantiDoWill</span></p>
-                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
-                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
-            </div>
-        </footer>
     </div>
 
     <script src="js/script.js"></script>

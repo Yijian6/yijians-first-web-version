@@ -1313,6 +1313,289 @@ img { max-width: 100%; display: block; }
   letter-spacing: 0.02em;
 }
 
+/* =========================================================
+   FIVE-SCENE HOMEPAGE
+========================================================= */
+.scene {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  padding: 0 var(--side-pad);
+}
+
+/* — Scene 1: 静 — The Character —————————————————————— */
+.scene-still {
+  align-items: center;
+  padding-top: var(--nav-h);
+}
+
+.scene-still-char {
+  font-family: var(--font-display);
+  font-size: clamp(200px, 45vw, 420px);
+  font-weight: 400;
+  color: var(--white);
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  opacity: 0;
+  animation: stillReveal 2.4s var(--ease-out-expo) 0.2s forwards;
+  position: relative;
+  user-select: none;
+}
+
+.scene-still-char::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140%;
+  height: 140%;
+  background: radial-gradient(circle, rgba(212, 160, 106, 0.035) 0%, transparent 65%);
+  animation: heroBreath 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes stillReveal {
+  0%   { opacity: 0; filter: blur(20px); transform: scale(1.06); }
+  50%  { opacity: 1; filter: blur(0); }
+  100% { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+/* — Scene 2: 声 — The Statement —————————————————————— */
+.scene-voice {
+  padding-top: var(--nav-h);
+  padding-bottom: 60px;
+  gap: 0;
+}
+
+.scene-voice-title {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 10vw, 110px);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--white);
+  margin: 0;
+}
+
+.scene-voice-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.scene-voice-title em.warm {
+  color: var(--accent2);
+}
+
+.scene-voice-offset {
+  margin-left: clamp(28px, 10vw, 140px);
+  margin-top: 4px;
+}
+
+.scene-voice-sub {
+  font-family: var(--font-body);
+  font-size: clamp(14px, 1.5vw, 17px);
+  font-weight: 300;
+  color: var(--white-60);
+  line-height: 2;
+  margin-top: clamp(56px, 10vh, 120px);
+  align-self: flex-end;
+  text-align: right;
+  max-width: 280px;
+}
+
+/* — Scene 3: 像 — The Portrait —————————————————————— */
+.scene-portrait {
+  min-height: auto;
+  padding: clamp(48px, 8vh, 100px) var(--side-pad);
+}
+
+.scene-portrait-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+
+.scene-portrait-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.scene-portrait-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  color: var(--white-60);
+}
+
+.scene-portrait-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--white-30);
+  text-transform: uppercase;
+}
+
+.scene-portrait-photo {
+  width: clamp(240px, 60vw, 360px);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  position: relative;
+}
+
+.scene-portrait-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--white-10);
+  pointer-events: none;
+}
+
+.scene-portrait-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;
+  filter: grayscale(20%) contrast(1.02);
+  transition: filter 1s ease;
+}
+
+/* — Scene 4: 言 — The Words —————————————————————— */
+.scene-words {
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.scene-words-quote {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 7vw, 72px);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--white);
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.scene-words-second {
+  color: var(--accent2);
+  opacity: 0.8;
+}
+
+/* — Scene 5: 路 — The Path —————————————————————— */
+.scene-path {
+  min-height: auto;
+  padding-top: clamp(60px, 10vh, 120px);
+  padding-bottom: clamp(48px, 8vh, 80px);
+  gap: 32px;
+  border-top: 1px solid var(--white-10);
+}
+
+.scene-path-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+}
+
+.scene-path-grid {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.scene-path-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 4px;
+  border-bottom: 1px solid var(--white-10);
+  text-decoration: none;
+  transition: padding-left 0.5s var(--ease-out-expo);
+}
+
+.scene-path-link:first-child {
+  border-top: 1px solid var(--white-10);
+}
+
+.scene-path-link:hover,
+.scene-path-link:active {
+  padding-left: 16px;
+}
+
+.scene-path-name {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 5vw, 32px);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--white);
+  transition: color 0.3s ease;
+}
+
+.scene-path-link:hover .scene-path-name {
+  color: var(--accent2);
+}
+
+.scene-path-desc {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--white-30);
+  font-weight: 300;
+}
+
+.scene-path-contact {
+  text-align: center;
+  padding-top: 16px;
+}
+
+.scene-path-contact a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--white-30);
+  transition: color 0.3s ease;
+}
+
+.scene-path-contact a:hover {
+  color: var(--gold);
+}
+
+/* ————— Desktop: Scene adjustments ————— */
+@media (min-width: 769px) {
+  .scene-portrait-wrap {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 64px;
+  }
+
+  .scene-portrait-text {
+    align-items: flex-start;
+  }
+
+  .scene-portrait-photo {
+    width: min(360px, 30vw);
+  }
+
+  .scene-path-grid {
+    max-width: 640px;
+  }
+
+  .scene-path-link {
+    padding: 24px 4px;
+  }
+}
+
 @media (max-width: 768px) {
   .me-hero {
     grid-template-columns: 1fr;
