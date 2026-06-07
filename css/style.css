@@ -1322,21 +1322,10 @@ img { max-width: 100%; display: block; }
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
-  align-items: flex-end;
-  padding: 0 var(--side-pad);
-  padding-bottom: clamp(48px, 10vh, 100px);
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--nav-h) var(--side-pad) 0;
   position: relative;
-}
-
-.home-hero::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: clamp(200px, 40vw, 500px);
-  height: clamp(200px, 40vw, 500px);
-  background: radial-gradient(circle, rgba(168, 204, 136, 0.03) 0%, transparent 70%);
-  pointer-events: none;
 }
 
 .home-hero-inner {
@@ -1349,16 +1338,27 @@ img { max-width: 100%; display: block; }
   font-size: 10px;
   letter-spacing: 0.25em;
   color: var(--white-30);
-  margin-bottom: clamp(20px, 4vh, 40px);
+  margin-bottom: 20px;
   text-transform: uppercase;
+}
+
+.home-hero-label::after {
+  content: '';
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: var(--gold);
+  vertical-align: middle;
+  margin-left: 12px;
+  opacity: 0.5;
 }
 
 .home-hero-title {
   font-family: var(--font-display);
-  font-size: clamp(36px, 9vw, 96px);
+  font-size: clamp(42px, 11vw, 100px);
   font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   color: var(--white);
   margin: 0;
 }
@@ -1374,12 +1374,15 @@ img { max-width: 100%; display: block; }
 
 .home-hero-sub {
   font-family: var(--font-body);
-  font-size: clamp(14px, 1.5vw, 16px);
+  font-size: 14px;
   font-weight: 300;
   color: var(--white-30);
   line-height: 1.8;
-  margin-top: clamp(24px, 4vh, 40px);
-  max-width: 320px;
+  margin-top: 32px;
+  max-width: 280px;
+  position: relative;
+  padding-left: 16px;
+  border-left: 1px solid var(--white-10);
 }
 
 /* — Portrait —————————————————————————————————————————— */
