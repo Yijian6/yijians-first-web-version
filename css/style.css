@@ -1331,7 +1331,7 @@ img { max-width: 100%; display: block; }
 .home-hero::after {
   content: '觉';
   position: absolute;
-  bottom: -5%;
+  top: calc(var(--nav-h) + 5%);
   right: -2%;
   font-family: var(--font-display);
   font-size: clamp(200px, 35vw, 500px);
