@@ -1520,13 +1520,18 @@ img { max-width: 100%; display: block; }
 .home-portrait-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(12, 14, 11, 0.1) 0%,
-    transparent 40%,
-    transparent 60%,
-    rgba(12, 14, 11, 0.4) 100%
-  );
+  background:
+    linear-gradient(to bottom,
+      rgba(12, 14, 11, 0.9) 0%,
+      rgba(12, 14, 11, 0.3) 20%,
+      transparent 40%,
+      transparent 55%,
+      rgba(12, 14, 11, 0.5) 100%),
+    linear-gradient(to right,
+      rgba(12, 14, 11, 0.3) 0%,
+      transparent 20%,
+      transparent 80%,
+      rgba(12, 14, 11, 0.3) 100%);
   pointer-events: none;
 }
 

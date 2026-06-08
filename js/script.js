@@ -450,7 +450,7 @@
       var viewH = window.innerHeight;
       if (rect.bottom < 0 || rect.top > viewH) return;
       var progress = 1 - (rect.bottom / (viewH + rect.height));
-      var shift = (progress - 0.5) * -20;
+      var shift = (progress - 0.5) * -12;
       img.style.transform = 'translateY(' + shift + '%)';
     }
 
