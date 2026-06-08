@@ -65,10 +65,25 @@
      2. SCROLL REVEAL ENGINE
   ------------------------------------------------------- */
   function initReveal() {
+    var staggerSelectors = '.offer-grid, .me-grid, .card-grid';
+
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+
+        var parent = el.closest(staggerSelectors);
+        if (parent && !parent.dataset.staggerStarted) {
+          parent.dataset.staggerStarted = 'true';
+          var children = Array.from(parent.querySelectorAll('.reveal, .reveal-left, .reveal-scale'));
+          children.forEach(function (child, i) {
+            child.style.transitionDelay = (i * 0.08) + 's';
+            requestAnimationFrame(function () {
+              child.classList.add('revealed');
+            });
+          });
+        } else if (!parent) {
+          el.classList.add('revealed');
         }
       });
     }, {
@@ -76,7 +91,7 @@
       rootMargin: '0px 0px -60px 0px'
     });
 
-    $$('.reveal, .reveal-left, .reveal-scale, .kinetic-text, .statement-section').forEach(function (el) {
+    $$('.reveal, .reveal-left, .reveal-scale, .reveal-clip, .kinetic-text, .statement-section').forEach(function (el) {
       observer.observe(el);
     });
   }
@@ -112,7 +127,12 @@
         el.style.transform = 'translate(' + (x * 0.2) + 'px, ' + (y * 0.2) + 'px)';
       });
 
+      el.addEventListener('mouseenter', function () {
+        el.style.transition = 'none';
+      });
+
       el.addEventListener('mouseleave', function () {
+        el.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
         el.style.transform = 'translate(0, 0)';
       });
     });
@@ -229,7 +249,7 @@
         if (main) {
           main.style.opacity = '0';
           main.style.transform = 'translateY(-15px)';
-          main.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+          main.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
         }
         setTimeout(function () { window.location.href = href; }, 350);
       });
@@ -414,6 +434,31 @@
   }
 
   /* -------------------------------------------------------
+     16. PORTRAIT PARALLAX
+  ------------------------------------------------------- */
+  function initPortraitParallax() {
+    var wrapper = document.querySelector('.home-portrait-wrapper');
+    if (!wrapper) return;
+    var img = wrapper.querySelector('.home-portrait-img');
+    if (!img) return;
+
+    img.style.height = '120%';
+    img.style.willChange = 'transform';
+
+    function onScroll() {
+      var rect = wrapper.getBoundingClientRect();
+      var viewH = window.innerHeight;
+      if (rect.bottom < 0 || rect.top > viewH) return;
+      var progress = 1 - (rect.bottom / (viewH + rect.height));
+      var shift = (progress - 0.5) * -20;
+      img.style.transform = 'translateY(' + shift + '%)';
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  /* -------------------------------------------------------
      BOOT
   ------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -432,6 +477,7 @@
     initMarquee();
     initTypewriter();
     initParallax();
+    initPortraitParallax();
   });
 
 })();

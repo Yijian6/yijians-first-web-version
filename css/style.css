@@ -416,6 +416,13 @@ img { max-width: 100%; display: block; }
 
 .reveal-scale.revealed { opacity: 1; transform: scale(1); }
 
+.reveal-clip {
+  clip-path: inset(0 50% 0 50%);
+  transition: clip-path 1.2s var(--ease-out-expo);
+}
+
+.reveal-clip.revealed { clip-path: inset(0 0% 0 0%); }
+
 /* Staggered delays */
 .delay-1 { transition-delay: 0.1s; }
 .delay-2 { transition-delay: 0.2s; }
@@ -644,12 +651,12 @@ img { max-width: 100%; display: block; }
 }
 
 .typewriter.done {
-  border-right-color: transparent;
-  animation: blink 0.8s step-end infinite;
+  animation: blink 1s ease-in-out infinite;
 }
 
 @keyframes blink {
-  50% { border-color: transparent; }
+  0%, 100% { border-right-color: var(--gold); }
+  50% { border-right-color: transparent; }
 }
 
 .hero-cta {
@@ -1181,6 +1188,19 @@ img { max-width: 100%; display: block; }
 
 .me-card:hover { background: var(--bg-surface); }
 
+.me-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent2);
+  transition: width 0.6s var(--ease-out-expo);
+}
+
+.me-card:hover::after { width: 100%; }
+
 .me-card-num {
   display: block;
   font-family: var(--font-mono);
@@ -1189,7 +1209,10 @@ img { max-width: 100%; display: block; }
   color: var(--white-30);
   letter-spacing: 0.1em;
   margin-bottom: 20px;
+  transition: color 0.4s var(--ease-out-expo);
 }
+
+.me-card:hover .me-card-num { color: var(--accent2); }
 
 .me-card h3 {
   font-family: var(--font-display);
@@ -1234,7 +1257,10 @@ img { max-width: 100%; display: block; }
   padding: 24px 0;
   border-bottom: 1px solid var(--white-10);
   align-items: start;
+  transition: padding-left 0.4s var(--ease-out-expo);
 }
+
+.value-item:hover { padding-left: 8px; }
 
 .value-item:last-child { border-bottom: none; }
 
@@ -1243,7 +1269,10 @@ img { max-width: 100%; display: block; }
   font-size: 14px;
   color: var(--gold);
   font-weight: 700;
+  transition: color 0.3s ease;
 }
+
+.value-item:hover .value-marker { color: var(--accent2); }
 
 .value-item p {
   font-size: clamp(14px, 1.5vw, 16px);
@@ -1282,7 +1311,26 @@ img { max-width: 100%; display: block; }
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+  transition: background 0.4s ease;
 }
+
+.state-item:hover { background: var(--bg-surface); }
+
+.state-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.state-item:hover::before { transform: scaleX(1); }
 
 .state-label {
   font-family: var(--font-mono);
@@ -1290,7 +1338,10 @@ img { max-width: 100%; display: block; }
   color: var(--white-30);
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  transition: color 0.3s ease;
 }
+
+.state-item:hover .state-label { color: var(--gold); }
 
 .state-value {
   font-family: var(--font-display);
@@ -1326,6 +1377,32 @@ img { max-width: 100%; display: block; }
   justify-content: center;
   padding: var(--nav-h) var(--side-pad) 0;
   position: relative;
+  background:
+    radial-gradient(ellipse at 80% 20%, rgba(168, 204, 136, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 10% 80%, rgba(212, 115, 74, 0.02) 0%, transparent 50%);
+}
+
+.home-hero::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  right: -10%;
+  width: clamp(280px, 60vw, 600px);
+  height: clamp(280px, 60vw, 600px);
+  background: radial-gradient(
+    circle,
+    rgba(168, 204, 136, 0.06) 0%,
+    rgba(168, 204, 136, 0.02) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: heroGlow 8s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes heroGlow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08) translate(-2%, 3%); }
 }
 
 .home-hero::after {
@@ -1336,10 +1413,11 @@ img { max-width: 100%; display: block; }
   font-family: var(--font-display);
   font-size: clamp(200px, 35vw, 500px);
   font-weight: 400;
-  color: var(--white-05);
+  color: rgba(228, 224, 216, 0.07);
   line-height: 0.8;
   pointer-events: none;
   user-select: none;
+  text-shadow: 0 0 120px rgba(212, 115, 74, 0.04);
 }
 
 .home-hero-inner {
@@ -1546,19 +1624,60 @@ img { max-width: 100%; display: block; }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 0;
+  padding: 20px 16px;
   border-bottom: 1px solid var(--white-10);
   text-decoration: none;
-  transition: padding-left 0.5s var(--ease-out-expo);
+  position: relative;
+  overflow: hidden;
+  transition: padding-left 0.6s var(--ease-out-expo),
+              background 0.5s var(--ease-out-expo);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .home-nav-item:first-child {
   border-top: 1px solid var(--white-10);
 }
 
+.home-nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent2);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+
+.home-nav-item::after {
+  content: '→';
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--accent2);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.4s var(--ease-out-expo),
+              transform 0.4s var(--ease-out-expo);
+  position: absolute;
+  right: 16px;
+}
+
 .home-nav-item:hover,
 .home-nav-item:active {
-  padding-left: 12px;
+  padding-left: 24px;
+  background: rgba(212, 115, 74, 0.06);
+}
+
+.home-nav-item:hover::before {
+  transform: scaleY(1);
+  transform-origin: top;
+}
+
+.home-nav-item:hover::after {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .home-nav-name {
@@ -1579,6 +1698,8 @@ img { max-width: 100%; display: block; }
   font-size: 12px;
   color: var(--white-30);
   font-weight: 300;
+  margin-right: 32px;
+  transition: opacity 0.3s ease;
 }
 
 .home-nav-contact {
@@ -2463,6 +2584,7 @@ img { max-width: 100%; display: block; }
     transition-duration: 0.01ms !important;
   }
   .reveal, .reveal-left, .reveal-scale { opacity: 1; transform: none; }
+  .reveal-clip { clip-path: none; }
   .kinetic-text .char { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
 }
