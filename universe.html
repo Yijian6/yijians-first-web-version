@@ -865,14 +865,6 @@
             updateDeleteZoneVisibility();
         }, { passive: false });
 
-        mainCanvas.addEventListener('touchend', function() {
-            setTimeout(function() {
-                hoveredStar = null;
-                hideTooltip();
-                updateDeleteZoneVisibility();
-            }, 2000);
-        });
-
         // ── API ──
         async function loadMessages() {
             try {
