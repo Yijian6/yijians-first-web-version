@@ -980,42 +980,6 @@ img { max-width: 100%; display: block; }
 
 .timeline-link:hover::after { transform: translateX(4px); }
 
-/* ——— Featured Item (Phone App) ——— */
-.timeline-item--featured {
-  border-color: var(--white-10);
-  background: linear-gradient(135deg, rgba(168, 204, 136, 0.03) 0%, transparent 60%);
-}
-
-.timeline-item--featured:hover {
-  border-color: var(--gold);
-}
-
-.timeline-screenshot--phone {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(ellipse at center, rgba(168, 204, 136, 0.06) 0%, transparent 70%);
-  padding: 32px;
-}
-
-.timeline-screenshot--phone img {
-  width: auto;
-  max-width: 260px;
-  height: auto;
-  max-height: 480px;
-  object-fit: contain;
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-              0 0 0 1px rgba(255, 255, 255, 0.06);
-}
-
-.timeline-item--featured:hover .timeline-screenshot--phone img {
-  transform: scale(1.02);
-  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.6),
-              0 0 0 1px rgba(168, 204, 136, 0.15),
-              0 0 40px rgba(168, 204, 136, 0.08);
-}
-
 /* ——— Image Lightbox ——— */
 .project-lightbox-overlay {
   position: fixed;
@@ -2544,18 +2508,6 @@ img { max-width: 100%; display: block; }
   .timeline-screenshot::before {
     opacity: 1;
     transform: translateY(0);
-  }
-  .timeline-item--featured .timeline-image {
-    max-height: 400px;
-    min-height: 320px;
-  }
-  .timeline-screenshot--phone {
-    padding: 24px;
-  }
-  .timeline-screenshot--phone img {
-    max-width: 180px;
-    max-height: 360px;
-    border-radius: 20px;
   }
 
   /* Offer grid */
