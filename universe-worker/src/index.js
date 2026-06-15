@@ -1,13 +1,17 @@
 // 管理员密码，你应该换成自己的
 const ADMIN_PASSWORD = 'jue2026';
 
-// 简单的 token 生成
-function generateToken() {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+async function getAdminToken() {
+  const data = new TextEncoder().encode(ADMIN_PASSWORD);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
 }
 
-// 验证 token（简单实现，生产环境应该用 JWT）
-const validTokens = new Set();
+async function isValidAdminToken(token) {
+  return Boolean(token) && token === await getAdminToken();
+}
 
 export default {
   async fetch(request, env) {
@@ -75,7 +79,7 @@ export default {
         const adminToken = request.headers.get('X-Admin-Token');
 
         // 管理员可以删除任何留言
-        if (adminToken && validTokens.has(adminToken)) {
+        if (await isValidAdminToken(adminToken)) {
           await env.universe_messages.prepare(
             'DELETE FROM messages WHERE id = ?'
           ).bind(id).run();
@@ -102,8 +106,7 @@ export default {
         const { password } = body;
 
         if (password === ADMIN_PASSWORD) {
-          const token = generateToken();
-          validTokens.add(token);
+          const token = await getAdminToken();
           return new Response(JSON.stringify({ success: true, token }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });

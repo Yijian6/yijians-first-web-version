@@ -243,6 +243,7 @@
       link.addEventListener('click', function (e) {
         var href = this.getAttribute('href');
         if (!href || href === '#' || href.startsWith('http') || href.startsWith('mailto:')) return;
+        if (this.hasAttribute('data-fullscreen-link')) return;
 
         e.preventDefault();
         var main = $('#main');
@@ -257,7 +258,54 @@
   }
 
   /* -------------------------------------------------------
-     11. WECHAT LIGHTBOX
+     11. FULLSCREEN UNIVERSE ENTRY
+  ------------------------------------------------------- */
+  function initFullscreenUniverseLink() {
+    var link = $('[data-fullscreen-link]');
+    if (!link) return;
+
+    link.addEventListener('click', function (e) {
+      var href = link.getAttribute('href');
+      if (!href) return;
+
+      e.preventDefault();
+
+      var main = $('#main');
+      if (main) {
+        main.style.opacity = '0';
+        main.style.transform = 'translateY(-15px)';
+        main.style.transition = 'opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+      }
+
+      function go() {
+        window.location.href = href;
+      }
+
+      var root = document.documentElement;
+      var requestFullscreen = root.requestFullscreen ||
+        root.webkitRequestFullscreen ||
+        root.msRequestFullscreen;
+
+      if (!requestFullscreen) {
+        setTimeout(go, 180);
+        return;
+      }
+
+      try {
+        var result = requestFullscreen.call(root);
+        if (result && typeof result.then === 'function') {
+          result.then(function () { setTimeout(go, 120); }).catch(function () { setTimeout(go, 180); });
+        } else {
+          setTimeout(go, 120);
+        }
+      } catch (err) {
+        setTimeout(go, 180);
+      }
+    });
+  }
+
+  /* -------------------------------------------------------
+     12. WECHAT LIGHTBOX
   ------------------------------------------------------- */
   function initLightbox() {
     var overlay = document.createElement('div');
@@ -303,7 +351,7 @@
   }
 
   /* -------------------------------------------------------
-     12. PROJECT IMAGE LIGHTBOX
+     13. PROJECT IMAGE LIGHTBOX
   ------------------------------------------------------- */
   function initProjectLightbox() {
     var screenshots = $$('.timeline-screenshot');
@@ -353,7 +401,7 @@
   }
 
   /* -------------------------------------------------------
-     13. PARALLAX on scroll (subtle)
+     14. PARALLAX on scroll (subtle)
   ------------------------------------------------------- */
   function initParallax() {
     var bgChar = $('.hero-section');
@@ -368,7 +416,7 @@
   }
 
   /* -------------------------------------------------------
-     14. MARQUEE — JS-driven infinite scroll
+     15. MARQUEE — JS-driven infinite scroll
   ------------------------------------------------------- */
   function initMarquee() {
     var strip = $('.marquee-strip');
@@ -400,7 +448,7 @@
   }
 
   /* -------------------------------------------------------
-     15. TYPEWRITER EFFECT (Hero subtitle)
+     16. TYPEWRITER EFFECT (Hero subtitle)
   ------------------------------------------------------- */
   function initTypewriter() {
     var el = $('.typewriter');
@@ -434,7 +482,7 @@
   }
 
   /* -------------------------------------------------------
-     16. PORTRAIT PARALLAX
+     17. PORTRAIT PARALLAX
   ------------------------------------------------------- */
   function initPortraitParallax() {
     var wrapper = document.querySelector('.home-portrait-wrapper');
@@ -472,6 +520,7 @@
     initActiveNav();
     initTabs();
     initPageTransition();
+    initFullscreenUniverseLink();
     initLightbox();
     initProjectLightbox();
     initMarquee();
