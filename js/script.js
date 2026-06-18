@@ -509,308 +509,104 @@
   }
 
   /* -------------------------------------------------------
-     18. PASSION DISC — Rotatable color wheel navigation
+     18. PASSION WHEEL — Color orb navigation
   ------------------------------------------------------- */
-  function initPassionDisc() {
-    var disc = document.querySelector('.passion-disc');
-    if (!disc) return;
+  function initPassionWheel() {
+    var wheel = document.getElementById('passionWheel');
+    if (!wheel) return;
 
-    var trigger = disc.querySelector('.disc-trigger');
-    var panel = disc.querySelector('.disc-panel');
-    var overlay = document.querySelector('.disc-overlay');
-    var announce = document.querySelector('.disc-announce');
-    var pageContent = document.querySelector('.page-content');
+    var orbs = $$('.pw-orb', wheel);
+    var contents = $$('.tab-content');
+    var centerName = document.getElementById('pwCenterName');
+    var centerSub = document.getElementById('pwCenterSub');
     var wrapper = document.querySelector('.tab-content-wrapper');
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     var CATS = [
-      { id: 'sports', label: 'Sports', color: [168,204,136], bright: [192,224,160], hex: '#a8cc88' },
-      { id: 'music',  label: 'Music',  color: [196,160,232], bright: [216,186,240], hex: '#c4a0e8' },
-      { id: 'books',  label: 'Books',  color: [212,165,116], bright: [224,188,146], hex: '#d4a574' },
-      { id: 'skills', label: 'Skills', color: [110,184,212], bright: [142,204,228], hex: '#6eb8d4' }
+      { id: 'sports', label: '运动', en: 'Sports', color: [168,204,136], hex: '#a8cc88', bright: [192,224,160] },
+      { id: 'music',  label: '音乐', en: 'Music',  color: [196,160,232], hex: '#c4a0e8', bright: [216,186,240] },
+      { id: 'books',  label: '阅读', en: 'Books',  color: [212,165,116], hex: '#d4a574', bright: [224,188,146] },
+      { id: 'skills', label: '技能', en: 'Skills', color: [110,184,212], hex: '#6eb8d4', bright: [142,204,228] }
     ];
 
-    var expanded = false;
     var activeIndex = 0;
-    var rotation = 0;
-    var isDragging = false;
-    var startAngle = 0;
-    var startRotation = 0;
-    var velocity = 0;
-    var lastAngle = 0;
-    var lastTime = 0;
-    var momentumId = null;
-    var CX, CY, R;
 
-    pageContent.classList.add('disc-active');
     setActiveColors(0, true);
     updateWrapperHeight();
 
-    // Build SVG
-    function buildSVG() {
-      var size = panel.offsetWidth || 220;
-      CX = size / 2; CY = size / 2; R = size / 2 - 14;
-      var innerR = 28;
-      var glass = panel.querySelector('.disc-glass');
-      if (!glass) {
-        glass = document.createElement('div');
-        glass.className = 'disc-glass';
-        panel.insertBefore(glass, panel.firstChild);
-      }
-
-      var svg = '<svg class="disc-svg" viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg">';
-
-      // Defs — gradients per segment
-      svg += '<defs>';
-      for (var d = 0; d < 4; d++) {
-        var c = CATS[d].color;
-        svg += '<linearGradient id="seg' + d + '" x1="0%" y1="0%" x2="100%" y2="100%">';
-        svg += '<stop offset="0%" stop-color="rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')" stop-opacity="0.9"/>';
-        svg += '<stop offset="100%" stop-color="rgb(' + Math.round(c[0]*0.7) + ',' + Math.round(c[1]*0.7) + ',' + Math.round(c[2]*0.7) + ')" stop-opacity="0.7"/>';
-        svg += '</linearGradient>';
-      }
-      svg += '<filter id="segGlow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
-      svg += '</defs>';
-
-      // Outer ring
-      svg += '<circle cx="' + CX + '" cy="' + CY + '" r="' + (R + 2) + '" fill="none" stroke="rgba(228,224,216,0.06)" stroke-width="0.5"/>';
-
-      svg += '<g class="disc-rotator" transform="rotate(' + rotation + ' ' + CX + ' ' + CY + ')">';
-
-      for (var i = 0; i < 4; i++) {
-        var a1 = (i * 90 - 90) * Math.PI / 180;
-        var a2 = ((i + 1) * 90 - 90) * Math.PI / 180;
-        var gap = 0.04;
-        var x1o = CX + R * Math.cos(a1 + gap);
-        var y1o = CY + R * Math.sin(a1 + gap);
-        var x2o = CX + R * Math.cos(a2 - gap);
-        var y2o = CY + R * Math.sin(a2 - gap);
-        var x1i = CX + innerR * Math.cos(a2 - gap);
-        var y1i = CY + innerR * Math.sin(a2 - gap);
-        var x2i = CX + innerR * Math.cos(a1 + gap);
-        var y2i = CY + innerR * Math.sin(a1 + gap);
-        var path = 'M' + x1o + ',' + y1o +
-                ' A' + R + ',' + R + ' 0 0,1 ' + x2o + ',' + y2o +
-                ' L' + x1i + ',' + y1i +
-                ' A' + innerR + ',' + innerR + ' 0 0,0 ' + x2i + ',' + y2i + ' Z';
-        var isActive = i === activeIndex;
-        svg += '<path class="disc-segment' + (isActive ? ' active' : '') + '" d="' + path + '" fill="url(#seg' + i + ')"' + (isActive ? ' filter="url(#segGlow)"' : '') + ' data-index="' + i + '"/>';
-      }
-
-      // Labels on segments
-      svg += '<g class="disc-label-ring">';
-      for (var j = 0; j < 4; j++) {
-        var mid = (j * 90 + 45 - 90) * Math.PI / 180;
-        var lr = (R + innerR) / 2 + 2;
-        var lx = CX + lr * Math.cos(mid);
-        var ly = CY + lr * Math.sin(mid);
-        var rot = j * 90 + 45;
-        if (rot > 90 && rot < 270) rot += 180;
-        svg += '<text x="' + lx + '" y="' + ly + '" transform="rotate(' + rot + ' ' + lx + ' ' + ly + ')" class="' + (j === activeIndex ? 'active' : '') + '">' + CATS[j].label + '</text>';
-      }
-      svg += '</g>';
-      svg += '</g>';
-
-      // Center — layered circles
-      svg += '<circle class="disc-center-bg" cx="' + CX + '" cy="' + CY + '" r="' + innerR + '"/>';
-      svg += '<circle class="disc-center-glow" cx="' + CX + '" cy="' + CY + '" r="' + (innerR - 1) + '"/>';
-      svg += '<text class="disc-center-label" x="' + CX + '" y="' + CY + '">' + CATS[activeIndex].label.charAt(0) + '</text>';
-
-      // Notch — refined diamond
-      var nx = CX, ny = CY - R - 3;
-      svg += '<polygon class="disc-notch" points="' + nx + ',' + (ny + 4) + ' ' + (nx - 4) + ',' + (ny - 3) + ' ' + nx + ',' + (ny - 5) + ' ' + (nx + 4) + ',' + (ny - 3) + '"/>';
-
-      svg += '</svg>';
-      panel.innerHTML = '';
-      panel.appendChild(glass);
-      panel.insertAdjacentHTML('beforeend', svg);
-    }
-
-    buildSVG();
-
-    // Expand/Collapse
-    function expand() {
-      expanded = true;
-      disc.classList.add('expanded');
-      overlay.classList.add('visible');
-      buildSVG();
-    }
-
-    function collapse() {
-      expanded = false;
-      disc.classList.remove('expanded');
-      overlay.classList.remove('visible');
-    }
-
-    trigger.addEventListener('click', function(e) {
-      e.stopPropagation();
-      expand();
+    // Click to select
+    orbs.forEach(function(orb) {
+      orb.addEventListener('click', function() {
+        var idx = parseInt(orb.getAttribute('data-index'));
+        switchTo(idx);
+      });
     });
 
-    overlay.addEventListener('click', collapse);
+    // Touch swipe on wheel
+    var startX = 0, startY = 0, swiping = false;
 
-    document.addEventListener('keydown', function(e) {
-      if (!pageContent.classList.contains('disc-active')) return;
-      if (e.key === 'Escape' && expanded) { collapse(); return; }
-      if (e.key === 'Enter' && document.activeElement === trigger) { expand(); return; }
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { switchTo((activeIndex + 1) % 4, 1); e.preventDefault(); }
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { switchTo((activeIndex + 3) % 4, -1); e.preventDefault(); }
-      if (e.key >= '1' && e.key <= '4') { switchTo(parseInt(e.key) - 1, 0); }
-    });
-
-    window.addEventListener('scroll', function() {
-      if (expanded) collapse();
+    wheel.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      swiping = true;
     }, { passive: true });
 
-    // Pointer events for rotation
-    function getAngle(e) {
-      var rect = panel.getBoundingClientRect();
-      var cx = rect.left + rect.width / 2;
-      var cy = rect.top + rect.height / 2;
-      var px = e.clientX || (e.touches && e.touches[0].clientX) || 0;
-      var py = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-      return Math.atan2(py - cy, px - cx) * 180 / Math.PI;
-    }
+    wheel.addEventListener('touchmove', function(e) {
+      if (!swiping) return;
+      if (Math.abs(e.touches[0].clientY - startY) > Math.abs(e.touches[0].clientX - startX) && Math.abs(e.touches[0].clientY - startY) > 20) {
+        swiping = false;
+      }
+    }, { passive: true });
 
-    panel.addEventListener('pointerdown', function(e) {
-      if (!expanded) return;
-      isDragging = true;
-      startAngle = getAngle(e);
-      startRotation = rotation;
-      velocity = 0;
-      lastAngle = startAngle;
-      lastTime = Date.now();
-      if (momentumId) { cancelAnimationFrame(momentumId); momentumId = null; }
-      panel.setPointerCapture(e.pointerId);
-      e.preventDefault();
+    wheel.addEventListener('touchend', function(e) {
+      if (!swiping) return;
+      swiping = false;
+      var dx = e.changedTouches[0].clientX - startX;
+      var dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) switchTo((activeIndex + 1) % 4);
+        else switchTo((activeIndex + 3) % 4);
+      }
+    }, { passive: true });
+
+    // Keyboard
+    document.addEventListener('keydown', function(e) {
+      if (!wheel.closest('#main')) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { switchTo((activeIndex + 1) % 4); e.preventDefault(); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { switchTo((activeIndex + 3) % 4); e.preventDefault(); }
+      if (e.key >= '1' && e.key <= '4') { switchTo(parseInt(e.key) - 1); }
     });
 
-    panel.addEventListener('pointermove', function(e) {
-      if (!isDragging) return;
-      var angle = getAngle(e);
-      var delta = angle - startAngle;
-      rotation = startRotation + delta;
-
-      var now = Date.now();
-      var dt = now - lastTime;
-      if (dt > 0) {
-        velocity = (angle - lastAngle) / dt * 16;
-        lastAngle = angle;
-        lastTime = now;
-      }
-
-      updateRotation();
-      e.preventDefault();
-    });
-
-    panel.addEventListener('pointerup', function(e) {
-      if (!isDragging) return;
-      isDragging = false;
-
-      var totalDrag = Math.abs(rotation - startRotation);
-      if (totalDrag < 5) {
-        // It was a click, find which segment
-        var angle = getAngle(e);
-        var normAngle = ((angle + 90 - rotation) % 360 + 360) % 360;
-        var clickedIndex = Math.floor(normAngle / 90) % 4;
-        switchTo(clickedIndex, clickedIndex > activeIndex ? 1 : -1);
-        return;
-      }
-
-      // Momentum
-      if (Math.abs(velocity) > 0.3 && !reducedMotion) {
-        applyMomentum();
-      } else {
-        snapToNearest();
-      }
-    });
-
-    function updateRotation() {
-      var rotator = panel.querySelector('.disc-rotator');
-      if (rotator) rotator.setAttribute('transform', 'rotate(' + rotation + ' ' + CX + ' ' + CY + ')');
-    }
-
-    function applyMomentum() {
-      var friction = 0.93;
-      function step() {
-        velocity *= friction;
-        rotation += velocity;
-        updateRotation();
-        if (Math.abs(velocity) > 0.3) {
-          momentumId = requestAnimationFrame(step);
-        } else {
-          snapToNearest();
-        }
-      }
-      momentumId = requestAnimationFrame(step);
-    }
-
-    function snapToNearest() {
-      var norm = ((rotation % 360) + 360) % 360;
-      var targetSlot = Math.round(norm / 90) % 4;
-      var targetAngle = targetSlot * 90;
-
-      // Find nearest snap including wrap-around
-      var diff = targetAngle - (rotation % 360);
-      if (diff > 180) diff -= 360;
-      if (diff < -180) diff += 360;
-      var targetRotation = rotation + diff;
-
-      if (reducedMotion) {
-        rotation = targetRotation;
-        updateRotation();
-        detectActiveSegment();
-        return;
-      }
-
-      // Spring animation
-      var current = rotation;
-      var t = 0;
-      function springStep() {
-        t += 0.04;
-        var progress = 1 - Math.pow(1 - t, 3);
-        if (t < 1) {
-          rotation = current + (targetRotation - current) * progress;
-          updateRotation();
-          momentumId = requestAnimationFrame(springStep);
-        } else {
-          rotation = targetRotation;
-          updateRotation();
-          detectActiveSegment();
-        }
-      }
-      momentumId = requestAnimationFrame(springStep);
-    }
-
-    function detectActiveSegment() {
-      var norm = ((rotation % 360) + 360) % 360;
-      var idx = (Math.round(norm / 90) % 4);
-      // Segments are arranged: 0=top, 1=right, 2=bottom, 3=left at rotation=0
-      // When rotated by N*90, segment N is at top (under notch)
-      var newIndex = idx;
-      if (newIndex !== activeIndex) {
-        var dir = newIndex > activeIndex ? 1 : -1;
-        switchTo(newIndex, dir);
-      }
-    }
-
-    function switchTo(index, direction) {
+    function switchTo(index) {
       if (index === activeIndex) return;
       var oldIndex = activeIndex;
       activeIndex = index;
 
-      // Animate rotation if expanded
-      if (expanded) {
-        var targetRot = index * 90;
-        var diff = targetRot - (rotation % 360);
-        if (diff > 180) diff -= 360;
-        if (diff < -180) diff += 360;
-        rotation = rotation + diff;
-        updateRotation();
+      // Update orbs
+      orbs.forEach(function(o) { o.classList.remove('active'); });
+      orbs[index].classList.add('active');
+
+      // Fade center text
+      if (centerName) {
+        centerName.style.opacity = '0';
+        setTimeout(function() {
+          centerName.textContent = CATS[index].label;
+          centerName.style.opacity = '1';
+        }, 150);
+      }
+      if (centerSub) {
+        centerSub.style.opacity = '0';
+        setTimeout(function() {
+          centerSub.textContent = CATS[index].en;
+          centerSub.style.opacity = '1';
+        }, 150);
       }
 
-      // Content transition
-      var contents = $$('.tab-content');
+      // Content slide direction
+      var direction = index > oldIndex ? 1 : -1;
+      if (oldIndex === 0 && index === 3) direction = -1;
+      if (oldIndex === 3 && index === 0) direction = 1;
+
       var oldContent = contents[oldIndex];
       var newContent = contents[index];
 
@@ -825,12 +621,10 @@
       setTimeout(function() {
         if (newContent) newContent.classList.add('active');
         updateWrapperHeight();
-        // Re-trigger reveals
         newContent.querySelectorAll('.reveal, .reveal-left, .reveal-scale').forEach(function(el) {
           el.classList.remove('revealed');
           setTimeout(function() { el.classList.add('revealed'); }, 50);
         });
-        // Re-trigger skill bars
         newContent.querySelectorAll('.skill-level').forEach(function(bar) {
           var w = bar.style.width;
           bar.style.width = '0%';
@@ -838,23 +632,7 @@
         });
       }, reducedMotion ? 0 : 150);
 
-      // Color transition
       setActiveColors(index, false);
-
-      // Update SVG
-      buildSVG();
-
-      // Announce
-      showAnnounce(CATS[index].label);
-
-      // Update header label
-      var catLabel = document.getElementById('passionCatLabel');
-      if (catLabel) {
-        var textEl = catLabel.querySelector('.passion-cat-text');
-        if (textEl) textEl.textContent = CATS[index].label;
-      }
-
-      // Haptic
       if (navigator.vibrate) navigator.vibrate(10);
     }
 
@@ -886,9 +664,7 @@
         r.style.setProperty('--gold-dim', 'rgba(' + cr + ',' + cg + ',' + cb + ',0.14)');
         r.style.setProperty('--gold-glow', 'rgba(' + cr + ',' + cg + ',' + cb + ',0.07)');
         if (t < 1) requestAnimationFrame(frame);
-        else {
-          r.style.setProperty('--gold-bright', 'rgb(' + cat.bright.join(',') + ')');
-        }
+        else r.style.setProperty('--gold-bright', 'rgb(' + cat.bright.join(',') + ')');
       }
       requestAnimationFrame(frame);
     }
@@ -900,12 +676,6 @@
       }
       var m = str.match(/(\d+)/g);
       return m ? [parseInt(m[0]), parseInt(m[1]), parseInt(m[2])] : [168, 204, 136];
-    }
-
-    function showAnnounce(text) {
-      announce.textContent = text;
-      announce.classList.add('visible');
-      setTimeout(function() { announce.classList.remove('visible'); }, 1500);
     }
 
     function updateWrapperHeight() {
@@ -930,7 +700,7 @@
     initProgress();
     initHamburger();
     initActiveNav();
-    initPassionDisc();
+    initPassionWheel();
     initTabs();
     initPageTransition();
     initFullscreenUniverseLink();

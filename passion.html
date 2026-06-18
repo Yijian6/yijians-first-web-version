@@ -31,25 +31,55 @@
     </div>
 
     <div id="main" class="main">
-        <div class="page-content">
-            <div class="section-header reveal">
-                <span class="section-number">04 / Passion</span>
-                <h1>我的<em>热情</em></h1>
-                <p class="section-desc">书籍、技能、音乐、运动——构成我的多棱镜。</p>
-                <div class="passion-current-cat" id="passionCatLabel">
-                    <span class="passion-cat-dot"></span>
-                    <span class="passion-cat-text">Sports</span>
+
+        <!-- Passion Hero -->
+        <section class="passion-hero">
+            <span class="passion-hero-watermark">04</span>
+            <div class="passion-hero-inner">
+                <span class="section-number reveal">04 / Passion</span>
+                <h1 class="reveal delay-1">我的<em>热情</em></h1>
+                <div class="passion-hero-rule reveal delay-2"></div>
+                <p class="section-desc reveal delay-3">书籍、技能、音乐、运动——构成我的多棱镜。</p>
+            </div>
+        </section>
+
+        <!-- Color Wheel Navigation -->
+        <section class="passion-nav reveal delay-4">
+            <div class="passion-wheel" id="passionWheel">
+                <div class="pw-ring">
+                    <button class="pw-orb active" data-index="0" data-cat="sports" aria-label="运动">
+                        <span class="pw-orb-glow"></span>
+                        <span class="pw-orb-ring"></span>
+                        <span class="pw-orb-fill"></span>
+                    </button>
+                    <button class="pw-orb" data-index="1" data-cat="music" aria-label="音乐">
+                        <span class="pw-orb-glow"></span>
+                        <span class="pw-orb-ring"></span>
+                        <span class="pw-orb-fill"></span>
+                    </button>
+                    <button class="pw-orb" data-index="2" data-cat="books" aria-label="阅读">
+                        <span class="pw-orb-glow"></span>
+                        <span class="pw-orb-ring"></span>
+                        <span class="pw-orb-fill"></span>
+                    </button>
+                    <button class="pw-orb" data-index="3" data-cat="skills" aria-label="技能">
+                        <span class="pw-orb-glow"></span>
+                        <span class="pw-orb-ring"></span>
+                        <span class="pw-orb-fill"></span>
+                    </button>
+                    <div class="pw-center">
+                        <span class="pw-center-name" id="pwCenterName">运动</span>
+                        <span class="pw-center-sub" id="pwCenterSub">Sports</span>
+                    </div>
                 </div>
+                <p class="pw-hint">滑动切换 · 点击选择</p>
             </div>
+        </section>
 
-            <div class="tabs reveal">
-                <button class="tab-btn active" data-tab="sports">Sports</button>
-                <button class="tab-btn" data-tab="music">Music</button>
-                <button class="tab-btn" data-tab="books">Books</button>
-                <button class="tab-btn" data-tab="skills">Skills</button>
-            </div>
-
+        <!-- Tab Content -->
+        <div class="passion-content">
             <div class="tab-content-wrapper">
+
             <div id="sports" class="tab-content active">
                 <div class="sports-grid">
                     <article class="sport-card reveal">
@@ -143,16 +173,9 @@
                     </div>
                 </div>
             </div>
+
             </div>
         </div>
-
-        <!-- Passion Disc Navigation -->
-        <div class="passion-disc" aria-label="Category navigation">
-            <button class="disc-trigger" aria-label="Open category selector"></button>
-            <div class="disc-panel"></div>
-        </div>
-        <div class="disc-overlay"></div>
-        <div class="disc-announce" aria-live="polite"></div>
 
         <footer class="footer">
             <div class="footer-quote reveal">"无人扶我青云志，我自踏雪至山巅"</div>
