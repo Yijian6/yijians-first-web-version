@@ -220,6 +220,7 @@
      9. TABS (Hobby page)
   ------------------------------------------------------- */
   function initTabs() {
+    if (document.querySelector('.passion-disc')) return;
     var btns = $$('.tab-btn');
     var contents = $$('.tab-content');
     if (!btns.length) return;
@@ -508,6 +509,381 @@
   }
 
   /* -------------------------------------------------------
+     18. PASSION DISC — Rotatable color wheel navigation
+  ------------------------------------------------------- */
+  function initPassionDisc() {
+    var disc = document.querySelector('.passion-disc');
+    if (!disc) return;
+
+    var trigger = disc.querySelector('.disc-trigger');
+    var panel = disc.querySelector('.disc-panel');
+    var overlay = document.querySelector('.disc-overlay');
+    var announce = document.querySelector('.disc-announce');
+    var pageContent = document.querySelector('.page-content');
+    var wrapper = document.querySelector('.tab-content-wrapper');
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var CATS = [
+      { id: 'sports', label: 'Sports', color: [168,204,136], bright: [192,224,160], hex: '#a8cc88' },
+      { id: 'music',  label: 'Music',  color: [196,160,232], bright: [216,186,240], hex: '#c4a0e8' },
+      { id: 'books',  label: 'Books',  color: [212,165,116], bright: [224,188,146], hex: '#d4a574' },
+      { id: 'skills', label: 'Skills', color: [110,184,212], bright: [142,204,228], hex: '#6eb8d4' }
+    ];
+
+    var expanded = false;
+    var activeIndex = 0;
+    var rotation = 0;
+    var isDragging = false;
+    var startAngle = 0;
+    var startRotation = 0;
+    var velocity = 0;
+    var lastAngle = 0;
+    var lastTime = 0;
+    var momentumId = null;
+    var CX, CY, R;
+
+    pageContent.classList.add('disc-active');
+    setActiveColors(0, true);
+    updateWrapperHeight();
+
+    // Build SVG
+    function buildSVG() {
+      var size = panel.offsetWidth || 200;
+      CX = size / 2; CY = size / 2; R = size / 2 - 8;
+      var innerR = 24;
+      var svg = '<svg class="disc-svg" viewBox="0 0 ' + size + ' ' + size + '">';
+      svg += '<g class="disc-rotator" transform="rotate(' + rotation + ' ' + CX + ' ' + CY + ')">';
+
+      for (var i = 0; i < 4; i++) {
+        var a1 = (i * 90 - 90) * Math.PI / 180;
+        var a2 = ((i + 1) * 90 - 90) * Math.PI / 180;
+        var gap = 0.03;
+        var x1o = CX + R * Math.cos(a1 + gap);
+        var y1o = CY + R * Math.sin(a1 + gap);
+        var x2o = CX + R * Math.cos(a2 - gap);
+        var y2o = CY + R * Math.sin(a2 - gap);
+        var x1i = CX + innerR * Math.cos(a2 - gap);
+        var y1i = CY + innerR * Math.sin(a2 - gap);
+        var x2i = CX + innerR * Math.cos(a1 + gap);
+        var y2i = CY + innerR * Math.sin(a1 + gap);
+        var d = 'M' + x1o + ',' + y1o +
+                ' A' + R + ',' + R + ' 0 0,1 ' + x2o + ',' + y2o +
+                ' L' + x1i + ',' + y1i +
+                ' A' + innerR + ',' + innerR + ' 0 0,0 ' + x2i + ',' + y2i + ' Z';
+        svg += '<path class="disc-segment' + (i === activeIndex ? ' active' : '') + '" d="' + d + '" fill="' + CATS[i].hex + '" data-index="' + i + '"/>';
+      }
+
+      // Labels on segments
+      svg += '<g class="disc-label-ring">';
+      for (var j = 0; j < 4; j++) {
+        var mid = (j * 90 + 45 - 90) * Math.PI / 180;
+        var lr = (R + innerR) / 2 + 4;
+        var lx = CX + lr * Math.cos(mid);
+        var ly = CY + lr * Math.sin(mid);
+        var rot = j * 90 + 45;
+        if (rot > 90 && rot < 270) rot += 180;
+        svg += '<text x="' + lx + '" y="' + ly + '" transform="rotate(' + rot + ' ' + lx + ' ' + ly + ')" class="' + (j === activeIndex ? 'active' : '') + '">' + CATS[j].label + '</text>';
+      }
+      svg += '</g>';
+      svg += '</g>';
+
+      // Center circle
+      svg += '<circle class="disc-center" cx="' + CX + '" cy="' + CY + '" r="' + innerR + '"/>';
+      svg += '<text class="disc-center-label" x="' + CX + '" y="' + CY + '">' + CATS[activeIndex].label.charAt(0) + '</text>';
+
+      // Notch at top (12 o'clock)
+      svg += '<polygon class="disc-notch" points="' + CX + ',' + (CY - R - 4) + ' ' + (CX - 5) + ',' + (CY - R - 12) + ' ' + (CX + 5) + ',' + (CY - R - 12) + '"/>';
+
+      svg += '</svg>';
+      panel.innerHTML = svg;
+    }
+
+    buildSVG();
+
+    // Expand/Collapse
+    function expand() {
+      expanded = true;
+      disc.classList.add('expanded');
+      overlay.classList.add('visible');
+      buildSVG();
+    }
+
+    function collapse() {
+      expanded = false;
+      disc.classList.remove('expanded');
+      overlay.classList.remove('visible');
+    }
+
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      expand();
+    });
+
+    overlay.addEventListener('click', collapse);
+
+    document.addEventListener('keydown', function(e) {
+      if (!pageContent.classList.contains('disc-active')) return;
+      if (e.key === 'Escape' && expanded) { collapse(); return; }
+      if (e.key === 'Enter' && document.activeElement === trigger) { expand(); return; }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { switchTo((activeIndex + 1) % 4, 1); e.preventDefault(); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { switchTo((activeIndex + 3) % 4, -1); e.preventDefault(); }
+      if (e.key >= '1' && e.key <= '4') { switchTo(parseInt(e.key) - 1, 0); }
+    });
+
+    window.addEventListener('scroll', function() {
+      if (expanded) collapse();
+    }, { passive: true });
+
+    // Pointer events for rotation
+    function getAngle(e) {
+      var rect = panel.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+      var px = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+      var py = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+      return Math.atan2(py - cy, px - cx) * 180 / Math.PI;
+    }
+
+    panel.addEventListener('pointerdown', function(e) {
+      if (!expanded) return;
+      isDragging = true;
+      startAngle = getAngle(e);
+      startRotation = rotation;
+      velocity = 0;
+      lastAngle = startAngle;
+      lastTime = Date.now();
+      if (momentumId) { cancelAnimationFrame(momentumId); momentumId = null; }
+      panel.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+
+    panel.addEventListener('pointermove', function(e) {
+      if (!isDragging) return;
+      var angle = getAngle(e);
+      var delta = angle - startAngle;
+      rotation = startRotation + delta;
+
+      var now = Date.now();
+      var dt = now - lastTime;
+      if (dt > 0) {
+        velocity = (angle - lastAngle) / dt * 16;
+        lastAngle = angle;
+        lastTime = now;
+      }
+
+      updateRotation();
+      e.preventDefault();
+    });
+
+    panel.addEventListener('pointerup', function(e) {
+      if (!isDragging) return;
+      isDragging = false;
+
+      var totalDrag = Math.abs(rotation - startRotation);
+      if (totalDrag < 5) {
+        // It was a click, find which segment
+        var angle = getAngle(e);
+        var normAngle = ((angle + 90 - rotation) % 360 + 360) % 360;
+        var clickedIndex = Math.floor(normAngle / 90) % 4;
+        switchTo(clickedIndex, clickedIndex > activeIndex ? 1 : -1);
+        return;
+      }
+
+      // Momentum
+      if (Math.abs(velocity) > 0.3 && !reducedMotion) {
+        applyMomentum();
+      } else {
+        snapToNearest();
+      }
+    });
+
+    function updateRotation() {
+      var rotator = panel.querySelector('.disc-rotator');
+      if (rotator) rotator.setAttribute('transform', 'rotate(' + rotation + ' ' + CX + ' ' + CY + ')');
+    }
+
+    function applyMomentum() {
+      var friction = 0.93;
+      function step() {
+        velocity *= friction;
+        rotation += velocity;
+        updateRotation();
+        if (Math.abs(velocity) > 0.3) {
+          momentumId = requestAnimationFrame(step);
+        } else {
+          snapToNearest();
+        }
+      }
+      momentumId = requestAnimationFrame(step);
+    }
+
+    function snapToNearest() {
+      var norm = ((rotation % 360) + 360) % 360;
+      var targetSlot = Math.round(norm / 90) % 4;
+      var targetAngle = targetSlot * 90;
+
+      // Find nearest snap including wrap-around
+      var diff = targetAngle - (rotation % 360);
+      if (diff > 180) diff -= 360;
+      if (diff < -180) diff += 360;
+      var targetRotation = rotation + diff;
+
+      if (reducedMotion) {
+        rotation = targetRotation;
+        updateRotation();
+        detectActiveSegment();
+        return;
+      }
+
+      // Spring animation
+      var current = rotation;
+      var t = 0;
+      function springStep() {
+        t += 0.04;
+        var progress = 1 - Math.pow(1 - t, 3);
+        if (t < 1) {
+          rotation = current + (targetRotation - current) * progress;
+          updateRotation();
+          momentumId = requestAnimationFrame(springStep);
+        } else {
+          rotation = targetRotation;
+          updateRotation();
+          detectActiveSegment();
+        }
+      }
+      momentumId = requestAnimationFrame(springStep);
+    }
+
+    function detectActiveSegment() {
+      var norm = ((rotation % 360) + 360) % 360;
+      var idx = (Math.round(norm / 90) % 4);
+      // Segments are arranged: 0=top, 1=right, 2=bottom, 3=left at rotation=0
+      // When rotated by N*90, segment N is at top (under notch)
+      var newIndex = idx;
+      if (newIndex !== activeIndex) {
+        var dir = newIndex > activeIndex ? 1 : -1;
+        switchTo(newIndex, dir);
+      }
+    }
+
+    function switchTo(index, direction) {
+      if (index === activeIndex) return;
+      var oldIndex = activeIndex;
+      activeIndex = index;
+
+      // Animate rotation if expanded
+      if (expanded) {
+        var targetRot = index * 90;
+        var diff = targetRot - (rotation % 360);
+        if (diff > 180) diff -= 360;
+        if (diff < -180) diff += 360;
+        rotation = rotation + diff;
+        updateRotation();
+      }
+
+      // Content transition
+      var contents = $$('.tab-content');
+      var oldContent = contents[oldIndex];
+      var newContent = contents[index];
+
+      if (oldContent) {
+        oldContent.classList.add('leaving');
+        oldContent.classList.add(direction >= 0 ? 'leaving-left' : 'leaving-right');
+        setTimeout(function() {
+          oldContent.classList.remove('active', 'leaving', 'leaving-left', 'leaving-right');
+        }, reducedMotion ? 0 : 350);
+      }
+
+      setTimeout(function() {
+        if (newContent) newContent.classList.add('active');
+        updateWrapperHeight();
+        // Re-trigger reveals
+        newContent.querySelectorAll('.reveal, .reveal-left, .reveal-scale').forEach(function(el) {
+          el.classList.remove('revealed');
+          setTimeout(function() { el.classList.add('revealed'); }, 50);
+        });
+        // Re-trigger skill bars
+        newContent.querySelectorAll('.skill-level').forEach(function(bar) {
+          var w = bar.style.width;
+          bar.style.width = '0%';
+          setTimeout(function() { bar.style.width = w; }, 100);
+        });
+      }, reducedMotion ? 0 : 150);
+
+      // Color transition
+      setActiveColors(index, false);
+
+      // Update SVG
+      buildSVG();
+
+      // Announce
+      showAnnounce(CATS[index].label);
+
+      // Haptic
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+
+    function setActiveColors(index, instant) {
+      var cat = CATS[index];
+      var r = document.documentElement;
+      if (instant || reducedMotion) {
+        r.style.setProperty('--gold', cat.hex);
+        r.style.setProperty('--gold-bright', 'rgb(' + cat.bright.join(',') + ')');
+        r.style.setProperty('--gold-dim', 'rgba(' + cat.color.join(',') + ',0.14)');
+        r.style.setProperty('--gold-glow', 'rgba(' + cat.color.join(',') + ',0.07)');
+        return;
+      }
+
+      var startColor = getComputedStyle(r).getPropertyValue('--gold').trim();
+      var startRGB = parseRGB(startColor);
+      var endRGB = cat.color;
+      var duration = 500;
+      var startTime = null;
+
+      function frame(ts) {
+        if (!startTime) startTime = ts;
+        var t = Math.min((ts - startTime) / duration, 1);
+        t = 1 - Math.pow(1 - t, 3);
+        var cr = Math.round(startRGB[0] + (endRGB[0] - startRGB[0]) * t);
+        var cg = Math.round(startRGB[1] + (endRGB[1] - startRGB[1]) * t);
+        var cb = Math.round(startRGB[2] + (endRGB[2] - startRGB[2]) * t);
+        r.style.setProperty('--gold', 'rgb(' + cr + ',' + cg + ',' + cb + ')');
+        r.style.setProperty('--gold-dim', 'rgba(' + cr + ',' + cg + ',' + cb + ',0.14)');
+        r.style.setProperty('--gold-glow', 'rgba(' + cr + ',' + cg + ',' + cb + ',0.07)');
+        if (t < 1) requestAnimationFrame(frame);
+        else {
+          r.style.setProperty('--gold-bright', 'rgb(' + cat.bright.join(',') + ')');
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function parseRGB(str) {
+      if (str.charAt(0) === '#') {
+        var hex = str.replace('#', '');
+        return [parseInt(hex.substr(0,2),16), parseInt(hex.substr(2,2),16), parseInt(hex.substr(4,2),16)];
+      }
+      var m = str.match(/(\d+)/g);
+      return m ? [parseInt(m[0]), parseInt(m[1]), parseInt(m[2])] : [168, 204, 136];
+    }
+
+    function showAnnounce(text) {
+      announce.textContent = text;
+      announce.classList.add('visible');
+      setTimeout(function() { announce.classList.remove('visible'); }, 1500);
+    }
+
+    function updateWrapperHeight() {
+      if (!wrapper) return;
+      var active = wrapper.querySelector('.tab-content.active');
+      if (active) {
+        wrapper.style.height = active.scrollHeight + 'px';
+        setTimeout(function() { wrapper.style.height = 'auto'; }, 600);
+      }
+    }
+  }
+
+  /* -------------------------------------------------------
      BOOT
   ------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -519,6 +895,7 @@
     initProgress();
     initHamburger();
     initActiveNav();
+    initPassionDisc();
     initTabs();
     initPageTransition();
     initFullscreenUniverseLink();
