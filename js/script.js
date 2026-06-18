@@ -490,7 +490,8 @@
     var img = wrapper.querySelector('.home-portrait-img');
     if (!img) return;
 
-    img.style.height = '120%';
+    var isDesktop = window.innerWidth >= 769;
+    img.style.height = isDesktop ? '110%' : '120%';
     img.style.willChange = 'transform';
 
     function onScroll() {
@@ -498,7 +499,7 @@
       var viewH = window.innerHeight;
       if (rect.bottom < 0 || rect.top > viewH) return;
       var progress = 1 - (rect.bottom / (viewH + rect.height));
-      var shift = (progress - 0.5) * -12;
+      var shift = (progress - 0.5) * (isDesktop ? -6 : -12);
       img.style.transform = 'translateY(' + shift + '%)';
     }
 
