@@ -548,16 +548,39 @@
 
     // Build SVG
     function buildSVG() {
-      var size = panel.offsetWidth || 200;
-      CX = size / 2; CY = size / 2; R = size / 2 - 8;
-      var innerR = 24;
-      var svg = '<svg class="disc-svg" viewBox="0 0 ' + size + ' ' + size + '">';
+      var size = panel.offsetWidth || 220;
+      CX = size / 2; CY = size / 2; R = size / 2 - 14;
+      var innerR = 28;
+      var glass = panel.querySelector('.disc-glass');
+      if (!glass) {
+        glass = document.createElement('div');
+        glass.className = 'disc-glass';
+        panel.insertBefore(glass, panel.firstChild);
+      }
+
+      var svg = '<svg class="disc-svg" viewBox="0 0 ' + size + ' ' + size + '" xmlns="http://www.w3.org/2000/svg">';
+
+      // Defs — gradients per segment
+      svg += '<defs>';
+      for (var d = 0; d < 4; d++) {
+        var c = CATS[d].color;
+        svg += '<linearGradient id="seg' + d + '" x1="0%" y1="0%" x2="100%" y2="100%">';
+        svg += '<stop offset="0%" stop-color="rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')" stop-opacity="0.9"/>';
+        svg += '<stop offset="100%" stop-color="rgb(' + Math.round(c[0]*0.7) + ',' + Math.round(c[1]*0.7) + ',' + Math.round(c[2]*0.7) + ')" stop-opacity="0.7"/>';
+        svg += '</linearGradient>';
+      }
+      svg += '<filter id="segGlow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>';
+      svg += '</defs>';
+
+      // Outer ring
+      svg += '<circle cx="' + CX + '" cy="' + CY + '" r="' + (R + 2) + '" fill="none" stroke="rgba(228,224,216,0.06)" stroke-width="0.5"/>';
+
       svg += '<g class="disc-rotator" transform="rotate(' + rotation + ' ' + CX + ' ' + CY + ')">';
 
       for (var i = 0; i < 4; i++) {
         var a1 = (i * 90 - 90) * Math.PI / 180;
         var a2 = ((i + 1) * 90 - 90) * Math.PI / 180;
-        var gap = 0.03;
+        var gap = 0.04;
         var x1o = CX + R * Math.cos(a1 + gap);
         var y1o = CY + R * Math.sin(a1 + gap);
         var x2o = CX + R * Math.cos(a2 - gap);
@@ -566,18 +589,19 @@
         var y1i = CY + innerR * Math.sin(a2 - gap);
         var x2i = CX + innerR * Math.cos(a1 + gap);
         var y2i = CY + innerR * Math.sin(a1 + gap);
-        var d = 'M' + x1o + ',' + y1o +
+        var path = 'M' + x1o + ',' + y1o +
                 ' A' + R + ',' + R + ' 0 0,1 ' + x2o + ',' + y2o +
                 ' L' + x1i + ',' + y1i +
                 ' A' + innerR + ',' + innerR + ' 0 0,0 ' + x2i + ',' + y2i + ' Z';
-        svg += '<path class="disc-segment' + (i === activeIndex ? ' active' : '') + '" d="' + d + '" fill="' + CATS[i].hex + '" data-index="' + i + '"/>';
+        var isActive = i === activeIndex;
+        svg += '<path class="disc-segment' + (isActive ? ' active' : '') + '" d="' + path + '" fill="url(#seg' + i + ')"' + (isActive ? ' filter="url(#segGlow)"' : '') + ' data-index="' + i + '"/>';
       }
 
       // Labels on segments
       svg += '<g class="disc-label-ring">';
       for (var j = 0; j < 4; j++) {
         var mid = (j * 90 + 45 - 90) * Math.PI / 180;
-        var lr = (R + innerR) / 2 + 4;
+        var lr = (R + innerR) / 2 + 2;
         var lx = CX + lr * Math.cos(mid);
         var ly = CY + lr * Math.sin(mid);
         var rot = j * 90 + 45;
@@ -587,15 +611,19 @@
       svg += '</g>';
       svg += '</g>';
 
-      // Center circle
-      svg += '<circle class="disc-center" cx="' + CX + '" cy="' + CY + '" r="' + innerR + '"/>';
+      // Center — layered circles
+      svg += '<circle class="disc-center-bg" cx="' + CX + '" cy="' + CY + '" r="' + innerR + '"/>';
+      svg += '<circle class="disc-center-glow" cx="' + CX + '" cy="' + CY + '" r="' + (innerR - 1) + '"/>';
       svg += '<text class="disc-center-label" x="' + CX + '" y="' + CY + '">' + CATS[activeIndex].label.charAt(0) + '</text>';
 
-      // Notch at top (12 o'clock)
-      svg += '<polygon class="disc-notch" points="' + CX + ',' + (CY - R - 4) + ' ' + (CX - 5) + ',' + (CY - R - 12) + ' ' + (CX + 5) + ',' + (CY - R - 12) + '"/>';
+      // Notch — refined diamond
+      var nx = CX, ny = CY - R - 3;
+      svg += '<polygon class="disc-notch" points="' + nx + ',' + (ny + 4) + ' ' + (nx - 4) + ',' + (ny - 3) + ' ' + nx + ',' + (ny - 5) + ' ' + (nx + 4) + ',' + (ny - 3) + '"/>';
 
       svg += '</svg>';
-      panel.innerHTML = svg;
+      panel.innerHTML = '';
+      panel.appendChild(glass);
+      panel.insertAdjacentHTML('beforeend', svg);
     }
 
     buildSVG();
@@ -818,6 +846,13 @@
 
       // Announce
       showAnnounce(CATS[index].label);
+
+      // Update header label
+      var catLabel = document.getElementById('passionCatLabel');
+      if (catLabel) {
+        var textEl = catLabel.querySelector('.passion-cat-text');
+        if (textEl) textEl.textContent = CATS[index].label;
+      }
 
       // Haptic
       if (navigator.vibrate) navigator.vibrate(10);
