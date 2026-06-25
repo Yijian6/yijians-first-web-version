@@ -32,150 +32,163 @@
 
     <div id="main" class="main">
 
-        <!-- Passion Hero -->
-        <section class="passion-hero">
-            <span class="passion-hero-watermark">04</span>
-            <div class="passion-hero-inner">
+        <!-- ========== HERO ========== -->
+        <section class="pe-hero">
+            <span class="pe-watermark">04</span>
+            <div class="pe-hero-inner">
                 <span class="section-number reveal">04 / Passion</span>
                 <h1 class="reveal delay-1">我的<em>热情</em></h1>
-                <div class="passion-hero-rule reveal delay-2"></div>
-                <p class="section-desc reveal delay-3">书籍、技能、音乐、运动——构成我的多棱镜。</p>
+                <div class="pe-rule reveal delay-2"></div>
+                <p class="section-desc reveal delay-3">这些是让我觉得活着很好的事。</p>
             </div>
         </section>
 
-        <!-- Color Wheel Navigation -->
-        <section class="passion-nav reveal delay-4">
-            <div class="passion-wheel" id="passionWheel">
-                <div class="pw-ring">
-                    <button class="pw-orb active" data-index="0" data-cat="sports" aria-label="运动">
-                        <span class="pw-orb-glow"></span>
-                        <span class="pw-orb-ring"></span>
-                        <span class="pw-orb-fill"></span>
-                    </button>
-                    <button class="pw-orb" data-index="1" data-cat="music" aria-label="音乐">
-                        <span class="pw-orb-glow"></span>
-                        <span class="pw-orb-ring"></span>
-                        <span class="pw-orb-fill"></span>
-                    </button>
-                    <button class="pw-orb" data-index="2" data-cat="books" aria-label="阅读">
-                        <span class="pw-orb-glow"></span>
-                        <span class="pw-orb-ring"></span>
-                        <span class="pw-orb-fill"></span>
-                    </button>
-                    <button class="pw-orb" data-index="3" data-cat="skills" aria-label="技能">
-                        <span class="pw-orb-glow"></span>
-                        <span class="pw-orb-ring"></span>
-                        <span class="pw-orb-fill"></span>
-                    </button>
-                    <div class="pw-center">
-                        <span class="pw-center-name" id="pwCenterName">运动</span>
-                        <span class="pw-center-sub" id="pwCenterSub">Sports</span>
-                    </div>
-                </div>
-                <p class="pw-hint">滑动切换 · 点击选择</p>
+        <!-- ========== 运动 — 全屏出血大图 ========== -->
+        <section class="pe-bleed reveal">
+            <img src="跑步1.png" alt="跑步" loading="lazy">
+            <div class="pe-bleed-overlay">
+                <span class="pe-bleed-label">Running</span>
+                <h2>跑的时候什么都不用想，<br>只有呼吸和脚步声。</h2>
             </div>
         </section>
 
-        <!-- Tab Content -->
-        <div class="passion-content">
-            <div class="tab-content-wrapper">
+        <!-- 运动 — 文字描述 -->
+        <section class="pe-narrative reveal">
+            <div class="pe-narrative-inner pe-narrative--offset-right">
+                <span class="pe-tag">运动 · Sports</span>
+                <h3>跑步</h3>
+                <p>脚步丈量大地，呼吸融入风中。在奔跑中找到节奏，在节奏中找到自己。不是为了成绩，是为了那种越跑越清醒的感觉。</p>
+            </div>
+        </section>
 
-            <div id="sports" class="tab-content active">
-                <div class="sports-grid">
-                    <article class="sport-card reveal">
-                        <div class="sport-image">
-                            <img src="游泳.jpg" alt="游泳" loading="lazy">
-                        </div>
-                        <div class="sport-info">
-                            <h3 class="sport-name">游泳</h3>
-                            <p class="sport-desc">水中的自由，是另一种呼吸。</p>
-                        </div>
-                    </article>
-                    <article class="sport-card sport-featured reveal delay-1">
-                        <div class="sport-hero">
-                            <img src="跑步1.png" alt="跑步" loading="lazy">
-                            <div class="sport-hero-overlay">
-                                <h3 class="sport-name">跑步</h3>
-                                <p class="sport-quote">"每一步都是与自己的对话"</p>
-                            </div>
-                        </div>
-                        <div class="sport-gallery-grid">
-                            <img src="跑步2.jpg" alt="跑步" loading="lazy">
-                            <img src="跑步3.jpg" alt="跑步" loading="lazy">
-                            <img src="跑步4.jpg" alt="跑步" loading="lazy">
-                        </div>
-                        <div class="sport-info">
-                            <p class="sport-desc">脚步丈量大地，呼吸融入风中。在奔跑中找到节奏，在节奏中找到自己。</p>
-                        </div>
-                    </article>
+        <!-- 运动 — 横向滚动画廊 -->
+        <section class="pe-gallery reveal">
+            <div class="pe-gallery-track">
+                <figure class="pe-gallery-item">
+                    <img src="跑步2.jpg" alt="跑步" loading="lazy">
+                </figure>
+                <figure class="pe-gallery-item">
+                    <img src="跑步3.jpg" alt="跑步" loading="lazy">
+                </figure>
+                <figure class="pe-gallery-item">
+                    <img src="跑步4.jpg" alt="跑步" loading="lazy">
+                </figure>
+            </div>
+        </section>
+
+        <!-- 游泳 — 图文并排 -->
+        <section class="pe-split reveal">
+            <div class="pe-split-image">
+                <img src="游泳.jpg" alt="游泳" loading="lazy">
+            </div>
+            <div class="pe-split-text">
+                <span class="pe-tag">游泳 · Swimming</span>
+                <h3>水中的自由</h3>
+                <p>水中的自由，是另一种呼吸。游到第三个来回的时候，脑子里什么都没有了，只有水声。</p>
+            </div>
+        </section>
+
+        <!-- ========== 过渡呼吸 ========== -->
+        <section class="pe-breath reveal">
+            <p>运动教会我一件事：<br>身体比大脑更诚实。</p>
+        </section>
+
+        <!-- ========== 阅读 ========== -->
+        <section class="pe-narrative pe-narrative--reading reveal">
+            <div class="pe-narrative-inner pe-narrative--offset-left">
+                <span class="pe-tag">阅读 · Reading</span>
+                <h3>书改变过我的想法</h3>
+            </div>
+        </section>
+
+        <section class="pe-books reveal">
+            <div class="pe-book-item">
+                <div class="pe-book-meta">
+                    <span class="pe-book-num">01</span>
+                    <h4>《思考，快与慢》</h4>
+                    <span class="pe-book-author">丹尼尔·卡尼曼</span>
+                </div>
+                <p>读这本书之前，我以为自己的判断都是理性的。读完之后我才意识到，大多数时候我都在用"系统一"做决定——快、自动、但经常出错。这让我开始有意识地慢下来想。</p>
+            </div>
+            <div class="pe-book-item">
+                <div class="pe-book-meta">
+                    <span class="pe-book-num">02</span>
+                    <h4>《原则》</h4>
+                    <span class="pe-book-author">瑞·达利欧</span>
+                </div>
+                <p>这本书让我理解了一件事：把犯过的错变成原则，下次就不用重新想一遍。我开始记录自己的决策和反思，虽然还很粗糙，但这个习惯本身就在改变我。</p>
+            </div>
+            <div class="pe-book-item">
+                <div class="pe-book-meta">
+                    <span class="pe-book-num">03</span>
+                    <h4>《穷查理宝典》</h4>
+                    <span class="pe-book-author">查理·芒格</span>
+                </div>
+                <p>芒格说要建立"多元思维模型"。我还在建的路上，但这个方向感本身就够让我兴奋了——每学一个新领域，就多一个看世界的角度。</p>
+            </div>
+        </section>
+
+        <!-- ========== 过渡呼吸 ========== -->
+        <section class="pe-breath pe-breath--small reveal">
+            <p>每年读 50 本书，不是任务，是习惯。</p>
+        </section>
+
+        <!-- ========== 音乐 ========== -->
+        <section class="pe-bleed pe-bleed--dim reveal">
+            <div class="pe-bleed-color" style="background: linear-gradient(135deg, rgba(196,160,232,0.08), rgba(110,80,160,0.04))"></div>
+            <div class="pe-bleed-overlay pe-bleed-overlay--center">
+                <span class="pe-bleed-label">Music</span>
+                <h2>音乐是背景，也是出口。</h2>
+                <p class="pe-bleed-sub">跑步的时候听、写代码的时候听、发呆的时候也听。<br>不挑类型，只挑感觉。</p>
+            </div>
+        </section>
+
+        <section class="pe-narrative reveal">
+            <div class="pe-narrative-inner pe-narrative--center">
+                <p class="pe-narrative-note">这个区域还在整理——等我把最近的歌单截图放上来。<br>如果你也喜欢在跑步时听歌，我们大概能聊到一起。</p>
+            </div>
+        </section>
+
+        <!-- ========== 学习 ========== -->
+        <section class="pe-narrative pe-narrative--learning reveal">
+            <div class="pe-narrative-inner pe-narrative--offset-right">
+                <span class="pe-tag">学习 · Learning</span>
+                <h3>学习本身就是热情</h3>
+                <p>我享受的不是"学完"的感觉，而是"突然理解了"的那个瞬间。一个概念从模糊变清晰，一段代码从报错到跑通——那种"啊，原来是这样"的时刻，是我最有能量的时候。</p>
+            </div>
+        </section>
+
+        <section class="pe-evidence reveal">
+            <div class="pe-evidence-item">
+                <span class="pe-evidence-icon">🌐</span>
+                <div>
+                    <h4>这个网站</h4>
+                    <p>你正在看的这个网站，就是我从零开始学着做的。HTML、CSS、JavaScript——从完全不懂到能把想法变成页面。</p>
                 </div>
             </div>
-
-            <div id="music" class="tab-content">
-                <div class="card-grid">
-                    <div class="info-card reveal">
-                        <h3>歌曲名称</h3>
-                        <span class="card-meta">歌手名称</span>
-                        <p>—</p>
-                    </div>
-                    <div class="info-card reveal delay-1">
-                        <h3>歌曲名称</h3>
-                        <span class="card-meta">歌手名称</span>
-                        <p>—</p>
-                    </div>
-                    <div class="info-card reveal delay-2">
-                        <h3>歌曲名称</h3>
-                        <span class="card-meta">歌手名称</span>
-                        <p>—</p>
-                    </div>
+            <div class="pe-evidence-item">
+                <span class="pe-evidence-icon">🤖</span>
+                <div>
+                    <h4>AI 协作</h4>
+                    <p>不是让 AI 替我写代码，而是在对话中理解每一行代码的意思。工具放大判断力，但判断力本身需要学习。</p>
                 </div>
             </div>
-
-            <div id="books" class="tab-content">
-                <div class="card-grid">
-                    <div class="info-card reveal">
-                        <h3>《思考，快与慢》</h3>
-                        <span class="card-meta">丹尼尔·卡尼曼</span>
-                        <p>这本书改变了我对决策和思考的理解。</p>
-                    </div>
-                    <div class="info-card reveal delay-1">
-                        <h3>《原则》</h3>
-                        <span class="card-meta">瑞·达利欧</span>
-                        <p>关于生活和工作的原则。</p>
-                    </div>
-                    <div class="info-card reveal delay-2">
-                        <h3>《穷查理宝典》</h3>
-                        <span class="card-meta">查理·芒格</span>
-                        <p>智慧的箴言。</p>
-                    </div>
+            <div class="pe-evidence-item">
+                <span class="pe-evidence-icon">📚</span>
+                <div>
+                    <h4>持续积累</h4>
+                    <p>每天都在学新东西。不追求速成，相信复利。一年后回头看，会发现自己走了多远。</p>
                 </div>
             </div>
+        </section>
 
-            <div id="skills" class="tab-content">
-                <div class="card-grid">
-                    <div class="info-card reveal">
-                        <h3>HTML / CSS</h3>
-                        <span class="card-meta">学习中</span>
-                        <p>从零开始构建网页。</p>
-                        <div class="skill-bar"><div class="skill-level" style="width: 60%;"></div></div>
-                    </div>
-                    <div class="info-card reveal delay-1">
-                        <h3>JavaScript</h3>
-                        <span class="card-meta">刚开始学</span>
-                        <p>让网页动起来。</p>
-                        <div class="skill-bar"><div class="skill-level" style="width: 30%;"></div></div>
-                    </div>
-                    <div class="info-card reveal delay-2">
-                        <h3>阅读</h3>
-                        <span class="card-meta">持续积累</span>
-                        <p>每年50本书的目标。</p>
-                        <div class="skill-bar"><div class="skill-level" style="width: 80%;"></div></div>
-                    </div>
-                </div>
+        <!-- ========== 收束 ========== -->
+        <section class="pe-close reveal">
+            <div class="pe-close-inner">
+                <p>跑步、读书、音乐、学习——<br>这些事串在一起，就是我理解的"好好活着"。</p>
+                <span class="pe-close-cue">如果你在其中找到了共鸣，我们可能聊得来。</span>
             </div>
-
-            </div>
-        </div>
+        </section>
 
         <footer class="footer">
             <div class="footer-quote reveal">"彼当像鸟，飞向汝山"</div>

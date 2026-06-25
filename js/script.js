@@ -509,7 +509,171 @@
   }
 
   /* -------------------------------------------------------
-     18. PASSION WHEEL — Color orb navigation
+     18a. OFFER WHEEL — 5-orb service navigation
+  ------------------------------------------------------- */
+  function initOfferWheel() {
+    var wheel = document.getElementById('offerWheel');
+    if (!wheel) return;
+
+    var orbs = $$('.ow-orb', wheel);
+    var panels = $$('.ow-panel');
+    var centerName = document.getElementById('owCenterName');
+    var centerSub = document.getElementById('owCenterSub');
+    var wrapper = document.querySelector('.ow-panel-wrapper');
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var N = 5;
+
+    var CATS = [
+      { id: 'ai',     label: 'AI 工具',   en: 'AI Tools',    color: [136,196,104], hex: '#88c468' },
+      { id: 'web',    label: '网站搭建',  en: 'Web Dev',     color: [104,180,216], hex: '#68b4d8' },
+      { id: 'tutor',  label: '数理化',    en: 'Tutoring',    color: [224,176,112], hex: '#e0b070' },
+      { id: 'design', label: '文档设计',  en: 'Design',      color: [200,144,216], hex: '#c890d8' },
+      { id: 'collab', label: '协作管理',  en: 'Collab',      color: [112,192,168], hex: '#70c0a8' }
+    ];
+
+    var activeIndex = 0;
+    setActiveColors(0, true);
+    updateWrapperHeight();
+
+    orbs.forEach(function(orb) {
+      orb.addEventListener('click', function() {
+        var idx = parseInt(orb.getAttribute('data-index'));
+        switchTo(idx);
+      });
+    });
+
+    var startX = 0, startY = 0, swiping = false;
+
+    wheel.addEventListener('touchstart', function(e) {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      swiping = true;
+    }, { passive: true });
+
+    wheel.addEventListener('touchmove', function(e) {
+      if (!swiping) return;
+      if (Math.abs(e.touches[0].clientY - startY) > Math.abs(e.touches[0].clientX - startX) && Math.abs(e.touches[0].clientY - startY) > 20) {
+        swiping = false;
+      }
+    }, { passive: true });
+
+    wheel.addEventListener('touchend', function(e) {
+      if (!swiping) return;
+      swiping = false;
+      var dx = e.changedTouches[0].clientX - startX;
+      var dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) switchTo((activeIndex + 1) % N);
+        else switchTo((activeIndex + N - 1) % N);
+      }
+    }, { passive: true });
+
+    document.addEventListener('keydown', function(e) {
+      if (!wheel.closest('#main')) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { switchTo((activeIndex + 1) % N); e.preventDefault(); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { switchTo((activeIndex + N - 1) % N); e.preventDefault(); }
+      if (e.key >= '1' && e.key <= String(N)) { switchTo(parseInt(e.key) - 1); }
+    });
+
+    function switchTo(index) {
+      if (index === activeIndex) return;
+      var oldIndex = activeIndex;
+      activeIndex = index;
+
+      orbs.forEach(function(o) { o.classList.remove('active'); });
+      orbs[index].classList.add('active');
+
+      if (centerName) {
+        centerName.style.opacity = '0';
+        setTimeout(function() {
+          centerName.textContent = CATS[index].label;
+          centerName.style.opacity = '1';
+        }, 150);
+      }
+      if (centerSub) {
+        centerSub.style.opacity = '0';
+        setTimeout(function() {
+          centerSub.textContent = CATS[index].en;
+          centerSub.style.opacity = '1';
+        }, 150);
+      }
+
+      var direction = index > oldIndex ? 1 : -1;
+      if (oldIndex === 0 && index === N - 1) direction = -1;
+      if (oldIndex === N - 1 && index === 0) direction = 1;
+
+      var oldPanel = panels[oldIndex];
+      var newPanel = panels[index];
+
+      if (oldPanel) {
+        oldPanel.classList.add('leaving');
+        oldPanel.classList.add(direction >= 0 ? 'leaving-left' : 'leaving-right');
+        setTimeout(function() {
+          oldPanel.classList.remove('active', 'leaving', 'leaving-left', 'leaving-right');
+        }, reducedMotion ? 0 : 350);
+      }
+
+      setTimeout(function() {
+        if (newPanel) newPanel.classList.add('active');
+        updateWrapperHeight();
+      }, reducedMotion ? 0 : 150);
+
+      setActiveColors(index, false);
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+
+    function setActiveColors(index, instant) {
+      var cat = CATS[index];
+      var r = document.documentElement;
+      if (instant || reducedMotion) {
+        r.style.setProperty('--gold', cat.hex);
+        r.style.setProperty('--gold-dim', 'rgba(' + cat.color.join(',') + ',0.14)');
+        r.style.setProperty('--gold-glow', 'rgba(' + cat.color.join(',') + ',0.07)');
+        return;
+      }
+
+      var startColor = getComputedStyle(r).getPropertyValue('--gold').trim();
+      var startRGB = parseRGB(startColor);
+      var endRGB = cat.color;
+      var duration = 500;
+      var startTime = null;
+
+      function frame(ts) {
+        if (!startTime) startTime = ts;
+        var t = Math.min((ts - startTime) / duration, 1);
+        t = 1 - Math.pow(1 - t, 3);
+        var cr = Math.round(startRGB[0] + (endRGB[0] - startRGB[0]) * t);
+        var cg = Math.round(startRGB[1] + (endRGB[1] - startRGB[1]) * t);
+        var cb = Math.round(startRGB[2] + (endRGB[2] - startRGB[2]) * t);
+        r.style.setProperty('--gold', 'rgb(' + cr + ',' + cg + ',' + cb + ')');
+        r.style.setProperty('--gold-dim', 'rgba(' + cr + ',' + cg + ',' + cb + ',0.14)');
+        r.style.setProperty('--gold-glow', 'rgba(' + cr + ',' + cg + ',' + cb + ',0.07)');
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function parseRGB(str) {
+      if (str.charAt(0) === '#') {
+        var hex = str.replace('#', '');
+        return [parseInt(hex.substr(0,2),16), parseInt(hex.substr(2,2),16), parseInt(hex.substr(4,2),16)];
+      }
+      var m = str.match(/(\d+)/g);
+      return m ? [parseInt(m[0]), parseInt(m[1]), parseInt(m[2])] : [136, 196, 104];
+    }
+
+    function updateWrapperHeight() {
+      if (!wrapper) return;
+      var active = wrapper.querySelector('.ow-panel.active');
+      if (active) {
+        wrapper.style.height = active.scrollHeight + 'px';
+        setTimeout(function() { wrapper.style.height = 'auto'; }, 600);
+      }
+    }
+  }
+
+  /* -------------------------------------------------------
+     18b. PASSION WHEEL — Color orb navigation (legacy, safe no-op)
   ------------------------------------------------------- */
   function initPassionWheel() {
     var wheel = document.getElementById('passionWheel');
@@ -700,6 +864,7 @@
     initProgress();
     initHamburger();
     initActiveNav();
+    initOfferWheel();
     initPassionWheel();
     initTabs();
     initPageTransition();

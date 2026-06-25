@@ -38,31 +38,170 @@
                 <p class="section-desc">每一份帮助，都是一次共同成长的机会。</p>
             </div>
 
-            <div class="offer-grid">
-                <div class="offer-card reveal" data-index="01">
-                    <h3>AI 工具配置</h3>
-                    <p>帮你把 AI 从"能聊天"变成"能帮你做事"。Claude Code、OpenRouter、API Key、Skills、提示词、自动化工作流、命令行配置——从环境搭建到流程优化。</p>
-                    <a href="#" class="offer-link">查看详情</a>
+            <!-- ========== OFFER WHEEL ========== -->
+            <div class="ow-wheel" id="offerWheel">
+                <div class="ow-ring">
+                    <button class="ow-orb active" data-index="0" data-cat="ai">
+                        <span class="ow-orb-glow"></span>
+                        <span class="ow-orb-fill"></span>
+                        <span class="ow-orb-ring"></span>
+                    </button>
+                    <button class="ow-orb" data-index="1" data-cat="web">
+                        <span class="ow-orb-glow"></span>
+                        <span class="ow-orb-fill"></span>
+                        <span class="ow-orb-ring"></span>
+                    </button>
+                    <button class="ow-orb" data-index="2" data-cat="tutor">
+                        <span class="ow-orb-glow"></span>
+                        <span class="ow-orb-fill"></span>
+                        <span class="ow-orb-ring"></span>
+                    </button>
+                    <button class="ow-orb" data-index="3" data-cat="design">
+                        <span class="ow-orb-glow"></span>
+                        <span class="ow-orb-fill"></span>
+                        <span class="ow-orb-ring"></span>
+                    </button>
+                    <button class="ow-orb" data-index="4" data-cat="collab">
+                        <span class="ow-orb-glow"></span>
+                        <span class="ow-orb-fill"></span>
+                        <span class="ow-orb-ring"></span>
+                    </button>
+                    <div class="ow-center">
+                        <span class="ow-center-name" id="owCenterName">AI 工具</span>
+                        <span class="ow-center-sub" id="owCenterSub">AI Tools</span>
+                    </div>
                 </div>
-                <div class="offer-card reveal delay-1" data-index="02">
-                    <h3>个人网站搭建</h3>
-                    <p>从想法到上线，帮你做出自己的网站。设计、开发、部署一站式搞定。</p>
-                    <a href="#" class="offer-link">查看详情</a>
-                </div>
-                <div class="offer-card reveal delay-2" data-index="03">
-                    <h3>高中数理化辅导</h3>
-                    <p>基础薄弱、做题卡住、需要系统梳理？数学、物理、化学知识点讲解，错题分析，解题思路拆解。</p>
-                    <a href="#" class="offer-link">查看详情</a>
-                </div>
-                <div class="offer-card reveal delay-3" data-index="04">
-                    <h3>文档与设计</h3>
-                    <p>海报制作、Word 文档排版、HTML 报告页面——帮你做出好看、专业的成品。已交付：企业分析报告、政策建议稿等。</p>
-                    <a href="offer-detail-doc.html" class="offer-link">查看详情</a>
-                </div>
-                <div class="offer-card reveal delay-3" data-index="05">
-                    <h3>协作与信息管理</h3>
-                    <p>WPS 表单、飞书多维表格、Notion、Obsidian——帮你高效协作、收集和处理信息。还能用 AI 接入飞书，实现自动化工作流。</p>
-                    <a href="#" class="offer-link">查看详情</a>
+                <div class="ow-hint">滑动 · 点击 · 方向键</div>
+            </div>
+
+            <!-- ========== CONTENT PANELS ========== -->
+            <div class="ow-content">
+                <div class="ow-panel-wrapper">
+
+                    <!-- AI 工具配置 -->
+                    <div class="ow-panel active" data-panel="ai">
+                        <div class="ow-panel-head">
+                            <span class="ow-panel-num">01</span>
+                            <h2>AI 工具配置</h2>
+                            <p class="ow-panel-lead">帮你把 AI 从"能聊天"变成"能帮你做事"。</p>
+                        </div>
+                        <div class="ow-panel-body">
+                            <p>很多人知道 ChatGPT、Claude，但停留在"问一句答一句"的阶段。我能帮你搭建真正的 AI 工作流——从环境配置到日常使用，让 AI 成为你的效率倍增器。</p>
+                            <div class="ow-details">
+                                <h4>具体包含</h4>
+                                <ul>
+                                    <li>Claude Code / Cursor / OpenRouter 等工具的安装与配置</li>
+                                    <li>API Key 获取、管理与成本优化</li>
+                                    <li>提示词工程——写出让 AI 真正理解你的 prompt</li>
+                                    <li>自动化工作流搭建（快捷指令、Skills、MCP）</li>
+                                    <li>命令行环境配置与效率工具链</li>
+                                </ul>
+                            </div>
+                            <div class="ow-panel-cta">
+                                <p>感兴趣？微信聊聊：<strong>iDoWantiDoWill</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 个人网站搭建 -->
+                    <div class="ow-panel" data-panel="web">
+                        <div class="ow-panel-head">
+                            <span class="ow-panel-num">02</span>
+                            <h2>个人网站搭建</h2>
+                            <p class="ow-panel-lead">从想法到上线，帮你做出自己的网站。</p>
+                        </div>
+                        <div class="ow-panel-body">
+                            <p>你正在看的这个网站，就是我从零做出来的。设计、开发、部署——一站式搞定。不需要你懂代码，只需要你知道自己想表达什么。</p>
+                            <div class="ow-details">
+                                <h4>具体包含</h4>
+                                <ul>
+                                    <li>个人作品集 / 简历网站设计与开发</li>
+                                    <li>响应式布局，手机电脑都好看</li>
+                                    <li>域名购买与 Cloudflare Pages 部署</li>
+                                    <li>后续维护指导，让你能自己更新内容</li>
+                                </ul>
+                            </div>
+                            <div class="ow-panel-cta">
+                                <p>想要自己的网站？微信聊聊：<strong>iDoWantiDoWill</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 高中数理化辅导 -->
+                    <div class="ow-panel" data-panel="tutor">
+                        <div class="ow-panel-head">
+                            <span class="ow-panel-num">03</span>
+                            <h2>高中数理化辅导</h2>
+                            <p class="ow-panel-lead">基础薄弱也没关系，我们一步一步来。</p>
+                        </div>
+                        <div class="ow-panel-body">
+                            <p>不是那种"把答案讲一遍"的辅导。我会拆解你到底卡在哪一步，从根本上帮你搞懂。做题卡住、知识点混乱、考前需要梳理——都可以找我。</p>
+                            <div class="ow-details">
+                                <h4>具体包含</h4>
+                                <ul>
+                                    <li>数学、物理、化学知识点系统讲解</li>
+                                    <li>错题分析，找到真正的薄弱点</li>
+                                    <li>解题思路拆解，不是背公式而是理解逻辑</li>
+                                    <li>考前重点梳理与提分策略</li>
+                                </ul>
+                            </div>
+                            <div class="ow-panel-cta">
+                                <p>需要辅导？微信聊聊：<strong>iDoWantiDoWill</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 文档与设计 -->
+                    <div class="ow-panel" data-panel="design">
+                        <div class="ow-panel-head">
+                            <span class="ow-panel-num">04</span>
+                            <h2>文档与设计</h2>
+                            <p class="ow-panel-lead">好看、专业的成品，帮你省下排版的时间。</p>
+                        </div>
+                        <div class="ow-panel-body">
+                            <p>海报制作、Word 文档排版、HTML 报告页面——把你的内容变成拿得出手的成品。已交付过企业分析报告、政策建议稿等正式文档。</p>
+                            <div class="ow-details">
+                                <h4>具体包含</h4>
+                                <ul>
+                                    <li>海报与视觉设计（活动海报、宣传图）</li>
+                                    <li>Word / WPS 文档专业排版</li>
+                                    <li>HTML 格式报告页面制作</li>
+                                    <li>PPT 设计与美化</li>
+                                </ul>
+                            </div>
+                            <div class="ow-panel-foot">
+                                <a href="offer-detail-doc.html" class="ow-panel-link">查看案例作品</a>
+                            </div>
+                            <div class="ow-panel-cta">
+                                <p>需要设计？微信聊聊：<strong>iDoWantiDoWill</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 协作与信息管理 -->
+                    <div class="ow-panel" data-panel="collab">
+                        <div class="ow-panel-head">
+                            <span class="ow-panel-num">05</span>
+                            <h2>协作与信息管理</h2>
+                            <p class="ow-panel-lead">帮你高效协作、收集和处理信息。</p>
+                        </div>
+                        <div class="ow-panel-body">
+                            <p>WPS 表单、飞书多维表格、Notion、Obsidian——工具不缺，缺的是把它们串起来的人。我能帮你搭建信息收集、整理、协作的完整流程，还能用 AI 接入飞书实现自动化。</p>
+                            <div class="ow-details">
+                                <h4>具体包含</h4>
+                                <ul>
+                                    <li>飞书多维表格 / Notion 数据库搭建</li>
+                                    <li>WPS 表单收集与自动化处理</li>
+                                    <li>Obsidian 知识库搭建与工作流</li>
+                                    <li>AI + 飞书机器人自动化工作流</li>
+                                </ul>
+                            </div>
+                            <div class="ow-panel-cta">
+                                <p>想提效？微信聊聊：<strong>iDoWantiDoWill</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
