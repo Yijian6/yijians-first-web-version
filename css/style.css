@@ -3359,17 +3359,23 @@ img { max-width: 100%; display: block; }
   }
 
   .pe-gallery-track {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     overflow-x: visible;
     scroll-snap-type: none;
-    gap: 12px;
+    gap: 6px;
   }
-  .pe-gallery-item { width: 100%; }
-  .pe-gallery-item img { aspect-ratio: auto; }
-  .pe-gallery-item--wide { width: 100%; }
-  .pe-gallery-item--wide img { aspect-ratio: auto; }
+  .pe-gallery-item { width: auto; }
+  .pe-gallery-item img { aspect-ratio: 1; }
+  .pe-gallery-item:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .pe-gallery-item:last-child:nth-child(odd) img {
+    aspect-ratio: 16 / 9;
+  }
 
   .pe-moment { padding: clamp(36px, 7vh, 64px) var(--side-pad); }
+  .pe-moment-badge { width: 50vw; max-width: 220px; }
 
   .pe-moment-images {
     margin-left: calc(-1 * var(--side-pad));
