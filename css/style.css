@@ -3339,8 +3339,8 @@ img { max-width: 100%; display: block; }
   .pe-hero h1 { font-size: clamp(36px, 10vw, 56px); }
   .pe-watermark { font-size: clamp(120px, 35vw, 200px); }
 
-  .pe-bleed { min-height: 70vh; min-height: 70dvh; }
-  .pe-bleed--dim { min-height: 50vh; }
+  .pe-bleed { min-height: 50vh; min-height: 50dvh; }
+  .pe-bleed--dim { min-height: 40vh; }
 
   .pe-narrative { padding: clamp(40px, 8vh, 80px) var(--side-pad); }
   .pe-narrative--offset-right .pe-narrative-inner,
@@ -3362,10 +3362,20 @@ img { max-width: 100%; display: block; }
     flex-direction: column;
     overflow-x: visible;
     scroll-snap-type: none;
-    gap: 16px;
+    gap: 12px;
   }
   .pe-gallery-item { width: 100%; }
+  .pe-gallery-item img { aspect-ratio: auto; }
   .pe-gallery-item--wide { width: 100%; }
+  .pe-gallery-item--wide img { aspect-ratio: auto; }
+
+  .pe-moment { padding: clamp(36px, 7vh, 64px) var(--side-pad); }
+
+  .pe-moment-images {
+    margin-left: calc(-1 * var(--side-pad));
+    margin-right: calc(-1 * var(--side-pad));
+  }
+  .pe-moment-images img { border-radius: 0; }
 
   .pe-book-covers img { width: clamp(110px, 32vw, 160px); }
 
