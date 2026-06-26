@@ -3032,17 +3032,19 @@ img { max-width: 100%; display: block; }
 }
 
 .pe-moment-badge {
+  display: block;
+  margin: 0 auto 32px;
   width: clamp(140px, 25vw, 200px);
-  margin-bottom: 32px;
   filter: drop-shadow(0 0 24px rgba(168, 204, 136, 0.15));
 }
 
 .pe-moment-cover {
+  display: block;
+  margin: 24px auto 28px;
   width: clamp(200px, 40vw, 280px);
   border-radius: 6px;
   border: 1px solid var(--white-10);
   box-shadow: 0 16px 48px rgba(0,0,0,0.5);
-  margin-bottom: 32px;
 }
 
 .pe-moment .pe-book-covers {
