@@ -3296,8 +3296,14 @@ img { max-width: 100%; display: block; }
     aspect-ratio: 16 / 10;
   }
 
-  .pe-gallery-item { width: 75vw; }
-  .pe-gallery-item--wide { width: 85vw; }
+  .pe-gallery-track {
+    flex-direction: column;
+    overflow-x: visible;
+    scroll-snap-type: none;
+    gap: 16px;
+  }
+  .pe-gallery-item { width: 100%; }
+  .pe-gallery-item--wide { width: 100%; }
 
   .pe-book-covers img { width: clamp(110px, 32vw, 160px); }
 
@@ -3312,8 +3318,6 @@ img { max-width: 100%; display: block; }
 /* --- Responsive: Small phone (≤480px) --- */
 @media (max-width: 480px) {
   .pe-bleed-overlay h2 { font-size: clamp(20px, 5.5vw, 28px); }
-  .pe-gallery-item { width: 80vw; }
-  .pe-gallery-item--wide { width: 90vw; }
 }
 
 /* =========================================================
