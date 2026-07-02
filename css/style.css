@@ -1158,7 +1158,7 @@ img { max-width: 100%; display: block; }
 .work-outro:hover { border-color: var(--gold-dim); }
 
 .work-outro::before {
-  content: '08';
+  content: '11';
   position: absolute;
   top: 50%;
   left: 50%;
