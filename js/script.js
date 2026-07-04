@@ -337,6 +337,9 @@
     // Click on WeChat trigger
     $$('.wechat-trigger').forEach(function (el) {
       el.addEventListener('click', openLightbox);
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') openLightbox(e);
+      });
     });
 
     // Close: click overlay (not card), or close button
