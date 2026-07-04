@@ -853,6 +853,67 @@
   }
 
   /* -------------------------------------------------------
+     PRODUCT THEATER — in-page live product experience
+  ------------------------------------------------------- */
+  function initProductTheater() {
+    var ctas = $$('.timeline-cta[data-theater-title]');
+    if (!ctas.length) return;
+
+    var overlay = document.createElement('div');
+    overlay.className = 'product-theater';
+    overlay.innerHTML =
+      '<div class="pt-bar">' +
+        '<span class="pt-title"></span>' +
+        '<a class="pt-open" href="" target="_blank" rel="noopener">新窗口打开 ↗</a>' +
+        '<button class="pt-close" aria-label="Close">×</button>' +
+      '</div>' +
+      '<div class="pt-frame"><span class="pt-loading">LOADING…</span></div>';
+    document.body.appendChild(overlay);
+
+    var title = overlay.querySelector('.pt-title');
+    var openLink = overlay.querySelector('.pt-open');
+    var closeBtn = overlay.querySelector('.pt-close');
+    var frame = overlay.querySelector('.pt-frame');
+    var loading = overlay.querySelector('.pt-loading');
+    var iframe = null;
+
+    function openTheater(url, name) {
+      title.textContent = name;
+      openLink.href = url;
+      loading.style.display = '';
+      // Lazy-create the iframe only when the visitor asks for it
+      iframe = document.createElement('iframe');
+      iframe.setAttribute('allow', 'clipboard-write');
+      iframe.addEventListener('load', function () {
+        loading.style.display = 'none';
+      });
+      iframe.src = url;
+      frame.appendChild(iframe);
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeTheater() {
+      if (!overlay.classList.contains('open')) return;
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      if (iframe) { iframe.remove(); iframe = null; }
+    }
+
+    ctas.forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        openTheater(el.getAttribute('href'), el.getAttribute('data-theater-title'));
+      });
+    });
+
+    closeBtn.addEventListener('click', closeTheater);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeTheater();
+    });
+  }
+
+  /* -------------------------------------------------------
      BOOT
   ------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -871,6 +932,7 @@
     initFullscreenUniverseLink();
     initLightbox();
     initProjectLightbox();
+    initProductTheater();
     initMarquee();
     initTypewriter();
     initParallax();

@@ -1144,6 +1144,198 @@ img { max-width: 100%; display: block; }
   .timeline-item:nth-child(even) .timeline-content { order: 1; }
 }
 
+/* ——— Featured product cards ——— */
+.timeline-item.featured { border-color: var(--gold-dim); }
+
+.timeline-item.featured:hover { border-color: rgba(168, 204, 136, 0.35); }
+
+.timeline-item.featured::before,
+.timeline-item.featured::after { color: var(--gold); }
+
+.featured-ribbon {
+  position: absolute;
+  top: -10px;
+  left: 28px;
+  z-index: 3;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--gold);
+  padding: 4px 12px;
+  pointer-events: none;
+}
+
+.timeline-benefit {
+  display: block;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(16px, 2vw, 20px);
+  color: var(--gold);
+  letter-spacing: 0.01em;
+  margin-bottom: 10px;
+}
+
+.timeline-hook {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.8;
+  letter-spacing: 0.04em;
+  color: var(--white-60);
+  border-left: 2px solid var(--gold-dim);
+  padding: 2px 0 2px 14px;
+  margin-bottom: 22px;
+}
+
+.timeline-hook em {
+  font-style: normal;
+  color: var(--gold);
+}
+
+.timeline-cta {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--gold);
+  padding: 13px 26px;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease, gap 0.3s var(--ease-out-expo);
+}
+
+.timeline-cta::after { content: '→'; }
+
+.timeline-cta:hover {
+  background: var(--gold-bright);
+  gap: 16px;
+}
+
+/* ——— Product Theater: in-page live product experience ——— */
+.product-theater {
+  position: fixed;
+  inset: 0;
+  z-index: 99995;
+  background: rgba(6, 8, 5, 0.94);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.product-theater.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pt-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  flex-shrink: 0;
+  padding: 0 clamp(16px, 3vw, 32px);
+  background: var(--bg);
+  border-bottom: 1px solid var(--white-10);
+}
+
+.pt-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.pt-title::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+  flex-shrink: 0;
+  animation: statusPulse 2.4s ease-in-out infinite;
+}
+
+.pt-open {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--white-60);
+  border: 1px solid var(--white-10);
+  padding: 8px 14px;
+  white-space: nowrap;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.pt-open:hover {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+}
+
+.pt-close {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--white-60);
+  background: none;
+  border: 1px solid var(--white-10);
+  cursor: pointer;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.pt-close:hover {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+}
+
+.pt-frame {
+  flex: 1;
+  position: relative;
+  background: #000;
+}
+
+.pt-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.pt-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--white-30);
+}
+
 /* ——— Work Outro: the empty slot for what's next ——— */
 .work-outro {
   margin-top: clamp(48px, 8vh, 96px);
@@ -4135,6 +4327,17 @@ img { max-width: 100%; display: block; }
   /* Timeline ghost & outro scale down */
   .timeline-ghost { font-size: 60px; top: -8px; right: 4px; }
   .work-outro p { max-width: 100%; }
+
+  /* Featured cards on mobile */
+  .featured-ribbon { left: 16px; }
+  .timeline-benefit { font-size: 16px; }
+  .timeline-cta {
+    align-self: stretch;
+    justify-content: center;
+    padding: 14px 20px;
+  }
+  .pt-bar { height: 52px; gap: 10px; }
+  .pt-title { font-size: 10px; }
 
   /* Offer grid */
   .offer-grid { grid-template-columns: 1fr; }
