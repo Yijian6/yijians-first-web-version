@@ -1168,16 +1168,6 @@ img { max-width: 100%; display: block; }
   pointer-events: none;
 }
 
-.timeline-benefit {
-  display: block;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: clamp(16px, 2vw, 20px);
-  color: var(--gold);
-  letter-spacing: 0.01em;
-  margin-bottom: 10px;
-}
-
 .timeline-hook {
   font-family: var(--font-mono);
   font-size: 10.5px;
@@ -4337,7 +4327,6 @@ img { max-width: 100%; display: block; }
     justify-self: start;
     margin: 14px 16px 0;
   }
-  .timeline-benefit { font-size: 16px; }
   .timeline-cta {
     align-self: stretch;
     justify-content: center;
