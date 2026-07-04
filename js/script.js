@@ -315,16 +315,39 @@
       '<div class="lightbox-card">' +
         '<button class="lightbox-close" aria-label="Close">×</button>' +
         '<div class="lightbox-label">WeChat / 微信</div>' +
-        '<img src="Wechat Photo.jpg" alt="WeChat QR Code">' +
-        '<div class="lightbox-hint">Click anywhere to close</div>' +
+        '<div class="chat-mode" role="switch" aria-checked="false" tabindex="0" aria-label="进入聊天模式">' +
+          '<span class="chat-mode-text">进入聊天模式</span>' +
+          '<span class="chat-mode-toggle" aria-hidden="true"><span class="chat-mode-knob"></span></span>' +
+        '</div>' +
+        '<div class="lightbox-qr">' +
+          '<img src="Wechat Photo.jpg" alt="WeChat QR Code">' +
+          '<div class="lightbox-hint">Click anywhere to close</div>' +
+        '</div>' +
       '</div>';
     document.body.appendChild(overlay);
 
     var card = overlay.querySelector('.lightbox-card');
     var closeBtn = overlay.querySelector('.lightbox-close');
+    var chatMode = overlay.querySelector('.chat-mode');
+
+    function setChatOn(on) {
+      card.classList.toggle('chat-on', on);
+      chatMode.setAttribute('aria-checked', on ? 'true' : 'false');
+    }
+
+    chatMode.addEventListener('click', function () {
+      setChatOn(!card.classList.contains('chat-on'));
+    });
+    chatMode.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setChatOn(!card.classList.contains('chat-on'));
+      }
+    });
 
     function openLightbox(e) {
       e.preventDefault();
+      setChatOn(false);
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
     }

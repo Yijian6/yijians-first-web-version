@@ -4078,14 +4078,14 @@ img { max-width: 100%; display: block; }
 .wechat-trigger:hover { color: var(--gold); }
 
 /* =========================================================
-   CHAT MODE TOGGLE（进入聊天模式动效）
+   CHAT MODE TOGGLE（灯箱内「进入聊天模式」开关）
 ========================================================= */
 .chat-mode {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 14px;
+  padding: 12px 0 4px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -4096,10 +4096,10 @@ img { max-width: 100%; display: block; }
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--white-90);
-  transition: color 0.3s ease;
+  transition: color 0.4s ease;
 }
 
-.chat-mode:hover .chat-mode-text { color: var(--gold); }
+.lightbox-card.chat-on .chat-mode-text { color: var(--gold); }
 
 .chat-mode-toggle {
   position: relative;
@@ -4108,7 +4108,7 @@ img { max-width: 100%; display: block; }
   border-radius: 999px;
   border: 1px solid var(--white-10);
   background: var(--white-10);
-  animation: chatModeTrack 5.2s ease-in-out infinite;
+  transition: background 0.55s ease, box-shadow 0.55s ease;
 }
 
 .chat-mode-knob {
@@ -4120,28 +4120,37 @@ img { max-width: 100%; display: block; }
   border-radius: 50%;
   background: var(--white);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-  animation: chatModeKnob 5.2s ease-in-out infinite;
+  transition: transform 0.55s var(--ease-out-expo);
 }
 
-@keyframes chatModeTrack {
-  0%, 32% {
-    background: var(--white-10);
-    box-shadow: none;
-  }
-  46%, 82% {
-    background: var(--gold);
-    box-shadow: 0 0 18px var(--gold-glow);
-  }
-  96%, 100% {
-    background: var(--white-10);
-    box-shadow: none;
-  }
+.lightbox-card.chat-on .chat-mode-toggle {
+  background: var(--gold);
+  box-shadow: 0 0 18px var(--gold-glow);
 }
 
-@keyframes chatModeKnob {
-  0%, 32% { transform: translateX(0); }
-  46%, 82% { transform: translateX(26px); }
-  96%, 100% { transform: translateX(0); }
+.lightbox-card.chat-on .chat-mode-knob {
+  transform: translateX(26px);
+}
+
+/* 开关拨开后二维码展开 */
+.lightbox-qr {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-top: 0;
+  transform: translateY(10px);
+  transition: max-height 0.5s var(--ease-out-expo),
+              opacity 0.35s ease,
+              margin-top 0.5s var(--ease-out-expo),
+              transform 0.5s var(--ease-out-expo);
+}
+
+.lightbox-card.chat-on .lightbox-qr {
+  max-height: 70vh;
+  opacity: 1;
+  margin-top: 18px;
+  transform: none;
+  transition-delay: 0.3s;
 }
 
 /* =========================================================
@@ -4175,7 +4184,7 @@ img { max-width: 100%; display: block; }
   background: var(--bg-surface);
   border: 1px solid var(--white-10);
   padding: clamp(16px, 3vw, 32px);
-  max-width: min(420px, 90vw);
+  width: min(420px, 90vw);
   transform: scale(0.92) translateY(20px);
   transition: transform 0.5s var(--ease-out-expo);
 }
@@ -4502,13 +4511,4 @@ img { max-width: 100%; display: block; }
   .reveal-clip { clip-path: none; }
   .kinetic-text .char { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
-  /* 减动效时开关静态停在「开」状态 */
-  .chat-mode-toggle {
-    animation: none;
-    background: var(--gold);
-  }
-  .chat-mode-knob {
-    animation: none;
-    transform: translateX(26px);
-  }
 }
