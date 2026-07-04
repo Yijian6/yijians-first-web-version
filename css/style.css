@@ -4324,12 +4324,19 @@ img { max-width: 100%; display: block; }
   .wm-cell:nth-child(2n) { border-right: none; }
   .wm-cell:nth-child(n+3) { border-bottom: none; }
 
-  /* Timeline ghost & outro scale down */
-  .timeline-ghost { font-size: 60px; top: -8px; right: 4px; }
+  /* Timeline ghost hidden on mobile — the index badge already shows the number */
+  .timeline-ghost { display: none; }
   .work-outro p { max-width: 100%; }
 
-  /* Featured cards on mobile */
-  .featured-ribbon { left: 16px; }
+  /* Featured cards on mobile: ribbon becomes a static tag above the
+     screenshot instead of floating over the product UI */
+  .featured-ribbon {
+    position: static;
+    top: auto;
+    left: auto;
+    justify-self: start;
+    margin: 14px 16px 0;
+  }
   .timeline-benefit { font-size: 16px; }
   .timeline-cta {
     align-self: stretch;
