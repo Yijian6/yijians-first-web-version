@@ -4329,7 +4329,7 @@ img { max-width: 100%; display: block; }
   }
 
   .statement-title {
-    font-size: clamp(60px, 6vw, 110px);
+    font-size: clamp(40px, 8vw, 110px);
   }
 }
 
@@ -4578,10 +4578,10 @@ img { max-width: 100%; display: block; }
   .reveal, .reveal-left, .reveal-scale { opacity: 1; transform: none; }
   .reveal-clip { clip-path: none; }
   .kinetic-text .char { opacity: 1; transform: none; }
-  .statement-num,
-  .statement-label,
-  .statement-title,
-  .statement-divider,
-  .statement-body { opacity: 1; transform: none; }
+  .statement-section.revealed .statement-num,
+  .statement-section.revealed .statement-label,
+  .statement-section.revealed .statement-title,
+  .statement-section.revealed .statement-divider,
+  .statement-section.revealed .statement-body { opacity: 1; transform: none; }
   html { scroll-behavior: auto; }
 }
