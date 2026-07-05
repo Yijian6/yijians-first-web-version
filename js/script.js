@@ -91,8 +91,27 @@
       rootMargin: '0px 0px -60px 0px'
     });
 
-    $$('.reveal, .reveal-left, .reveal-scale, .reveal-clip, .kinetic-text, .statement-section').forEach(function (el) {
+    $$('.reveal, .reveal-left, .reveal-scale, .reveal-clip, .kinetic-text').forEach(function (el) {
       observer.observe(el);
+    });
+
+    var statementMargin = window.innerWidth >= 769 ? '0px 0px -100px 0px' : '0px 0px -60px 0px';
+    var statementObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('revealed');
+        statementObserver.unobserve(entry.target);
+        setTimeout(function () {
+          entry.target.classList.add('anim-done');
+        }, 1400);
+      });
+    }, {
+      threshold: 0.15,
+      rootMargin: statementMargin
+    });
+
+    $$('.statement-section').forEach(function (el) {
+      statementObserver.observe(el);
     });
   }
 
