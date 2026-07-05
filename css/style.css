@@ -998,7 +998,7 @@ img { max-width: 100%; display: block; }
 .work-manifest {
   margin-top: clamp(32px, 5vh, 56px);
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   border: 1px solid var(--white-10);
   background: var(--bg-surface);
 }
