@@ -717,6 +717,50 @@
   }
 
   /* -------------------------------------------------------
+     18a-2. OPENER COPY — 开口模板一键复制（offer.html）
+  ------------------------------------------------------- */
+  function initOpenerCopy() {
+    var btn = document.getElementById('openerCopy');
+    if (!btn) return;
+
+    var defaultText = btn.textContent;
+    var resetTimer = null;
+
+    btn.addEventListener('click', function () {
+      var text = btn.getAttribute('data-copy');
+
+      function done(ok) {
+        btn.textContent = ok ? '已复制，去微信粘贴吧' : '复制失败，长按上面这句话吧';
+        btn.classList.toggle('copied', ok);
+        clearTimeout(resetTimer);
+        resetTimer = setTimeout(function () {
+          btn.textContent = defaultText;
+          btn.classList.remove('copied');
+        }, 2500);
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallbackCopy(text)); });
+      } else {
+        done(fallbackCopy(text));
+      }
+    });
+
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+      return ok;
+    }
+  }
+
+  /* -------------------------------------------------------
      18b. PASSION WHEEL — Color orb navigation (legacy, safe no-op)
   ------------------------------------------------------- */
   function initPassionWheel() {
@@ -1005,6 +1049,7 @@
     initHamburger();
     initActiveNav();
     initOfferWheel();
+    initOpenerCopy();
     initPassionWheel();
     initTabs();
     initPageTransition();

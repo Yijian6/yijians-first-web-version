@@ -837,14 +837,6 @@ img { max-width: 100%; display: block; }
   line-height: 1.8;
 }
 
-.section-desc strong {
-  color: var(--gold);
-  font-weight: 500;
-  font-family: var(--font-mono);
-  font-size: 0.95em;
-  letter-spacing: 0.03em;
-}
-
 /* =========================================================
    WORK PAGE — Editorial Gallery
 ========================================================= */
@@ -1897,7 +1889,7 @@ img { max-width: 100%; display: block; }
   border-bottom-color: var(--gold);
 }
 
-/* Outro — 统一开口引导 */
+/* Outro — 开口模板 */
 .ow-outro {
   max-width: 800px;
   margin: 0 auto;
@@ -1912,12 +1904,49 @@ img { max-width: 100%; display: block; }
   line-height: 1.9;
 }
 
-.ow-outro strong {
-  color: var(--gold);
-  font-weight: 500;
+.ow-outro .ow-opener-hint {
+  margin-top: 8px;
   font-family: var(--font-mono);
-  font-size: 0.95em;
-  letter-spacing: 0.03em;
+  font-size: clamp(11px, 1.2vw, 12px);
+  letter-spacing: 0.1em;
+  color: var(--white-30);
+}
+
+.ow-opener-line {
+  margin: 16px auto 20px;
+  max-width: 520px;
+  padding: clamp(16px, 3vw, 24px);
+  border: var(--brutal-border);
+  background: var(--bg-surface);
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.8;
+  color: var(--white-90);
+}
+
+.ow-opener-copy {
+  display: inline-block;
+  padding: 12px 28px;
+  border: 1px solid var(--gold);
+  background: none;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ow-opener-copy:hover {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.ow-opener-copy.copied {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--bg);
 }
 
 /* --- Responsive: Offer Wheel --- */
