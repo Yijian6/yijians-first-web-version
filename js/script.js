@@ -1062,29 +1062,66 @@
       'NARRATIVE CONSISTENCY'
     ];
 
+    // 第九个词：还没解析出来的身份 — 乱码 + 结尾一个 ?
+    var GLITCH_CHARS = '█▓▒░#%/\\<>*+=';
+    var GLITCH_LEN = 9;
+
+    function randGlitch(n) {
+      var s = '';
+      for (var i = 0; i < n; i++) {
+        s += GLITCH_CHARS.charAt(Math.floor(Math.random() * GLITCH_CHARS.length));
+      }
+      return s + '?';
+    }
+
     var wi = 0;
     var ci = 0;
     var deleting = false;
+    var current = WORDS[0];
+
+    function holdThenDelete(w) {
+      deleting = true;
+      status.classList.remove('is-typing');
+      if (wi === WORDS.length) {
+        // 乱码词在停顿期间持续闪变，末尾的 ? 不动
+        var flickers = 0;
+        var fl = setInterval(function () {
+          current = randGlitch(GLITCH_LEN);
+          word.textContent = current;
+          flickers++;
+          if (flickers >= 25) {
+            clearInterval(fl);
+            setTimeout(tick, 300);
+          }
+        }, 80);
+      } else {
+        setTimeout(tick, 2000);
+      }
+    }
 
     function tick() {
-      var w = WORDS[wi];
       if (!deleting) {
         ci++;
-        word.textContent = w.slice(0, ci);
-        if (ci === w.length) {
-          deleting = true;
-          status.classList.remove('is-typing');
-          setTimeout(tick, 2000);
+        word.textContent = current.slice(0, ci);
+        if (ci === current.length) {
+          holdThenDelete(current);
           return;
         }
         status.classList.add('is-typing');
         setTimeout(tick, 70);
       } else {
         ci--;
-        word.textContent = w.slice(0, ci);
+        word.textContent = current.slice(0, ci);
         if (ci === 0) {
           deleting = false;
-          wi = (wi + 1) % WORDS.length;
+          wi = (wi + 1) % (WORDS.length + 1);
+          if (wi === WORDS.length) {
+            current = randGlitch(GLITCH_LEN);
+            status.classList.add('is-glitch');
+          } else {
+            current = WORDS[wi];
+            status.classList.remove('is-glitch');
+          }
           status.classList.remove('is-typing');
           setTimeout(tick, 500);
           return;

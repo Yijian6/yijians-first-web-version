@@ -4104,6 +4104,14 @@ img { max-width: 100%; display: block; }
   50%, 100% { opacity: 0; }
 }
 
+.becoming-status.is-glitch .becoming-type-word {
+  color: var(--accent2);
+}
+
+.becoming-status.is-glitch .becoming-type-cursor {
+  background: var(--accent2);
+}
+
 @media (max-width: 480px) {
   .becoming-status {
     font-size: 11px;
