@@ -1037,6 +1037,33 @@
     io.observe(el);
   }
 
+  function initWorkCount() {
+    var el = $('#workCount');
+    if (!el) return;
+    var target = 10;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) {
+      el.textContent = target;
+      return;
+    }
+    el.textContent = '0';
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      io.disconnect();
+      var t0 = null;
+      var dur = 400;
+      function tick(t) {
+        if (t0 === null) t0 = t;
+        var p = Math.min((t - t0) / dur, 1);
+        p = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(p * target);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }, { threshold: 0.4 });
+    io.observe(el);
+  }
+
   /* -------------------------------------------------------
      BECOMING STATUS — unfinished sentence typewriter
      Cycles the 8 statement labels after "I AM BECOMING",
@@ -1154,6 +1181,7 @@
     initLightbox();
     initProjectLightbox();
     initProductTheater();
+    initWorkCount();
     initWorkStatus();
     initBecomingStatus();
     initMarquee();

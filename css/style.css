@@ -994,42 +994,64 @@ img { max-width: 100%; display: block; }
 
 .timeline-link:hover::after { transform: translateX(4px); }
 
-/* ——— Work Manifest (archive index strip) ——— */
-.work-manifest {
-  margin-top: clamp(32px, 5vh, 56px);
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  border: 1px solid var(--white-10);
-  background: var(--bg-surface);
+/* ——— Work Annotation Line (editorial index) ——— */
+.work-anno {
+  margin-top: clamp(28px, 4vh, 48px);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: clamp(16px, 3vw, 28px);
 }
 
-.wm-cell {
-  padding: clamp(16px, 2.5vw, 24px) clamp(16px, 2.5vw, 28px);
-  border-right: 1px solid var(--white-10);
+.work-anno-count {
+  opacity: 0;
+  transition: opacity 0.6s ease 0.2s;
 }
-
-.wm-cell:last-child { border-right: none; }
-
-.wm-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--white-30);
-  margin-bottom: 10px;
-}
-
-.wm-value {
+.work-anno-count em {
   font-family: var(--font-display);
-  font-size: clamp(15px, 1.8vw, 21px);
-  color: var(--white);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
+  font-size: clamp(28px, 5vw, 42px);
+  font-style: italic;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+}
+.work-anno-count span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--white-30);
+  margin-left: 6px;
 }
 
-.wm-value em { font-style: italic; color: var(--gold); }
+.work-anno-rule {
+  width: 40px;
+  height: 1px;
+  background: var(--white-10);
+  transform: scaleX(0);
+  transition: transform 0.8s var(--ease-out-expo) 0.3s;
+}
+
+.work-anno-since {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--white-30);
+  opacity: 0;
+  transition: opacity 0.6s ease 0.5s;
+}
+.work-anno-since em {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 3vw, 28px);
+  font-style: italic;
+  color: var(--white-90);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.work-anno.revealed .work-anno-count { opacity: 1; }
+.work-anno.revealed .work-anno-rule { transform: scaleX(1); }
+.work-anno.revealed .work-anno-since { opacity: 1; }
 
 .wm-live-dot {
   display: inline-block;
@@ -4608,8 +4630,8 @@ img { max-width: 100%; display: block; }
     transform: translateY(0);
   }
 
-  /* Work manifest → side-by-side */
-  .work-manifest { grid-template-columns: 1fr 1fr; }
+  /* Work annotation — tighter on mobile */
+  .work-anno { gap: 12px; }
 
   /* Footer status row: tighter on small screens */
   .work-status { gap: 10px; }
@@ -4734,6 +4756,8 @@ img { max-width: 100%; display: block; }
   }
   .reveal, .reveal-left, .reveal-scale { opacity: 1; transform: none; }
   .reveal-clip { clip-path: none; }
+  .work-anno-count, .work-anno-since { opacity: 1; }
+  .work-anno-rule { transform: scaleX(1); }
   .work-status-line, .work-status-dot, .work-status-text { opacity: 1; transform: none; }
   .footer-grow::before { transform: scaleX(1); }
   .kinetic-text .char { opacity: 1; transform: none; }
