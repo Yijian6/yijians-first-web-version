@@ -998,7 +998,7 @@ img { max-width: 100%; display: block; }
 .work-manifest {
   margin-top: clamp(32px, 5vh, 56px);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   border: 1px solid var(--white-10);
   background: var(--bg-surface);
 }
@@ -4070,6 +4070,49 @@ img { max-width: 100%; display: block; }
   100% { transform: translateX(100%); }
 }
 
+/* ——— Work Footer Status ——— */
+.work-status {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+
+.work-status-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--white-30);
+}
+
+.work-status-line {
+  width: 40px;
+  height: 1px;
+  background: var(--white-10);
+}
+
+.work-status-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold), 0 0 20px var(--gold-glow);
+  animation: statusPulse 2.4s ease-in-out infinite;
+}
+
+.work-status-text {
+  font-family: var(--font-display);
+  font-size: clamp(13px, 1.5vw, 16px);
+  font-style: italic;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+}
+
 /* =========================================================
    FOOTER
 ========================================================= */
@@ -4452,11 +4495,8 @@ img { max-width: 100%; display: block; }
     transform: translateY(0);
   }
 
-  /* Work manifest → 2×2 grid */
+  /* Work manifest → side-by-side */
   .work-manifest { grid-template-columns: 1fr 1fr; }
-  .wm-cell { border-bottom: 1px solid var(--white-10); }
-  .wm-cell:nth-child(2n) { border-right: none; }
-  .wm-cell:nth-child(n+3) { border-bottom: none; }
 
   /* Timeline ghost hidden on mobile — the index badge already shows the number */
   .timeline-ghost { display: none; }
