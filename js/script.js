@@ -554,7 +554,7 @@
   }
 
   /* -------------------------------------------------------
-     18a. OFFER WHEEL — 5-orb service navigation
+     18a. OFFER WHEEL — 4-orb scenario navigation
   ------------------------------------------------------- */
   function initOfferWheel() {
     var wheel = document.getElementById('offerWheel');
@@ -566,14 +566,13 @@
     var centerSub = document.getElementById('owCenterSub');
     var wrapper = document.querySelector('.ow-panel-wrapper');
     var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var N = 5;
+    var N = 4;
 
     var CATS = [
-      { id: 'ai',     label: 'AI 工具',   en: 'AI Tools',    color: [136,196,104], hex: '#88c468' },
-      { id: 'web',    label: '网站搭建',  en: 'Web Dev',     color: [104,180,216], hex: '#68b4d8' },
-      { id: 'tutor',  label: '数理化',    en: 'Tutoring',    color: [224,176,112], hex: '#e0b070' },
-      { id: 'design', label: '文档设计',  en: 'Design',      color: [200,144,216], hex: '#c890d8' },
-      { id: 'collab', label: '协作管理',  en: 'Collab',      color: [112,192,168], hex: '#70c0a8' }
+      { id: 'ai',     label: '用上 AI',    en: 'Get AI Working', color: [136,196,104], hex: '#88c468' },
+      { id: 'design', label: '拿得出手',   en: 'Make it Shine',  color: [200,144,216], hex: '#c890d8' },
+      { id: 'web',    label: '自己的网站', en: 'Your Own Site',  color: [104,180,216], hex: '#68b4d8' },
+      { id: 'collab', label: '自动化',     en: 'Automate it',    color: [112,192,168], hex: '#70c0a8' }
     ];
 
     var activeIndex = 0;
