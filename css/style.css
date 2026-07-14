@@ -1548,7 +1548,7 @@ img { max-width: 100%; display: block; }
   transition: border-color 0.5s ease;
 }
 
-/* 4-orb positions (diamond layout) */
+/* 5-orb positions (pentagon layout) */
 .ow-orb {
   position: absolute;
   width: var(--orb-size);
@@ -1564,23 +1564,29 @@ img { max-width: 100%; display: block; }
   will-change: transform;
 }
 
-/* Diamond positions: top, right, bottom, left */
+/* Pentagon positions: top-center, top-right, bottom-right, bottom-left, top-left */
 .ow-orb[data-index="0"] {
   top: 0;
   left: calc(50% - var(--orb-half));
 }
 .ow-orb[data-index="1"] {
-  top: calc(50% - var(--orb-half));
+  top: calc(50% - var(--ring-size) * 0.095 - var(--orb-half));
   right: 0;
   left: auto;
 }
 .ow-orb[data-index="2"] {
-  bottom: 0;
-  left: calc(50% - var(--orb-half));
+  bottom: calc(var(--ring-size) * 0.095);
+  right: calc(var(--ring-size) * 0.095);
   top: auto;
+  left: auto;
 }
 .ow-orb[data-index="3"] {
-  top: calc(50% - var(--orb-half));
+  bottom: calc(var(--ring-size) * 0.095);
+  left: calc(var(--ring-size) * 0.095);
+  top: auto;
+}
+.ow-orb[data-index="4"] {
+  top: calc(50% - var(--ring-size) * 0.095 - var(--orb-half));
   left: 0;
 }
 
@@ -1606,6 +1612,9 @@ img { max-width: 100%; display: block; }
 }
 .ow-orb[data-cat="collab"] .ow-orb-fill {
   background: radial-gradient(circle at 38% 32%, #a8d8c8, #70c0a8 50%, #48a080);
+}
+.ow-orb[data-cat="radar"] .ow-orb-fill {
+  background: radial-gradient(circle at 38% 32%, #f0d0a0, #e0b070 50%, #c89040);
 }
 
 .ow-orb:not(.active) .ow-orb-fill {
@@ -1643,6 +1652,7 @@ img { max-width: 100%; display: block; }
 .ow-orb[data-cat="web"] .ow-orb-glow { background: #68b4d8; }
 .ow-orb[data-cat="design"] .ow-orb-glow { background: #c890d8; }
 .ow-orb[data-cat="collab"] .ow-orb-glow { background: #70c0a8; }
+.ow-orb[data-cat="radar"] .ow-orb-glow { background: #e0b070; }
 
 /* Labels */
 .ow-orb::after {
@@ -1685,11 +1695,19 @@ img { max-width: 100%; display: block; }
 
 .ow-orb[data-index="3"]::after {
   content: '自动化';
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.ow-orb[data-index="3"].active::after { transform: translateX(-50%) scale(0.833); }
+
+.ow-orb[data-index="4"]::after {
+  content: '跟上 AI';
   right: calc(100% + 12px);
   top: 50%;
   transform: translateY(-50%);
 }
-.ow-orb[data-index="3"].active::after { transform: translateY(-50%) scale(0.833); }
+.ow-orb[data-index="4"].active::after { transform: translateY(-50%) scale(0.833); }
 
 /* Center text */
 .ow-center {
@@ -1970,7 +1988,8 @@ img { max-width: 100%; display: block; }
   .ow-orb[data-index="0"]::after { bottom: calc(100% + 8px); }
   .ow-orb[data-index="1"]::after { left: calc(100% + 8px); }
   .ow-orb[data-index="2"]::after { top: calc(100% + 8px); }
-  .ow-orb[data-index="3"]::after { right: calc(100% + 8px); }
+  .ow-orb[data-index="3"]::after { top: calc(100% + 8px); }
+  .ow-orb[data-index="4"]::after { right: calc(100% + 8px); }
 }
 
 @media (max-width: 480px) {
