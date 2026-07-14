@@ -572,7 +572,7 @@
       { id: 'ai',     label: '用上 AI',    en: 'Get AI Working', color: [136,196,104], hex: '#88c468' },
       { id: 'design', label: '拿得出手',   en: 'Make it Shine',  color: [200,144,216], hex: '#c890d8' },
       { id: 'web',    label: '自己的网站', en: 'Your Own Site',  color: [104,180,216], hex: '#68b4d8' },
-      { id: 'collab', label: '自动化',     en: 'Automate it',    color: [112,192,168], hex: '#70c0a8' },
+      { id: 'collab', label: '自动化',     en: 'Automate it',    color: [212,115,74],  hex: '#d4734a' },
       { id: 'radar',  label: '跟上 AI',    en: 'AI Radar',       color: [224,176,112], hex: '#e0b070' }
     ];
 

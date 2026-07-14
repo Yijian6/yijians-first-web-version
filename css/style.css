@@ -1611,7 +1611,7 @@ img { max-width: 100%; display: block; }
   background: radial-gradient(circle at 38% 32%, #e0b8e8, #c890d8 50%, #a868b8);
 }
 .ow-orb[data-cat="collab"] .ow-orb-fill {
-  background: radial-gradient(circle at 38% 32%, #a8d8c8, #70c0a8 50%, #48a080);
+  background: radial-gradient(circle at 38% 32%, #e89878, #d4734a 50%, #b85830);
 }
 .ow-orb[data-cat="radar"] .ow-orb-fill {
   background: radial-gradient(circle at 38% 32%, #f0d0a0, #e0b070 50%, #c89040);
@@ -1651,7 +1651,7 @@ img { max-width: 100%; display: block; }
 .ow-orb[data-cat="ai"] .ow-orb-glow { background: #88c468; }
 .ow-orb[data-cat="web"] .ow-orb-glow { background: #68b4d8; }
 .ow-orb[data-cat="design"] .ow-orb-glow { background: #c890d8; }
-.ow-orb[data-cat="collab"] .ow-orb-glow { background: #70c0a8; }
+.ow-orb[data-cat="collab"] .ow-orb-glow { background: #d4734a; }
 .ow-orb[data-cat="radar"] .ow-orb-glow { background: #e0b070; }
 
 /* Labels */
