@@ -1741,19 +1741,6 @@ img { max-width: 100%; display: block; }
   transition: opacity 0.25s ease;
 }
 
-/* Hint */
-.ow-hint {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  color: var(--white-30);
-  text-align: center;
-  margin-top: 20px;
-}
-
-.ow-hint::before { content: '— '; opacity: 0.4; }
-.ow-hint::after { content: ' —'; opacity: 0.4; }
-
 /* =========================================================
    OFFER PAGE — Content Panels
 ========================================================= */
