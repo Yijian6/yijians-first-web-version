@@ -959,6 +959,41 @@
   }
 
   /* -------------------------------------------------------
+     WORK STATUS — live day counter since 2026-05-08
+  ------------------------------------------------------- */
+  function initWorkStatus() {
+    var el = $('#workStatusDay');
+    if (!el) return;
+
+    var start = new Date(2026, 4, 8); // 2026-05-08, day 1
+    var days = Math.floor((Date.now() - start.getTime()) / 86400000) + 1;
+    if (days < 1) days = 1;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) {
+      el.textContent = days;
+      return;
+    }
+
+    el.textContent = '0';
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting) return;
+      io.disconnect();
+      var t0 = null;
+      var dur = 1200;
+      function tick(t) {
+        if (t0 === null) t0 = t;
+        var p = Math.min((t - t0) / dur, 1);
+        p = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(p * days);
+        if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }, { threshold: 0.4 });
+    io.observe(el);
+  }
+
+  /* -------------------------------------------------------
      BOOT
   ------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -978,6 +1013,7 @@
     initLightbox();
     initProjectLightbox();
     initProductTheater();
+    initWorkStatus();
     initMarquee();
     initTypewriter();
     initParallax();
