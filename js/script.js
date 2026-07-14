@@ -1038,6 +1038,65 @@
   }
 
   /* -------------------------------------------------------
+     BECOMING STATUS — unfinished sentence typewriter
+     Cycles the 8 statement labels after "I AM BECOMING",
+     cursor never stops blinking. Reduced motion → static
+     prefix + solid cursor (a sentence left unfinished).
+  ------------------------------------------------------- */
+  function initBecomingStatus() {
+    var word = $('#becomingWord');
+    if (!word) return;
+    var status = word.closest('.becoming-status');
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+
+    var WORDS = [
+      'CLEAR THINKER',
+      'PROBLEM DEFINER',
+      'ENGLISH INFO INPUT',
+      'AI COLLABORATOR',
+      'TOOL BUILDER',
+      'CLEAR COMMUNICATOR',
+      'LIFELONG LEARNER',
+      'NARRATIVE CONSISTENCY'
+    ];
+
+    var wi = 0;
+    var ci = 0;
+    var deleting = false;
+
+    function tick() {
+      var w = WORDS[wi];
+      if (!deleting) {
+        ci++;
+        word.textContent = w.slice(0, ci);
+        if (ci === w.length) {
+          deleting = true;
+          status.classList.remove('is-typing');
+          setTimeout(tick, 2000);
+          return;
+        }
+        status.classList.add('is-typing');
+        setTimeout(tick, 70);
+      } else {
+        ci--;
+        word.textContent = w.slice(0, ci);
+        if (ci === 0) {
+          deleting = false;
+          wi = (wi + 1) % WORDS.length;
+          status.classList.remove('is-typing');
+          setTimeout(tick, 500);
+          return;
+        }
+        setTimeout(tick, 35);
+      }
+    }
+
+    setTimeout(tick, 900);
+  }
+
+  /* -------------------------------------------------------
      BOOT
   ------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -1059,6 +1118,7 @@
     initProjectLightbox();
     initProductTheater();
     initWorkStatus();
+    initBecomingStatus();
     initMarquee();
     initTypewriter();
     initParallax();

@@ -4060,45 +4060,70 @@ img { max-width: 100%; display: block; }
   margin-left: auto;
 }
 
-/* Building status footer */
+/* Becoming status footer — unfinished sentence typewriter */
 .becoming-status {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 32px;
-}
-
-.becoming-status-text {
   font-family: var(--font-mono);
   font-size: 12px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.becoming-type-prefix {
+  color: var(--white-30);
+}
+
+.becoming-type-word {
   color: var(--gold);
-  letter-spacing: 0.15em;
+  min-width: 0;
 }
 
-.becoming-status-bar {
-  width: 60px;
-  height: 2px;
-  background: var(--white-10);
-  position: relative;
-  overflow: hidden;
+.becoming-type-word:empty {
+  margin-left: -8px;
 }
 
-.becoming-status-bar::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 100%;
+.becoming-type-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  margin-left: -4px;
   background: var(--gold);
-  animation: becoming-load 2s ease-in-out infinite;
+  animation: becoming-cursor-blink 1s step-end infinite;
 }
 
-@keyframes becoming-load {
-  0% { transform: translateX(-100%); }
-  50% { transform: translateX(0); }
-  100% { transform: translateX(100%); }
+.becoming-status.is-typing .becoming-type-cursor {
+  animation: none;
+}
+
+@keyframes becoming-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@media (max-width: 480px) {
+  .becoming-status {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    gap: 6px;
+  }
+
+  .becoming-type-word:empty {
+    margin-left: -6px;
+  }
+
+  .becoming-type-cursor {
+    height: 13px;
+  }
+}
+
+@media (max-width: 340px) {
+  .becoming-status {
+    letter-spacing: 0;
+  }
 }
 
 /* ——— Work Footer Status ———
