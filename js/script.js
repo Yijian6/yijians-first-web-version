@@ -1363,4 +1363,19 @@
     initINFP();
   });
 
+  window.addEventListener('pageshow', function (e) {
+    if (e.persisted) {
+      var main = $('#main');
+      if (main) {
+        main.style.opacity = '';
+        main.style.transform = '';
+        main.style.transition = '';
+        if (!main.classList.contains('visible')) {
+          main.classList.remove('hidden');
+          main.classList.add('visible');
+        }
+      }
+    }
+  });
+
 })();
