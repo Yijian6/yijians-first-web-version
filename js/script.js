@@ -9,6 +9,13 @@
   var $ = function (sel, ctx) { return (ctx || document).querySelector(sel); };
   var $$ = function (sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); };
 
+  // Shared origin for the "day N" counters (Work rings caption + footer)
+  function daysSinceStart() {
+    var start = new Date(2026, 4, 8); // 2026-05-08, day 1
+    var d = Math.floor((Date.now() - start.getTime()) / 86400000) + 1;
+    return d < 1 ? 1 : d;
+  }
+
   /* -------------------------------------------------------
      1. CUSTOM CURSOR
   ------------------------------------------------------- */
@@ -16,6 +23,7 @@
   var cursorRing = null;
   var mouseX = 0, mouseY = 0;
   var ringX = 0, ringY = 0;
+  var bhPull = null;   // set by the black hole while hovering: {x, y, s}
 
   function initCursor() {
     if (window.innerWidth < 769) return;
@@ -35,10 +43,15 @@
       cursorDot.style.top = mouseY + 'px';
     });
 
-    // Smooth ring follow
+    // Smooth ring follow (black hole gravity can tug the target)
     function animateRing() {
-      ringX += (mouseX - ringX) * 0.12;
-      ringY += (mouseY - ringY) * 0.12;
+      var tx = mouseX, ty = mouseY;
+      if (bhPull) {
+        tx += (bhPull.x - mouseX) * bhPull.s;
+        ty += (bhPull.y - mouseY) * bhPull.s;
+      }
+      ringX += (tx - ringX) * 0.12;
+      ringY += (ty - ringY) * 0.12;
       cursorRing.style.left = ringX + 'px';
       cursorRing.style.top = ringY + 'px';
       requestAnimationFrame(animateRing);
@@ -264,6 +277,7 @@
         var href = this.getAttribute('href');
         if (!href || href === '#' || href.startsWith('http') || href.startsWith('mailto:')) return;
         if (this.hasAttribute('data-fullscreen-link')) return;
+        if (this.hasAttribute('data-blackhole')) return;   // black hole runs its own swallow transition
 
         e.preventDefault();
         var main = $('#main');
@@ -945,28 +959,35 @@
      PRODUCT THEATER — in-page live product experience
   ------------------------------------------------------- */
   function initProductTheater() {
-    var ctas = $$('.timeline-cta[data-theater-title]');
-    if (!ctas.length) return;
-
-    var overlay = document.createElement('div');
-    overlay.className = 'product-theater';
-    overlay.innerHTML =
-      '<div class="pt-bar">' +
-        '<span class="pt-title"></span>' +
-        '<a class="pt-open" href="" target="_blank" rel="noopener">新窗口打开 ↗</a>' +
-        '<button class="pt-close" aria-label="Close">×</button>' +
-      '</div>' +
-      '<div class="pt-frame"><span class="pt-loading">LOADING…</span></div>';
-    document.body.appendChild(overlay);
-
-    var title = overlay.querySelector('.pt-title');
-    var openLink = overlay.querySelector('.pt-open');
-    var closeBtn = overlay.querySelector('.pt-close');
-    var frame = overlay.querySelector('.pt-frame');
-    var loading = overlay.querySelector('.pt-loading');
+    // Delegated: theater CTAs can be re-rendered at any time
+    // (the Growth Rings stage rebuilds its card on every switch).
+    var overlay = null;
+    var title, openLink, closeBtn, frame, loading;
     var iframe = null;
 
+    function ensureOverlay() {
+      if (overlay) return;
+      overlay = document.createElement('div');
+      overlay.className = 'product-theater';
+      overlay.innerHTML =
+        '<div class="pt-bar">' +
+          '<span class="pt-title"></span>' +
+          '<a class="pt-open" href="" target="_blank" rel="noopener">新窗口打开 ↗</a>' +
+          '<button class="pt-close" aria-label="Close">×</button>' +
+        '</div>' +
+        '<div class="pt-frame"><span class="pt-loading">LOADING…</span></div>';
+      document.body.appendChild(overlay);
+
+      title = overlay.querySelector('.pt-title');
+      openLink = overlay.querySelector('.pt-open');
+      closeBtn = overlay.querySelector('.pt-close');
+      frame = overlay.querySelector('.pt-frame');
+      loading = overlay.querySelector('.pt-loading');
+      closeBtn.addEventListener('click', closeTheater);
+    }
+
     function openTheater(url, name) {
+      ensureOverlay();
       title.textContent = name;
       openLink.href = url;
       loading.style.display = '';
@@ -983,20 +1004,21 @@
     }
 
     function closeTheater() {
-      if (!overlay.classList.contains('open')) return;
+      if (!overlay || !overlay.classList.contains('open')) return;
       overlay.classList.remove('open');
       document.body.style.overflow = '';
       if (iframe) { iframe.remove(); iframe = null; }
     }
 
-    ctas.forEach(function (el) {
-      el.addEventListener('click', function (e) {
-        e.preventDefault();
-        openTheater(el.getAttribute('href'), el.getAttribute('data-theater-title'));
-      });
+    document.addEventListener('click', function (e) {
+      var el = e.target && e.target.closest
+        ? e.target.closest('.timeline-cta[data-theater-title]')
+        : null;
+      if (!el) return;
+      e.preventDefault();
+      openTheater(el.getAttribute('href'), el.getAttribute('data-theater-title'));
     });
 
-    closeBtn.addEventListener('click', closeTheater);
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeTheater();
     });
@@ -1009,9 +1031,7 @@
     var el = $('#workStatusDay');
     if (!el) return;
 
-    var start = new Date(2026, 4, 8); // 2026-05-08, day 1
-    var days = Math.floor((Date.now() - start.getTime()) / 86400000) + 1;
-    if (days < 1) days = 1;
+    var days = daysSinceStart();
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce || !('IntersectionObserver' in window)) {
@@ -1037,29 +1057,371 @@
     io.observe(el);
   }
 
-  function initWorkCount() {
-    var el = $('#workCount');
-    if (!el) return;
-    // Count everything from the DOM so adding a project needs no JS edit:
-    // flagship cards (.timeline-item) + archive rows (.archive-row).
-    var target = $$('.timeline-item').length + $$('.archive-row').length;
-    if (target < 1) target = 1;
-    var countEl = $('#archiveCount');
-    if (countEl) {
-      var n = $$('.archive-row').length;
-      countEl.textContent = (n < 10 ? '0' : '') + n;
-    }
+  /* -------------------------------------------------------
+     GROWTH RINGS — the Work page as a tree cross-section.
+     One ring per project, growing outward from the seed
+     (2026-05-08). Content lives in the hidden semantic list
+     #ringsData (SEO / screen readers / no-JS); the canvas is
+     purely its visualization. Hover / tap a ring, use the
+     steppers, arrow keys, or swipe the stage to browse.
+  ------------------------------------------------------- */
+  function initGrowthRings() {
+    var wrap = $('#ringsWrap');
+    var canvas = $('#ringsCanvas');
+    var stage = $('#ringsStage');
+    var dataEl = $('#ringsData');
+    if (!wrap || !canvas || !stage || !dataEl) return;
+
+    var works = $$('#ringsData > li').map(function (li) {
+      var h3 = li.querySelector('h3');
+      var p = li.querySelector('p');
+      return {
+        index: li.getAttribute('data-index') || '',
+        type: li.getAttribute('data-type') || '',
+        chip: li.getAttribute('data-chip') || '',
+        year: li.getAttribute('data-year') || '',
+        img: li.getAttribute('data-img') || '',
+        url: li.getAttribute('data-url') || '#',
+        cta: li.getAttribute('data-cta') || '查看',
+        theater: li.getAttribute('data-theater'),
+        tags: (li.getAttribute('data-tags') || '').split(',').filter(Boolean),
+        title: h3 ? h3.textContent : '',
+        desc: p ? p.textContent : ''
+      };
+    });
+    var N = works.length;
+    if (!N) return;
+
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce || !('IntersectionObserver' in window)) {
-      el.textContent = target;
-      return;
+
+    // Deterministic PRNG — the tree must look the same on every visit
+    function mulberry32(seed) {
+      return function () {
+        seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+        var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
     }
-    el.textContent = '0';
-    var io = new IntersectionObserver(function (entries) {
-      if (!entries[0].isIntersecting) return;
-      io.disconnect();
+
+    // Per-boundary low-frequency harmonics → organic, hand-drawn rings
+    var harmonics = [];
+    for (var i = 0; i <= N; i++) {
+      var rnd = mulberry32(i * 977 + 13);
+      harmonics.push([
+        { k: 2, a: 0.5 + rnd() * 0.5, p: rnd() * Math.PI * 2 },
+        { k: 3, a: 0.3 + rnd() * 0.5, p: rnd() * Math.PI * 2 },
+        { k: 5, a: 0.15 + rnd() * 0.35, p: rnd() * Math.PI * 2 }
+      ]);
+    }
+
+    var ctx = canvas.getContext('2d');
+    var side = 0, dpr = 1, cx = 0, cy = 0, R0 = 0, band = 0;
+    var grain = null;
+
+    function layout() {
+      var rect = wrap.getBoundingClientRect();
+      side = Math.floor(Math.min(rect.width, rect.height));
+      if (side < 120) side = 120;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = side * dpr;
+      canvas.height = side * dpr;
+      canvas.style.width = side + 'px';
+      canvas.style.height = side + 'px';
+      cx = cy = side / 2;
+      R0 = side * 0.05;
+      var usable = side / 2 - side * 0.08 - R0;
+      band = usable / (N + 0.55);
+      buildGrain();
+    }
+
+    // Static wood-grain flecks, pre-rendered once per layout
+    function buildGrain() {
+      grain = document.createElement('canvas');
+      grain.width = side * dpr;
+      grain.height = side * dpr;
+      var g = grain.getContext('2d');
+      g.scale(dpr, dpr);
+      var rnd = mulberry32(4242);
+      for (var i = 0; i < 420; i++) {
+        var a = rnd() * Math.PI * 2;
+        var rr = R0 + rnd() * band * N;
+        var s = 0.4 + rnd() * 0.9;
+        g.fillStyle = 'rgba(228,224,216,' + (0.02 + rnd() * 0.05).toFixed(3) + ')';
+        g.fillRect(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, s, s);
+      }
+    }
+
+    function boundaryRadius(i, theta, drift) {
+      var r = R0 + i * band;
+      var amp = band * 0.11;
+      var h = harmonics[i];
+      for (var j = 0; j < 3; j++) {
+        r += Math.sin(h[j].k * theta + h[j].p + drift * (j + 1) * 0.6) * amp * h[j].a;
+      }
+      return r;
+    }
+
+    var SEG = 130;
+    function tracePath(i, drift, sweep) {
+      var end = (sweep === undefined || sweep >= 1)
+        ? SEG
+        : Math.max(2, Math.round(SEG * sweep));
+      ctx.beginPath();
+      for (var s = 0; s <= end; s++) {
+        var th = (s / SEG) * Math.PI * 2 - Math.PI / 2;
+        var r = boundaryRadius(i, th, drift);
+        var x = cx + Math.cos(th) * r;
+        var y = cy + Math.sin(th) * r;
+        if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      if (sweep === undefined || sweep >= 1) ctx.closePath();
+    }
+
+    var selected = 0;
+    var entrance = reduce ? 1 : 0;
+    var entranceT0 = null;
+    var started = false;
+    var running = false;
+
+    function fillBand(k, alpha, drift) {
+      ctx.save();
+      ctx.beginPath();
+      var s, th, r, x, y;
+      for (s = 0; s <= SEG; s++) {
+        th = (s / SEG) * Math.PI * 2 - Math.PI / 2;
+        r = boundaryRadius(k + 1, th, drift);
+        x = cx + Math.cos(th) * r;
+        y = cy + Math.sin(th) * r;
+        if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      for (s = 0; s <= SEG; s++) {
+        th = (s / SEG) * Math.PI * 2 - Math.PI / 2;
+        r = boundaryRadius(k, th, drift);
+        x = cx + Math.cos(th) * r;
+        y = cy + Math.sin(th) * r;
+        if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(168,204,136,' + alpha + ')';
+      ctx.fill('evenodd');
+      ctx.restore();
+    }
+
+    function draw(t) {
+      var drift = reduce ? 0 : (t || 0) * 0.00004;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, side, side);
+
+      if (grain && entrance >= 1) {
+        ctx.drawImage(grain, 0, 0, side, side);
+      }
+
+      if (entrance >= 1) fillBand(selected, 0.09, drift);
+
+      for (var i = 1; i <= N; i++) {
+        var k = i - 1;
+        var sweep = 1;
+        if (entrance < 1) {
+          var startAt = (k / N) * 0.62;
+          var local = (entrance - startAt) / 0.38;
+          if (local <= 0) continue;
+          sweep = local >= 1 ? 1 : 1 - Math.pow(1 - local, 3);
+        }
+        var flagship = works[k].type === 'flagship';
+        var isSel = k === selected && entrance >= 1;
+        ctx.save();
+        if (flagship) {
+          ctx.strokeStyle = isSel ? 'rgba(200,230,168,0.95)' : 'rgba(168,204,136,0.55)';
+          ctx.lineWidth = 1.8;
+          ctx.shadowColor = 'rgba(168,204,136,0.4)';
+          ctx.shadowBlur = isSel ? 10 : 6;
+        } else {
+          ctx.strokeStyle = isSel ? 'rgba(200,230,168,0.85)' : 'rgba(228,224,216,0.16)';
+          ctx.lineWidth = isSel ? 1.4 : 1;
+          if (isSel) {
+            ctx.shadowColor = 'rgba(168,204,136,0.35)';
+            ctx.shadowBlur = 8;
+          }
+        }
+        tracePath(i, drift, sweep < 1 ? sweep : undefined);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Seed dot — the origin, 2026-05-08
+      var pop = entrance < 0.08 ? entrance / 0.08 : 1;
+      ctx.save();
+      ctx.fillStyle = 'rgba(168,204,136,0.95)';
+      ctx.shadowColor = 'rgba(168,204,136,0.8)';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 2.4 * pop, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // Selected ring index at 12 o'clock
+      if (entrance >= 1) {
+        var rMid = R0 + (selected + 0.5) * band;
+        ctx.save();
+        ctx.font = '700 10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = 'rgba(200,230,168,0.9)';
+        ctx.fillText(works[selected].index, cx, cy - rMid);
+        ctx.restore();
+      }
+
+      // Growing edge — today, still growing
+      if (entrance >= 1) {
+        var gr = R0 + N * band + band * 0.35;
+        var tt = t || 0;
+        var alpha = reduce ? 0.28 : 0.22 + 0.14 * Math.sin(tt / 2400 * Math.PI * 2);
+        var a0 = -Math.PI / 2 + (reduce ? 0 : tt * 0.00008);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(168,204,136,' + alpha.toFixed(3) + ')';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2.5, 6.5]);
+        if (!reduce) ctx.lineDashOffset = -tt * 0.004;
+        ctx.beginPath();
+        ctx.arc(cx, cy, gr, a0, a0 + Math.PI * 1.5);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    function loop(t) {
+      if (!running) return;
+      if (entrance < 1 && started) {
+        if (entranceT0 === null) entranceT0 = t;
+        entrance = Math.min(1, (t - entranceT0) / 1600);
+      }
+      draw(t);
+      requestAnimationFrame(loop);
+    }
+
+    function setRunning(v) {
+      if (v === running) return;
+      running = v;
+      if (v) requestAnimationFrame(loop);
+    }
+
+    /* ——— Stage (the product card) ——— */
+    var content = document.createElement('div');
+    content.className = 'stage-content';
+    stage.appendChild(content);
+
+    var foot = document.createElement('div');
+    foot.className = 'stage-foot';
+    foot.innerHTML =
+      '<div class="rings-stepper">' +
+        '<button type="button" class="rs-prev" aria-label="上一件作品">‹</button>' +
+        '<span class="rs-pos"><em class="rs-cur">01</em><span class="rs-sep"> / </span>' +
+          '<span class="rs-total">' + (N < 10 ? '0' + N : N) + '</span></span>' +
+        '<button type="button" class="rs-next" aria-label="下一件作品">›</button>' +
+      '</div>';
+    stage.appendChild(foot);
+    var posCur = foot.querySelector('.rs-cur');
+
+    function stageHTML(w) {
+      var chipClass = 'status-chip' + (w.chip.indexOf('Live') > -1 ? ' live' : '');
+      var tags = w.tags.map(function (tg) {
+        return '<span class="tag">' + tg + '</span>';
+      }).join('');
+      return (
+        '<div class="stage-meta">' +
+          '<span class="section-number">' + w.index + ' / ' + w.year + '</span>' +
+          '<span class="' + chipClass + '">' + w.chip + '</span>' +
+        '</div>' +
+        '<h3 class="stage-title">' + w.title + '</h3>' +
+        '<div class="stage-thumb"><img src="' + w.img + '" alt="' + w.title + '截图"></div>' +
+        '<p class="stage-desc">' + w.desc + '</p>' +
+        '<div class="timeline-tags">' + tags + '</div>' +
+        '<a class="timeline-cta" href="' + w.url + '" target="_blank"' +
+          (w.theater ? ' data-theater-title="' + w.theater + '"' : ' rel="noopener"') +
+        '>' + w.cta + '</a>'
+      );
+    }
+
+    var switching = false;
+    function setWork(k, instant) {
+      k = ((k % N) + N) % N;
+      var changed = k !== selected;
+      if (!changed && content.innerHTML !== '') return;
+      selected = k;
+      posCur.textContent = works[k].index;
+      if (reduce || instant) {
+        content.innerHTML = stageHTML(works[k]);
+        if (reduce) draw(0);
+        return;
+      }
+      if (switching) return; // timeout below renders the latest `selected`
+      switching = true;
+      content.classList.add('stage-out');
+      setTimeout(function () {
+        content.innerHTML = stageHTML(works[selected]);
+        posCur.textContent = works[selected].index;
+        content.classList.remove('stage-out');
+        switching = false;
+      }, 170);
+    }
+
+    /* ——— Interaction ——— */
+    function bandFromEvent(e) {
+      var rect = canvas.getBoundingClientRect();
+      var x = e.clientX - rect.left - cx;
+      var y = e.clientY - rect.top - cy;
+      var d = Math.sqrt(x * x + y * y);
+      var k = Math.floor((d - R0) / band);
+      if (d < R0) k = 0;
+      return (k >= 0 && k < N) ? k : -1;
+    }
+
+    canvas.addEventListener('pointermove', function (e) {
+      if (entrance < 1) return;
+      var k = bandFromEvent(e);
+      canvas.style.cursor = k >= 0 ? 'pointer' : '';
+      if (k >= 0 && k !== selected) setWork(k);
+    });
+
+    canvas.addEventListener('click', function (e) {
+      if (entrance < 1) return;
+      var k = bandFromEvent(e);
+      if (k >= 0) setWork(k);
+    });
+
+    stage.addEventListener('click', function (e) {
+      var el = e.target;
+      if (!el || !el.closest) return;
+      if (el.closest('.rs-prev')) setWork(selected - 1);
+      else if (el.closest('.rs-next')) setWork(selected + 1);
+    });
+
+    wrap.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault(); setWork(selected - 1);
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault(); setWork(selected + 1);
+      }
+    });
+
+    var swipeX = null;
+    stage.addEventListener('touchstart', function (e) {
+      swipeX = e.touches[0].clientX;
+    }, { passive: true });
+    stage.addEventListener('touchend', function (e) {
+      if (swipeX === null) return;
+      var dx = e.changedTouches[0].clientX - swipeX;
+      swipeX = null;
+      if (Math.abs(dx) > 40) setWork(selected + (dx < 0 ? 1 : -1));
+    }, { passive: true });
+
+    /* ——— Caption: ● N 圈年轮 ── 第 D 天，仍在生长 ——— */
+    function animateCount(el, target, dur) {
+      if (!el) return;
+      if (reduce) { el.textContent = target; return; }
       var t0 = null;
-      var dur = 400;
       function tick(t) {
         if (t0 === null) t0 = t;
         var p = Math.min((t - t0) / dur, 1);
@@ -1068,35 +1430,46 @@
         if (p < 1) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
-    }, { threshold: 0.4 });
-    io.observe(el);
-  }
+    }
 
-  /* -------------------------------------------------------
-     WORK ARCHIVE — accordion index of non-flagship work.
-     Click a row to expand it in place; opening one closes
-     the others so the page stays compact. <button> gives
-     keyboard + focus for free.
-  ------------------------------------------------------- */
-  function initWorkArchive() {
-    var rows = $$('.archive-row');
-    if (!rows.length) return;
-    rows.forEach(function (row) {
-      var btn = row.querySelector('.archive-summary');
-      if (!btn) return;
-      btn.addEventListener('click', function () {
-        var willOpen = !row.classList.contains('open');
-        rows.forEach(function (r) {
-          r.classList.remove('open');
-          var b = r.querySelector('.archive-summary');
-          if (b) b.setAttribute('aria-expanded', 'false');
-        });
-        if (willOpen) {
-          row.classList.add('open');
-          btn.setAttribute('aria-expanded', 'true');
-        }
-      });
+    var captionDone = false;
+    function startCaption() {
+      if (captionDone) return;
+      captionDone = true;
+      var cap = $('#ringsCaption');
+      if (cap) cap.classList.add('on');
+      animateCount($('#ringsCount'), N, 1600);
+      animateCount($('#ringsDay'), daysSinceStart(), 1200);
+    }
+
+    /* ——— Boot ——— */
+    layout();
+    setWork(0, true);
+
+    window.addEventListener('resize', function () {
+      layout();
+      if (reduce || !running) draw(0);
     });
+
+    if (reduce) {
+      entrance = 1;
+      draw(0);
+      startCaption();
+      return;
+    }
+
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        var vis = entries[0].isIntersecting;
+        if (vis && !started) { started = true; startCaption(); }
+        setRunning(vis && started);
+      }, { threshold: 0.2 });
+      io.observe(wrap);
+    } else {
+      started = true;
+      startCaption();
+      setRunning(true);
+    }
   }
 
   /* -------------------------------------------------------
@@ -1196,70 +1569,293 @@
   }
 
   /* -------------------------------------------------------
-     ME PAGE — Creative 1: Decompose on mobile (scroll trigger)
+     ME PAGE — Creative 1: Exploded blueprint (mobile trigger)
+     Desktop explodes on :hover via CSS; mobile explodes on
+     scroll-in, holds 3.2s, then reassembles.
   ------------------------------------------------------- */
   function initDecompose() {
     var card = $('.me-card-decompose');
     if (!card || window.innerWidth >= 769) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         if (e.isIntersecting) {
-          card.classList.add('is-decomposed');
-          setTimeout(function () { card.classList.remove('is-decomposed'); }, 1800);
+          setTimeout(function () { card.classList.add('is-decomposed'); }, 400);
+          setTimeout(function () { card.classList.remove('is-decomposed'); }, 3600);
         }
       });
-    }, { threshold: 0.6 });
+    }, { threshold: 0.7 });
     io.observe(card);
   }
 
   /* -------------------------------------------------------
-     ME PAGE — Creative 2: Compound interest counter
+     ME PAGE — Creative 2: The curve that remembers
+     1 second on page = 1 day. y = 1.01^days, drawn live.
+     Days persist in localStorage across visits; the curve
+     is allowed to climb out of its chart slot ("escape").
   ------------------------------------------------------- */
   function initCompound() {
-    var el = $('#compoundCounter');
-    if (!el) return;
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) { el.textContent = '1.01ⁿ'; return; }
+    var canvas = $('#compoundCanvas');
+    var label = $('#compoundLabel');
+    var escapeEl = $('#compoundEscape');
+    var memory = $('#compoundMemory');
+    if (!canvas || !canvas.getContext) return;
 
-    var n = 0;
-    var running = false;
-    var io = new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting && !running) {
-        running = true;
-        var interval = setInterval(function () {
-          n++;
-          var val = Math.pow(1.01, n);
-          el.textContent = val.toFixed(2);
-        }, 1000);
-        io.disconnect();
+    var KEY = 'jue_compound_days';
+    var days = 0;
+    try { days = parseFloat(localStorage.getItem(KEY)) || 0; } catch (err) {}
+
+    if (days >= 1 && memory) {
+      memory.textContent = '这条曲线记得你上次来 — 已累计 ' + Math.floor(days) + ' 天。它一直在长。';
+    }
+
+    var ctx = canvas.getContext('2d');
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var W = 0, H = 0;
+    var SLOT = 56;          // px height of the chart slot; above it = escaped
+    var PX_PER_X = 40;      // pixels per +1.0 of multiplier
+
+    function resize() {
+      W = canvas.clientWidth;
+      H = canvas.clientHeight;
+      canvas.width = W * dpr;      // note: resetting width clears the canvas
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', function () { resize(); draw(); });
+
+    function valueAt(d) { return Math.pow(1.01, d); }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // the "container": dashed ceiling of the chart slot
+      ctx.strokeStyle = 'rgba(228, 224, 216, 0.09)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 5]);
+      ctx.beginPath();
+      ctx.moveTo(0, H - SLOT);
+      ctx.lineTo(W, H - SLOT);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // the curve, gold at the base → warm orange where it escapes
+      var maxDay = Math.max(120, days);
+      var grad = ctx.createLinearGradient(0, H, 0, 0);
+      grad.addColorStop(0, 'rgba(168, 204, 136, 0.9)');
+      grad.addColorStop(Math.min(SLOT / H, 1), 'rgba(168, 204, 136, 0.9)');
+      grad.addColorStop(Math.min(SLOT / H + 0.15, 1), 'rgba(212, 115, 74, 0.9)');
+      grad.addColorStop(1, 'rgba(212, 115, 74, 0.9)');
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      var steps = 80;
+      for (var i = 0; i <= steps; i++) {
+        var d = days * (i / steps);
+        var x = W * (d / maxDay);
+        var y = H - (valueAt(d) - 1) * PX_PER_X;
+        if (y < 2) y = 2;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
       }
-    }, { threshold: 0.5 });
-    io.observe(el);
+      ctx.stroke();
+
+      // tip dot
+      var tipX = W * (days / maxDay);
+      var tipY = Math.max(H - (valueAt(days) - 1) * PX_PER_X, 2);
+      var escaped = (H - tipY) > SLOT;
+      ctx.fillStyle = escaped ? 'rgba(212, 115, 74, 1)' : 'rgba(192, 224, 160, 1)';
+      ctx.beginPath();
+      ctx.arc(tipX, tipY, 2.2, 0, 7);
+      ctx.fill();
+
+      if (label) label.textContent = 'DAY ' + Math.floor(days) + ' → ×' + valueAt(days).toFixed(2);
+      if (escaped && escapeEl) escapeEl.classList.add('visible');
+    }
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { draw(); return; }
+
+    var rafId = null;
+    var last = null;
+    var lastSave = 0;
+
+    function frame(t) {
+      if (last !== null && !document.hidden) {
+        days += (t - last) / 1000;   // 1 real second = 1 day
+        if (t - lastSave > 2000) {
+          lastSave = t;
+          try { localStorage.setItem(KEY, days.toFixed(2)); } catch (err) {}
+        }
+      }
+      last = t;
+      draw();
+      rafId = requestAnimationFrame(frame);
+    }
+
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) {
+        if (!rafId) { last = null; rafId = requestAnimationFrame(frame); }
+      } else if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+        try { localStorage.setItem(KEY, days.toFixed(2)); } catch (err) {}
+      }
+    }, { threshold: 0.2 });
+    io.observe(canvas);
+
+    window.addEventListener('pagehide', function () {
+      try { localStorage.setItem(KEY, days.toFixed(2)); } catch (err) {}
+    });
   }
 
   /* -------------------------------------------------------
-     ME PAGE — Creative 3: Terminal typing effect
+     ME PAGE — Creative 3: Interactive shell
+     Boots with 4 auto-typed lines, then hands the prompt
+     to the visitor. Real commands, real easter eggs.
   ------------------------------------------------------- */
-  function initTerminal() {
-    var container = $('#meTerminal');
-    if (!container) return;
-    var lines = $$('.terminal-line', container);
-    var cursor = $('.terminal-cursor', container);
-    if (!lines.length) return;
+  function initShell() {
+    var win = $('#terminalWindow');
+    var output = $('#terminalOutput');
+    var inputRow = $('#terminalInputRow');
+    var typed = $('#terminalTyped');
+    var input = $('#terminalInput');
+    if (!win || !output || !input) return;
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) {
-      lines.forEach(function (line) {
-        var cmd = document.createElement('span');
-        cmd.className = 'terminal-cmd';
-        cmd.textContent = line.getAttribute('data-cmd');
-        var val = document.createElement('span');
-        val.className = 'terminal-val';
-        val.textContent = line.getAttribute('data-val');
-        line.appendChild(cmd);
-        line.appendChild(val);
+    var PROMPT = 'visitor@jue:~$ ';
+
+    var BOOT = [
+      ['whoami', '大一学生'],
+      ['direction', '计算机科学'],
+      ['rhythm', '稳步前进，不急于求成'],
+      ['mission', '做一个有趣的人 ━ 为世界创造美和价值']
+    ];
+
+    function scrollDown() { win.scrollTop = win.scrollHeight; }
+
+    function addLine(spans) {
+      var div = document.createElement('div');
+      spans.forEach(function (s) {
+        var el = document.createElement('span');
+        el.className = s[0];
+        el.textContent = s[1];
+        div.appendChild(el);
       });
-      return;
+      output.appendChild(div);
+      scrollDown();
+      return div;
+    }
+
+    function echo(text, cls) { addLine([[cls || 't-val', text]]); }
+
+    function uptimeDays() {
+      var start = new Date(2026, 4, 8);
+      var d = Math.floor((Date.now() - start.getTime()) / 86400000) + 1;
+      return d < 1 ? 1 : d;
+    }
+
+    function run(raw) {
+      var cmd = raw.trim();
+      addLine([['t-prompt', PROMPT], ['t-cmd', cmd]]);
+      if (!cmd) { scrollDown(); return; }
+
+      var parts = cmd.split(/\s+/);
+      var head = parts[0].toLowerCase();
+
+      if (head === 'help') {
+        echo('可用命令：');
+        echo('  whoami        你是谁');
+        echo('  uptime        我构建了多久');
+        echo('  ls            看看这里有什么');
+        echo('  cat <file>    读一个文件');
+        echo('  sudo <想做的>  试试就知道');
+        echo('  clear / exit');
+      } else if (head === 'whoami') {
+        echo('访客。但输入 sudo hug 可以升级为朋友。');
+      } else if (head === 'uptime') {
+        echo('已持续构建 ' + uptimeDays() + ' 天（自 2026-05-08，仍在运行）');
+      } else if (head === 'ls') {
+        echo('values/   dreams.txt   passions/   friends/');
+      } else if (head === 'cat') {
+        var file = parts[1] || '';
+        if (file === 'dreams.txt' || file === 'dreams') {
+          echo('做一个有趣的人，为世界创造美和价值。');
+        } else if (!file) {
+          echo('cat: 想读哪个文件？试试 cat dreams.txt');
+        } else {
+          echo('cat: ' + file + ': 没有这个文件。试试 cat dreams.txt');
+        }
+      } else if (head === 'sudo') {
+        echo('权限不需要。我们已经是朋友了 → 微信 iDoWantiDoWill', 't-accent');
+      } else if (head === 'clear') {
+        output.textContent = '';
+      } else if (head === 'exit') {
+        echo('exit: 你不能退出别人的人生 :)');
+      } else if (head === 'direction') {
+        echo('计算机科学');
+      } else if (head === 'rhythm') {
+        echo('稳步前进，不急于求成');
+      } else if (head === 'mission') {
+        echo('做一个有趣的人 ━ 为世界创造美和价值');
+      } else {
+        echo('command not found: ' + head + ' —— 但我想认识你。输入 help 看看能做什么。');
+      }
+      scrollDown();
+    }
+
+    function activate() {
+      inputRow.classList.add('active');
+      win.addEventListener('click', function () {
+        input.focus({ preventScroll: true });
+      });
+      input.addEventListener('input', function () {
+        typed.textContent = input.value;
+        scrollDown();
+      });
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          run(input.value);
+          input.value = '';
+          typed.textContent = '';
+        }
+      });
+      $$('.terminal-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          run(chip.getAttribute('data-cmd') || '');
+        });
+      });
+    }
+
+    function bootInstant() {
+      BOOT.forEach(function (pair) {
+        addLine([['t-prompt', PROMPT], ['t-cmd', pair[0]]]);
+        echo(pair[1]);
+      });
+      activate();
+    }
+
+    function bootTyped(idx) {
+      if (idx >= BOOT.length) { activate(); return; }
+      var line = addLine([['t-prompt', PROMPT], ['t-cmd', '']]);
+      var cmdSpan = line.lastChild;
+      var text = BOOT[idx][0];
+      var i = 0;
+      (function typeChar() {
+        i++;
+        cmdSpan.textContent = text.slice(0, i);
+        if (i < text.length) {
+          setTimeout(typeChar, 55 + Math.random() * 45);
+        } else {
+          setTimeout(function () {
+            echo(BOOT[idx][1]);
+            setTimeout(function () { bootTyped(idx + 1); }, 350);
+          }, 200);
+        }
+      })();
     }
 
     var fired = false;
@@ -1267,100 +1863,352 @@
       if (!entries[0].isIntersecting || fired) return;
       fired = true;
       io.disconnect();
-      typeLines(0);
+      if (reduce) bootInstant();
+      else bootTyped(0);
     }, { threshold: 0.3 });
-    io.observe(container);
-
-    function typeLines(idx) {
-      if (idx >= lines.length) return;
-      var line = lines[idx];
-      var cmdText = line.getAttribute('data-cmd');
-      var valText = line.getAttribute('data-val');
-
-      var cmd = document.createElement('span');
-      cmd.className = 'terminal-cmd';
-      line.appendChild(cmd);
-
-      typeText(cmd, cmdText, 0, function () {
-        var val = document.createElement('span');
-        val.className = 'terminal-val';
-        val.textContent = valText;
-        line.appendChild(val);
-        setTimeout(function () { typeLines(idx + 1); }, 400);
-      });
-    }
-
-    function typeText(el, text, i, cb) {
-      if (i >= text.length) { cb(); return; }
-      el.textContent = text.slice(0, i + 1);
-      setTimeout(function () { typeText(el, text, i + 1, cb); }, 60 + Math.random() * 40);
-    }
+    io.observe(win);
   }
 
   /* -------------------------------------------------------
-     ME PAGE — Creative 4: Quiet whisper (reward stillness)
+     ME PAGE — Creative 4: Condensation whisper
+     The sentence floats as scattered fog. Stop scrolling
+     for 1.5s and the characters condense into place.
+     Scroll again and they disperse to new random spots.
   ------------------------------------------------------- */
   function initQuietWhisper() {
-    var el = $('#meWhisper');
-    if (!el) return;
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) { el.classList.add('revealed-quiet'); return; }
+    var box = $('#meWhisper');
+    var p = $('#whisperText');
+    if (!box || !p) return;
 
-    var timer = null;
+    var text = p.textContent;
+    p.textContent = '';
+    var chars = [];
+    text.split('').forEach(function (ch) {
+      var s = document.createElement('span');
+      s.className = 'whisper-char';
+      s.textContent = ch;
+      p.appendChild(s);
+      chars.push(s);
+    });
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    function scatter() {
+      chars.forEach(function (s) {
+        s.style.setProperty('--dx', (Math.random() * 80 - 40).toFixed(1) + 'px');
+        s.style.setProperty('--dy', (Math.random() * 50 - 25).toFixed(1) + 'px');
+        s.style.setProperty('--dl', (Math.random() * 0.35).toFixed(2) + 's');
+      });
+    }
+    scatter();
+
     var inView = false;
+    var timer = null;
+
+    function armCondense() {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (!inView) return;
+        box.classList.add('condensed');
+        box.classList.add('noted');   // the explainer note, earned once, stays
+      }, 1500);
+    }
 
     var io = new IntersectionObserver(function (entries) {
       inView = entries[0].isIntersecting;
-      if (inView) startQuiet();
-      else { clearTimeout(timer); el.classList.remove('revealed-quiet'); }
-    }, { threshold: 0.3 });
-    io.observe(el);
-
-    function startQuiet() {
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        if (inView) el.classList.add('revealed-quiet');
-      }, 2000);
-    }
+      if (inView) armCondense();
+      else clearTimeout(timer);
+    }, { threshold: 0.25 });
+    io.observe(box);
 
     window.addEventListener('scroll', function () {
       if (!inView) return;
-      el.classList.remove('revealed-quiet');
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        if (inView) el.classList.add('revealed-quiet');
-      }, 2000);
+      if (box.classList.contains('condensed')) {
+        box.classList.remove('condensed');
+        scatter();
+      }
+      armCondense();
     }, { passive: true });
   }
 
   /* -------------------------------------------------------
-     ME PAGE — Creative 5: INFP letter annotations
+     ME PAGE — Creative 5: INFP stage takeover
+     Idle letters breathe. Click one: it dominates the
+     stage in its own color while its annotation types out.
   ------------------------------------------------------- */
   function initINFP() {
-    var letters = $$('.infp-letter');
+    var type = $('#meType');
+    var stage = $('#infpStage');
+    var word = $('#infpStageWord');
+    var note = $('#infpStageNote');
+    var hint = $('#infpHint');
+    if (!type || !stage) return;
+    var letters = $$('.infp-letter', type);
     if (!letters.length) return;
 
-    letters.forEach(function (letter) {
-      var note = letter.querySelector('.infp-note');
-      if (note) note.textContent = letter.getAttribute('data-note') || '';
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce) type.classList.add('breathing');
 
+    var typeToken = 0;
+    var userTouched = false;
+
+    function activate(letter) {
+      typeToken++;
+      var tk = typeToken;
+      letters.forEach(function (l) { l.classList.remove('active'); });
+      letter.classList.add('active');
+      type.classList.add('staged');
+      stage.classList.add('active');
+      stage.style.setProperty('--sc', letter.style.getPropertyValue('--lc') || '#a8cc88');
+      word.textContent = letter.getAttribute('data-word') || '';
+      var txt = letter.getAttribute('data-note') || '';
+      if (reduce) { note.textContent = txt; return; }
+      note.textContent = '';
+      (function typeChar(i) {
+        if (tk !== typeToken || i > txt.length) return;
+        note.textContent = txt.slice(0, i);
+        setTimeout(function () { typeChar(i + 1); }, 55);
+      })(1);
+    }
+
+    function deactivate() {
+      typeToken++;
+      letters.forEach(function (l) { l.classList.remove('active'); });
+      type.classList.remove('staged');
+      stage.classList.remove('active');
+      word.textContent = '';
+      note.textContent = '';
+    }
+
+    letters.forEach(function (letter) {
       letter.addEventListener('click', function () {
-        var wasExpanded = letter.classList.contains('expanded');
-        letters.forEach(function (l) { l.classList.remove('expanded'); });
-        if (!wasExpanded) letter.classList.add('expanded');
+        userTouched = true;
+        if (hint) hint.classList.remove('visible');
+        if (letter.classList.contains('active')) deactivate();
+        else activate(letter);
       });
     });
 
-    if (window.innerWidth < 769) {
+    if (window.innerWidth < 769 && !reduce) {
+      // mobile: auto-demo I → N → F → P once, then invite
       var io = new IntersectionObserver(function (entries) {
         if (!entries[0].isIntersecting) return;
         io.disconnect();
-        letters.forEach(function (letter, i) {
-          setTimeout(function () { letter.classList.add('expanded'); }, 400 * (i + 1));
-        });
+        var i = 0;
+        (function step() {
+          if (userTouched) return;
+          if (i >= letters.length) {
+            deactivate();
+            if (hint) hint.classList.add('visible');
+            return;
+          }
+          activate(letters[i]);
+          i++;
+          setTimeout(step, 1900);
+        })();
       }, { threshold: 0.5 });
-      io.observe(letters[0].parentElement);
+      io.observe(type);
+    } else {
+      setTimeout(function () {
+        if (hint && !userTouched) hint.classList.add('visible');
+      }, 2500);
     }
+  }
+
+  /* -------------------------------------------------------
+     ME PAGE — Creative 6: The page eater
+     Canvas black hole: dust spirals in along a tilted
+     accretion disc, photon ring glows. Click: a black
+     circle swallows the viewport, then → universe.html.
+  ------------------------------------------------------- */
+  function initBlackhole() {
+    var link = $('#blackholeLink');
+    var canvas = $('#blackholeCanvas');
+    var caption = $('#blackholeCaption');
+    if (!link || !canvas || !canvas.getContext) return;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var ctx = canvas.getContext('2d');
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var size = 0, cx = 0, cy = 0;
+
+    function resize() {
+      size = link.clientWidth;
+      canvas.width = size * dpr;   // note: resetting width clears the canvas
+      canvas.height = size * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cx = size / 2;
+      cy = size / 2;
+    }
+    resize();
+    window.addEventListener('resize', function () {
+      resize();
+      if (reduce) drawStatic();
+    });
+
+    function outerR() { return size * 0.5; }
+    function horizonR() { return size * 0.085; }
+
+    var mobile = window.innerWidth < 769;
+    var N = mobile ? 60 : 110;
+    var parts = [];
+
+    function spawn(p, initial) {
+      p.r = outerR() * (initial ? (0.35 + Math.random() * 0.7) : (0.85 + Math.random() * 0.2));
+      p.a = Math.random() * Math.PI * 2;
+      p.w = 0.5 + Math.random() * 0.5;
+      p.warm = Math.random() < 0.15;
+      p.pr = p.r;
+      p.pa = p.a;
+    }
+    for (var i = 0; i < N; i++) { var pt = {}; spawn(pt, true); parts.push(pt); }
+
+    var speed = 1, targetSpeed = 1;
+    var precess = 0;
+    var TILT = 0.55;
+
+    function drawStatic() {
+      resize();
+      var h = horizonR();
+      ctx.clearRect(0, 0, size, size);
+      ctx.beginPath();
+      ctx.arc(cx, cy, h * 1.18, 0, 7);
+      ctx.strokeStyle = 'rgba(192, 224, 160, 0.5)';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cx, cy, h, 0, 7);
+      ctx.fillStyle = '#000';
+      ctx.fill();
+    }
+
+    function frame() {
+      speed += (targetSpeed - speed) * 0.04;
+      precess += 0.0006 * speed;
+      ctx.clearRect(0, 0, size, size);
+
+      var R = outerR();
+      var h = horizonR();
+
+      // tilted accretion disc of infalling dust
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(precess);
+      ctx.scale(1, TILT);
+      parts.forEach(function (p) {
+        p.pr = p.r;
+        p.pa = p.a;
+        var norm = p.r / R;
+        p.a += 0.012 * p.w * speed / Math.pow(Math.max(norm, 0.1), 1.2);
+        p.r -= (0.08 + 0.5 * Math.pow(1 - norm, 2)) * speed;
+        if (p.r <= h * 1.15) { spawn(p, false); return; }
+        var alpha = 0.1 + 0.5 * Math.pow(1 - p.r / R, 1.5);
+        ctx.strokeStyle = p.warm
+          ? 'rgba(212, 115, 74, ' + alpha.toFixed(3) + ')'
+          : 'rgba(168, 204, 136, ' + alpha.toFixed(3) + ')';
+        ctx.lineWidth = 0.8 + (1 - p.r / R) * 0.9;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(p.pa) * p.pr, Math.sin(p.pa) * p.pr);
+        ctx.lineTo(Math.cos(p.a) * p.r, Math.sin(p.a) * p.r);
+        ctx.stroke();
+      });
+      ctx.restore();
+
+      // dark halo the hole casts over its surroundings
+      var grd = ctx.createRadialGradient(cx, cy, h * 0.5, cx, cy, h * 2.4);
+      grd.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
+      grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(cx, cy, h * 2.4, 0, 7);
+      ctx.fill();
+
+      // photon ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, h * 1.18, 0, 7);
+      ctx.strokeStyle = 'rgba(192, 224, 160, ' + (0.35 + 0.3 * (speed - 1) / 2).toFixed(3) + ')';
+      ctx.lineWidth = 1.2;
+      ctx.shadowColor = 'rgba(168, 204, 136, 0.8)';
+      ctx.shadowBlur = 6 + 5 * (speed - 1);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // event horizon
+      ctx.beginPath();
+      ctx.arc(cx, cy, h, 0, 7);
+      ctx.fillStyle = '#000';
+      ctx.fill();
+
+      // gravity tugs the cursor ring toward the hole (desktop)
+      if (bhPull) {
+        var rect = link.getBoundingClientRect();
+        bhPull.x = rect.left + rect.width / 2;
+        bhPull.y = rect.top + rect.height / 2;
+      }
+
+      rafId = requestAnimationFrame(frame);
+    }
+
+    if (reduce) {
+      drawStatic();
+      if (caption) caption.classList.add('visible');
+      return;   // click falls through to initPageTransition's normal fade
+    }
+
+    var rafId = null;
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting) {
+        if (!rafId) rafId = requestAnimationFrame(frame);
+        if (mobile) {
+          targetSpeed = 1.6;
+          if (caption) caption.classList.add('visible');
+        }
+      } else if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+    }, { threshold: 0.1 });
+    io.observe(canvas);
+
+    link.addEventListener('mouseenter', function () {
+      targetSpeed = 3;
+      if (caption) caption.classList.add('visible');
+      bhPull = { x: 0, y: 0, s: 0.4 };
+    });
+    link.addEventListener('mouseleave', function () {
+      targetSpeed = mobile ? 1.6 : 1;
+      bhPull = null;
+    });
+
+    // the swallow
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var href = link.getAttribute('href');
+      bhPull = null;
+
+      var rect = link.getBoundingClientRect();
+      var x = rect.left + rect.width / 2;
+      var y = rect.top + rect.height / 2;
+
+      var sw = document.createElement('div');
+      sw.className = 'blackhole-swallow';
+      sw.style.left = x + 'px';
+      sw.style.top = y + 'px';
+      document.body.appendChild(sw);
+
+      var main = $('#main');
+      if (main) {
+        main.style.setProperty('--bh-x', (x / window.innerWidth * 100).toFixed(1) + '%');
+        main.style.setProperty('--bh-y', (y / window.innerHeight * 100).toFixed(1) + '%');
+        main.classList.add('being-swallowed');
+      }
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { sw.classList.add('expand'); });
+      });
+      setTimeout(function () { window.location.href = href; }, 720);
+    });
   }
 
   /* -------------------------------------------------------
@@ -1384,8 +2232,7 @@
     initLightbox();
     initProjectLightbox();
     initProductTheater();
-    initWorkCount();
-    initWorkArchive();
+    initGrowthRings();
     initWorkStatus();
     initBecomingStatus();
     initMarquee();
@@ -1394,9 +2241,10 @@
     initPortraitParallax();
     initDecompose();
     initCompound();
-    initTerminal();
+    initShell();
     initQuietWhisper();
     initINFP();
+    initBlackhole();
   });
 
   window.addEventListener('pageshow', function (e) {
@@ -1406,11 +2254,13 @@
         main.style.opacity = '';
         main.style.transform = '';
         main.style.transition = '';
+        main.classList.remove('being-swallowed');
         if (!main.classList.contains('visible')) {
           main.classList.remove('hidden');
           main.classList.add('visible');
         }
       }
+      $$('.blackhole-swallow').forEach(function (el) { el.remove(); });
     }
   });
 

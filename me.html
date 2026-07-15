@@ -39,31 +39,32 @@
                     <p class="section-desc">如果你跟我合作或交流，你会遇到什么样的人。</p>
                 </div>
                 <div class="me-hero-right">
-                    <div class="me-type">
-                        <div class="infp-letter" data-note="向内看，在安静中找答案">
+                    <div class="me-type" id="meType">
+                        <div class="infp-letter" data-note="向内看，在安静中找答案" data-word="INTROVERSION" style="--lc: #a8cc88;">
                             <span>I</span>
-                            <span class="infp-note"></span>
                         </div>
-                        <div class="infp-letter" data-note="在细节里找模式">
+                        <div class="infp-letter" data-note="在细节里找模式" data-word="INTUITION" style="--lc: #c4a0e8;">
                             <span>N</span>
-                            <span class="infp-note"></span>
                         </div>
-                        <div class="infp-letter" data-note="先共情，再判断">
+                        <div class="infp-letter" data-note="先共情，再判断" data-word="FEELING" style="--lc: #d4a574;">
                             <span>F</span>
-                            <span class="infp-note"></span>
                         </div>
-                        <div class="infp-letter" data-note="保持可能性，不过早关门">
+                        <div class="infp-letter" data-note="保持可能性，不过早关门" data-word="PERCEIVING" style="--lc: #6eb8d4;">
                             <span>P</span>
-                            <span class="infp-note"></span>
                         </div>
                     </div>
+                    <div class="infp-stage" id="infpStage">
+                        <span class="infp-stage-word" id="infpStageWord"></span>
+                        <span class="infp-stage-note" id="infpStageNote"></span>
+                    </div>
+                    <span class="infp-hint" id="infpHint">点一个字母</span>
                 </div>
             </div>
 
             <div class="me-grid">
                 <div class="me-card me-card-decompose reveal">
                     <span class="me-card-num">01</span>
-                    <h3 class="decompose-title"><span>安</span><span>静</span><span>地</span><span>拆</span><span>解</span></h3>
+                    <h3 class="decompose-title"><span class="dc-char" data-idx="01">安</span><span class="dc-char" data-idx="02">静</span><span class="dc-char" data-idx="03">地</span><span class="dc-char dc-chai" data-idx="04"><i class="chai-a" data-part="部件 A">扌</i><i class="chai-b" data-part="部件 B">斥</i></span><span class="dc-char" data-idx="05">解</span></h3>
                     <p>我喜欢把复杂问题拆成小步骤，然后一个一个解决。不跳步，不绕路。沉默时，往往在思考。</p>
                 </div>
 
@@ -71,7 +72,12 @@
                     <span class="me-card-num">02</span>
                     <h3>长期主义</h3>
                     <p>我相信复利效应。每天进步一点点，一年后会完全不同。时间是发展的唯一路径。</p>
-                    <span class="compound-counter" id="compoundCounter">1.00</span>
+                    <div class="compound-chart">
+                        <canvas id="compoundCanvas"></canvas>
+                        <span class="compound-label" id="compoundLabel">DAY 1 → ×1.01</span>
+                        <span class="compound-escape" id="compoundEscape">复利不尊重容器。</span>
+                    </div>
+                    <span class="compound-memory" id="compoundMemory"></span>
                 </div>
 
                 <div class="me-card reveal delay-2">
@@ -107,25 +113,34 @@
 
             <div class="me-terminal reveal" id="meTerminal">
                 <h2>当前状态</h2>
-                <div class="terminal-window">
-                    <div class="terminal-line" data-cmd="whoami" data-val="大一学生"></div>
-                    <div class="terminal-line" data-cmd="direction" data-val="计算机科学"></div>
-                    <div class="terminal-line" data-cmd="rhythm" data-val="稳步前进，不急于求成"></div>
-                    <div class="terminal-line" data-cmd="mission" data-val="做一个有趣的人 ━ 为世界创造美和价值"></div>
-                    <span class="terminal-cursor"></span>
+                <div class="terminal-window" id="terminalWindow">
+                    <div class="terminal-output" id="terminalOutput"></div>
+                    <div class="terminal-input-row" id="terminalInputRow">
+                        <span class="terminal-prompt">visitor@jue:~$</span>
+                        <span class="terminal-typed" id="terminalTyped"></span>
+                        <span class="terminal-cursor"></span>
+                        <input type="text" id="terminalInput" class="terminal-hidden-input" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="终端输入">
+                    </div>
                 </div>
+                <div class="terminal-chips" id="terminalChips">
+                    <button class="terminal-chip" data-cmd="help">help</button>
+                    <button class="terminal-chip" data-cmd="uptime">uptime</button>
+                    <button class="terminal-chip" data-cmd="sudo hug">sudo hug</button>
+                    <button class="terminal-chip" data-cmd="cat dreams.txt">cat dreams.txt</button>
+                </div>
+                <p class="terminal-hint">这是一个真的终端，输入 help 试试。</p>
             </div>
 
             <div class="me-whisper" id="meWhisper">
-                <p>我在安静中感受，在感受中行动。</p>
+                <p id="whisperText">我在安静中感受，在感受中行动。</p>
+                <span class="whisper-note" id="whisperNote">// 这句话只显现给安静下来的人</span>
             </div>
 
-            <div class="me-blackhole">
-                <a href="universe.html" class="blackhole-link">
-                    <div class="blackhole-disc"></div>
-                    <div class="blackhole-core"></div>
-                    <div class="blackhole-glow"></div>
+            <div class="me-blackhole" id="meBlackhole">
+                <a href="universe.html" class="blackhole-link" id="blackholeLink" data-blackhole aria-label="进入小宇宙">
+                    <canvas id="blackholeCanvas"></canvas>
                 </a>
+                <span class="blackhole-caption" id="blackholeCaption">[ 有一个宇宙在这后面 ]</span>
             </div>
         </div>
 

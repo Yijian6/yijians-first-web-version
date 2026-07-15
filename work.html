@@ -31,288 +31,110 @@
     </div>
 
     <div id="main" class="main">
-        <div class="page-content">
-            <div class="section-header reveal">
+        <div class="rings-page">
+            <div class="rings-head reveal">
                 <span class="section-number">01 / Work</span>
-                <h1>我的<em>作品</em></h1>
-                <p class="section-desc">每一个项目都是一次从零到一的探索。<br>我做能被用起来的东西——哪一件正好解决你的问题，就直接拿去用。</p>
-                <div class="work-anno reveal">
-                    <span class="work-anno-count"><em id="workCount">10</em> <span>件作品</span></span>
-                    <span class="work-anno-rule"></span>
-                    <span class="work-anno-since">since <em>2026</em></span>
-                </div>
+                <h1 class="rings-title">我的<em>作品</em></h1>
+                <p class="rings-sub">一棵树的横截面——每一圈，都是一次从零到一。</p>
             </div>
 
-            <div class="timeline">
-
-                <div class="timeline-item featured reveal">
-                    <span class="featured-ribbon">Product · 可直接使用</span>
-                    <div class="timeline-image">
-                        <div class="timeline-screenshot" data-index="01">
-                            <img src="accounting_app.png" alt="拾序记账截图">
-                        </div>
-                    </div>
-                    <div class="timeline-content">
-                        <span class="timeline-ghost">01</span>
-                        <div class="timeline-meta">
-                            <span class="section-number">01 / 2026</span>
-                            <span class="status-chip live">Live</span>
-                        </div>
-                        <h3>拾序记账</h3>
-                        <p>金额 → 去向 → 落笔，三步记完一笔账。8 套主题色可切换，数据全部存在你自己的设备里，不上传。不做预算提醒、不制造焦虑——想知道钱去了哪里，又不想被记账 App 绑架，打开它就够了。可安装为手机 App。</p>
-                        <div class="timeline-tags">
-                            <span class="tag">React 19</span>
-                            <span class="tag">Vite</span>
-                            <span class="tag">PWA</span>
-                            <span class="tag">Cloudflare Pages</span>
-                        </div>
-                        <a href="https://shi-xu.pages.dev" class="timeline-cta" target="_blank" data-theater-title="拾序记账">立即体验</a>
-                    </div>
+            <section class="rings-section">
+                <div class="rings-canvas-wrap reveal" id="ringsWrap" tabindex="0" role="group" aria-label="作品年轮，使用左右方向键切换作品">
+                    <canvas id="ringsCanvas" aria-hidden="true"></canvas>
                 </div>
+                <div class="rings-stage reveal" id="ringsStage"></div>
+            </section>
 
-                <div class="timeline-item featured reveal">
-                    <span class="featured-ribbon">Product · 可直接使用</span>
-                    <div class="timeline-image">
-                        <div class="timeline-screenshot" data-index="02">
-                            <img src="today_3_grid.png" alt="今日三格截图">
-                        </div>
-                    </div>
-                    <div class="timeline-content">
-                        <span class="timeline-ghost">02</span>
-                        <div class="timeline-meta">
-                            <span class="section-number">02 / 2026</span>
-                            <span class="status-chip live">Live</span>
-                        </div>
-                        <h3>今日三格</h3>
-                        <p>每天只问你三件事：勾满三格，今天合格；差一格就是不合格——没有进度条，也没有「差不多」。打开就能用，登录后跨设备同步。它替你回答一个最简单也最难的问题：今天，过关了吗？</p>
-                        <div class="timeline-tags">
-                            <span class="tag">HTML</span>
-                            <span class="tag">Supabase</span>
-                            <span class="tag">Cloudflare Pages</span>
-                        </div>
-                        <a href="https://today-3-grid.pages.dev" class="timeline-cta" target="_blank" data-theater-title="今日三格">立即体验</a>
-                    </div>
-                </div>
-
-                <div class="timeline-item featured reveal">
-                    <span class="featured-ribbon">Product · 可直接使用</span>
-                    <div class="timeline-image">
-                        <div class="timeline-screenshot" data-index="03">
-                            <img src="zaoxiang_atelier.png" alt="造像 ATELIER 截图">
-                        </div>
-                    </div>
-                    <div class="timeline-content">
-                        <span class="timeline-ghost">03</span>
-                        <div class="timeline-meta">
-                            <span class="section-number">03 / 2026</span>
-                            <span class="status-chip live">Live</span>
-                        </div>
-                        <h3>造像 ATELIER</h3>
-                        <p>想要一张拿得出手的头像或海报、又不想约影楼？上传几张本人照片、选一个气质方向，AI 为你生成杂志级的个人肖像——头像、朋友圈封面、简历照都能用。注册即送体验积分，任务异步生成、刷新不丢。从前端到 VPS 后端，每一层都是我独立完成的。</p>
-                        <div class="timeline-tags">
-                            <span class="tag">React</span>
-                            <span class="tag">Node.js</span>
-                            <span class="tag">AI 生成</span>
-                            <span class="tag">VPS</span>
-                        </div>
-                        <a href="https://poster.yijian6.com/" class="timeline-cta" target="_blank" data-theater-title="造像 ATELIER">立即体验</a>
-                    </div>
-                </div>
-
+            <div class="rings-caption reveal" id="ringsCaption" aria-hidden="true">
+                <span class="rc-dot"></span>
+                <span class="rc-count"><em id="ringsCount">10</em><span class="rc-unit">圈年轮</span></span>
+                <span class="rc-line"></span>
+                <span class="rc-days">第 <em id="ringsDay">1</em> 天</span>
+                <span class="rc-grow">仍在生长</span>
             </div>
 
-            <div class="work-archive reveal">
-                <div class="archive-head">
-                    <span class="archive-head-cn">作品目录</span>
-                    <span class="archive-head-en">The Index</span>
-                    <span class="archive-head-count" id="archiveCount">07</span>
-                </div>
-                <ul class="archive-list">
-                    <li class="archive-row">
-                        <button class="archive-summary" type="button" aria-expanded="false">
-                            <span class="ar-index">04</span>
-                            <span class="ar-name">AI 学习策展室</span>
-                            <span class="ar-desc">每天自动更新的一课</span>
-                            <span class="ar-leader"></span>
-                            <span class="ar-type">Daily</span>
-                            <span class="ar-toggle" aria-hidden="true"></span>
-                        </button>
-                        <div class="archive-detail">
-                            <div class="archive-detail-inner">
-                                <div class="ad-thumb"><img src="ai_learning_coach.png" alt="AI 学习策展室截图"></div>
-                                <div class="ad-body">
-                                    <p>一个每天自动更新的 AI 学习网站。每天中午，定时任务在本地唤醒 AI：读取我的学习档案，生成当天一课，提交、部署——全程无人值守。它记得我掌握了什么、还模糊什么，像一位私人策展人。</p>
-                                    <div class="timeline-tags">
-                                        <span class="tag">JavaScript</span>
-                                        <span class="tag">PWA</span>
-                                        <span class="tag">Automation</span>
-                                        <span class="tag">Cloudflare Pages</span>
-                                    </div>
-                                    <a href="https://ai-learning-coach.pages.dev" class="timeline-cta" target="_blank">立即体验</a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="archive-row">
-                        <button class="archive-summary" type="button" aria-expanded="false">
-                            <span class="ar-index">05</span>
-                            <span class="ar-name">AI 工具雷达</span>
-                            <span class="ar-desc">免费 AI 工具中文简报</span>
-                            <span class="ar-leader"></span>
-                            <span class="ar-type">Daily</span>
-                            <span class="ar-toggle" aria-hidden="true"></span>
-                        </button>
-                        <div class="archive-detail">
-                            <div class="archive-detail-inner">
-                                <div class="ad-thumb"><img src="ai_tools_radar.png" alt="AI 工具雷达截图"></div>
-                                <div class="ad-body">
-                                    <p>每日一期的免费 AI 工具中文简报，写给不懂 AI 的人看。只收录真正免费、开源、能直接上手的工具，拒绝新闻噪音。每一期都沉淀为可打印的新手手册——日拱一卒，攒成一座工具说明书库。</p>
-                                    <div class="timeline-tags">
-                                        <span class="tag">PWA</span>
-                                        <span class="tag">Automation</span>
-                                        <span class="tag">Cloudflare Pages</span>
-                                    </div>
-                                    <a href="https://ai-tools-radar.pages.dev" class="timeline-cta" target="_blank">立即体验</a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="archive-row">
-                        <button class="archive-summary" type="button" aria-expanded="false">
-                            <span class="ar-index">06</span>
-                            <span class="ar-name">Type Ledger</span>
-                            <span class="ar-desc">记录每天打了多少字</span>
-                            <span class="ar-leader"></span>
-                            <span class="ar-type">开源</span>
-                            <span class="ar-toggle" aria-hidden="true"></span>
-                        </button>
-                        <div class="archive-detail">
-                            <div class="archive-detail-inner">
-                                <div class="ad-thumb"><img src="Type_Record.jpg" alt="Type Ledger 截图"></div>
-                                <div class="ad-body">
-                                    <p>一个 Windows 桌面小工具，记录每天打了多少字。所有数据存在本地，不上传、不联网。隐私优先。做这个是因为我好奇自己一天下来到底敲了多少键盘——结果比我想象的多。</p>
-                                    <div class="timeline-tags">
-                                        <span class="tag">Python</span>
-                                        <span class="tag">Local Storage</span>
-                                        <span class="tag">Privacy-First</span>
-                                    </div>
-                                    <a href="https://github.com/Yijian6/type-ledger" class="timeline-cta" target="_blank">GitHub</a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="archive-row">
-                        <button class="archive-summary" type="button" aria-expanded="false">
-                            <span class="ar-index">07</span>
-                            <span class="ar-name">审美日课</span>
-                            <span class="ar-desc">每天一堂审美课</span>
-                            <span class="ar-leader"></span>
-                            <span class="ar-type">Daily</span>
-                            <span class="ar-toggle" aria-hidden="true"></span>
-                        </button>
-                        <div class="archive-detail">
-                            <div class="archive-detail-inner">
-                                <div class="ad-thumb"><img src="aesthetic_daily.png" alt="审美日课截图"></div>
-                                <div class="ad-body">
-                                    <p>每天一堂审美课。从看懂一幅作品，到把「好看」翻译成构图、色彩、层级的具体语言，再到指挥 AI 做出想要的画面。一天一课，持续累积——我在用它一天天搭建自己的审美词汇库。</p>
-                                    <div class="timeline-tags">
-                                        <span class="tag">TypeScript</span>
-                                        <span class="tag">Vite</span>
-                                        <span class="tag">Automation</span>
-                                        <span class="tag">Cloudflare Pages</span>
-                                    </div>
-                                    <a href="https://daily-aesthetic-learning.pages.dev" class="timeline-cta" target="_blank">立即体验</a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="archive-row">
-                        <button class="archive-summary" type="button" aria-expanded="false">
-                            <span class="ar-index">08</span>
-                            <span class="ar-name">音频批量转文字</span>
-                            <span class="ar-desc">批量把音频转成文字稿</span>
-                            <span class="ar-leader"></span>
-                            <span class="ar-type">开源</span>
-                            <span class="ar-toggle" aria-hidden="true"></span>
-                        </button>
-                        <div class="archive-detail">
-                            <div class="archive-detail-inner">
-                                <div class="ad-thumb"><img src="doubao_API转文字.jpg" alt="音频转文字工具截图"></div>
-                                <div class="ad-body">
-                                    <p>用豆包的 API 做的批量音频转录工具。一次丢进去一堆音频文件，自动转成文字。做这个是为了方便将直播、博客的音频转化成准确清晰的文字稿。</p>
-                                    <div class="timeline-tags">
-                                        <span class="tag">Python</span>
-                                        <span class="tag">API</span>
-                                        <span class="tag">Automation</span>
-                                    </div>
-                                    <a href="https://github.com/Yijian6/doubao-audio-to-text-batch-transcriber" class="timeline-cta" target="_blank">GitHub</a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="archive-row">
-                        <button class="archive-summary" type="button" aria-expanded="false">
-                            <span class="ar-index">09</span>
-                            <span class="ar-name">Minimal WPM Tracker</span>
-                            <span class="ar-desc">追踪你的阅读速度</span>
-                            <span class="ar-leader"></span>
-                            <span class="ar-type">开源</span>
-                            <span class="ar-toggle" aria-hidden="true"></span>
-                        </button>
-                        <div class="archive-detail">
-                            <div class="archive-detail-inner">
-                                <div class="ad-thumb"><img src="wpm_tracker.jpg" alt="WPM Tracker 截图"></div>
-                                <div class="ad-body">
-                                    <p>一个极简的阅读速度追踪工具。记录每次阅读的 WPM（每分钟阅读词数），可视化趋势，帮你保持阅读节奏。做这个的起因是：我想知道自己读书到底快不快，但市面上的工具都太重了。</p>
-                                    <div class="timeline-tags">
-                                        <span class="tag">JavaScript</span>
-                                        <span class="tag">Chart.js</span>
-                                        <span class="tag">LocalStorage</span>
-                                    </div>
-                                    <a href="https://github.com/Yijian6/minimal-wpm-tracker" class="timeline-cta" target="_blank">GitHub</a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-
-                    <li class="archive-row">
-                        <button class="archive-summary" type="button" aria-expanded="false">
-                            <span class="ar-index">10</span>
-                            <span class="ar-name">个人网站 — 觉</span>
-                            <span class="ar-desc">你正在看的这个网站</span>
-                            <span class="ar-leader"></span>
-                            <span class="ar-type">Live</span>
-                            <span class="ar-toggle" aria-hidden="true"></span>
-                        </button>
-                        <div class="archive-detail">
-                            <div class="archive-detail-inner">
-                                <div class="ad-thumb"><img src="self_web_new.png" alt="个人网站截图"></div>
-                                <div class="ad-body">
-                                    <p>你正在看的这个网站。我提出想法和审美方向，AI 帮我实现代码。从第一版到现在的版本，经历了多次推翻重来。它还在生长。我所信奉的是长期主义——这将是一个伴随我、会迭代一辈子的网站。</p>
-                                    <div class="timeline-tags">
-                                        <span class="tag">HTML</span>
-                                        <span class="tag">CSS</span>
-                                        <span class="tag">JavaScript</span>
-                                        <span class="tag">Cloudflare Pages</span>
-                                    </div>
-                                    <a href="https://yijian6.pages.dev" class="timeline-cta" target="_blank">查看线上</a>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="work-outro reveal">
-                <span class="work-outro-label">Next / 11</span>
-                <h2>下一格，<em>留给正在做的事</em></h2>
-                <p>这份清单没有终点。长期主义者的作品集，永远为下一个项目空着一格。</p>
-            </div>
+            <ul id="ringsData" class="rings-data" aria-label="全部作品">
+                <li data-index="01" data-type="flagship" data-chip="Live" data-year="2026"
+                    data-img="accounting_app.png" data-url="https://shi-xu.pages.dev"
+                    data-cta="立即体验" data-theater="拾序记账"
+                    data-tags="React 19,Vite,PWA,Cloudflare Pages">
+                    <h3>拾序记账</h3>
+                    <p>金额 → 去向 → 落笔，三步记完一笔账。8 套主题色可切换，数据全部存在你自己的设备里，不上传。不做预算提醒、不制造焦虑——想知道钱去了哪里，又不想被记账 App 绑架，打开它就够了。可安装为手机 App。</p>
+                    <a href="https://shi-xu.pages.dev" target="_blank" rel="noopener">立即体验</a>
+                </li>
+                <li data-index="02" data-type="flagship" data-chip="Live" data-year="2026"
+                    data-img="today_3_grid.png" data-url="https://today-3-grid.pages.dev"
+                    data-cta="立即体验" data-theater="今日三格"
+                    data-tags="HTML,Supabase,Cloudflare Pages">
+                    <h3>今日三格</h3>
+                    <p>每天只问你三件事：勾满三格，今天合格；差一格就是不合格——没有进度条，也没有「差不多」。打开就能用，登录后跨设备同步。它替你回答一个最简单也最难的问题：今天，过关了吗？</p>
+                    <a href="https://today-3-grid.pages.dev" target="_blank" rel="noopener">立即体验</a>
+                </li>
+                <li data-index="03" data-type="flagship" data-chip="Live" data-year="2026"
+                    data-img="zaoxiang_atelier.png" data-url="https://poster.yijian6.com/"
+                    data-cta="立即体验" data-theater="造像 ATELIER"
+                    data-tags="React,Node.js,AI 生成,VPS">
+                    <h3>造像 ATELIER</h3>
+                    <p>想要一张拿得出手的头像或海报、又不想约影楼？上传几张本人照片、选一个气质方向，AI 为你生成杂志级的个人肖像——头像、朋友圈封面、简历照都能用。注册即送体验积分，任务异步生成、刷新不丢。从前端到 VPS 后端，每一层都是我独立完成的。</p>
+                    <a href="https://poster.yijian6.com/" target="_blank" rel="noopener">立即体验</a>
+                </li>
+                <li data-index="04" data-type="daily" data-chip="Live · Daily" data-year="2026"
+                    data-img="ai_learning_coach.png" data-url="https://ai-learning-coach.pages.dev"
+                    data-cta="立即体验"
+                    data-tags="JavaScript,PWA,Automation,Cloudflare Pages">
+                    <h3>AI 学习策展室</h3>
+                    <p>一个每天自动更新的 AI 学习网站。每天中午，定时任务在本地唤醒 AI：读取我的学习档案，生成当天一课，提交、部署——全程无人值守。它记得我掌握了什么、还模糊什么，像一位私人策展人。</p>
+                    <a href="https://ai-learning-coach.pages.dev" target="_blank" rel="noopener">立即体验</a>
+                </li>
+                <li data-index="05" data-type="daily" data-chip="Live · Daily" data-year="2026"
+                    data-img="ai_tools_radar.png" data-url="https://ai-tools-radar.pages.dev"
+                    data-cta="立即体验"
+                    data-tags="PWA,Automation,Cloudflare Pages">
+                    <h3>AI 工具雷达</h3>
+                    <p>每日一期的免费 AI 工具中文简报，写给不懂 AI 的人看。只收录真正免费、开源、能直接上手的工具，拒绝新闻噪音。每一期都沉淀为可打印的新手手册——日拱一卒，攒成一座工具说明书库。</p>
+                    <a href="https://ai-tools-radar.pages.dev" target="_blank" rel="noopener">立即体验</a>
+                </li>
+                <li data-index="06" data-type="oss" data-chip="Open Source" data-year="2026"
+                    data-img="Type_Record.jpg" data-url="https://github.com/Yijian6/type-ledger"
+                    data-cta="GitHub"
+                    data-tags="Python,Local Storage,Privacy-First">
+                    <h3>Type Ledger</h3>
+                    <p>一个 Windows 桌面小工具，记录每天打了多少字。所有数据存在本地，不上传、不联网。隐私优先。做这个是因为我好奇自己一天下来到底敲了多少键盘——结果比我想象的多。</p>
+                    <a href="https://github.com/Yijian6/type-ledger" target="_blank" rel="noopener">GitHub</a>
+                </li>
+                <li data-index="07" data-type="daily" data-chip="Live · Daily" data-year="2026"
+                    data-img="aesthetic_daily.png" data-url="https://daily-aesthetic-learning.pages.dev"
+                    data-cta="立即体验"
+                    data-tags="TypeScript,Vite,Automation,Cloudflare Pages">
+                    <h3>审美日课</h3>
+                    <p>每天一堂审美课。从看懂一幅作品，到把「好看」翻译成构图、色彩、层级的具体语言，再到指挥 AI 做出想要的画面。一天一课，持续累积——我在用它一天天搭建自己的审美词汇库。</p>
+                    <a href="https://daily-aesthetic-learning.pages.dev" target="_blank" rel="noopener">立即体验</a>
+                </li>
+                <li data-index="08" data-type="oss" data-chip="Open Source" data-year="2026"
+                    data-img="doubao_API转文字.jpg" data-url="https://github.com/Yijian6/doubao-audio-to-text-batch-transcriber"
+                    data-cta="GitHub"
+                    data-tags="Python,API,Automation">
+                    <h3>音频批量转文字</h3>
+                    <p>用豆包的 API 做的批量音频转录工具。一次丢进去一堆音频文件，自动转成文字。做这个是为了方便将直播、博客的音频转化成准确清晰的文字稿。</p>
+                    <a href="https://github.com/Yijian6/doubao-audio-to-text-batch-transcriber" target="_blank" rel="noopener">GitHub</a>
+                </li>
+                <li data-index="09" data-type="oss" data-chip="Open Source" data-year="2026"
+                    data-img="wpm_tracker.jpg" data-url="https://github.com/Yijian6/minimal-wpm-tracker"
+                    data-cta="GitHub"
+                    data-tags="JavaScript,Chart.js,LocalStorage">
+                    <h3>Minimal WPM Tracker</h3>
+                    <p>一个极简的阅读速度追踪工具。记录每次阅读的 WPM（每分钟阅读词数），可视化趋势，帮你保持阅读节奏。做这个的起因是：我想知道自己读书到底快不快，但市面上的工具都太重了。</p>
+                    <a href="https://github.com/Yijian6/minimal-wpm-tracker" target="_blank" rel="noopener">GitHub</a>
+                </li>
+                <li data-index="10" data-type="live" data-chip="Live" data-year="2026"
+                    data-img="self_web_new.png" data-url="https://yijian6.pages.dev"
+                    data-cta="查看线上"
+                    data-tags="HTML,CSS,JavaScript,Cloudflare Pages">
+                    <h3>个人网站 — 觉</h3>
+                    <p>你正在看的这个网站。我提出想法和审美方向，AI 帮我实现代码。从第一版到现在的版本，经历了多次推翻重来。它还在生长。我所信奉的是长期主义——这将是一个伴随我、会迭代一辈子的网站。</p>
+                    <a href="https://yijian6.pages.dev" target="_blank" rel="noopener">查看线上</a>
+                </li>
+            </ul>
         </div>
 
         <footer class="footer footer-grow">
@@ -331,6 +153,21 @@
             </div>
         </footer>
     </div>
+
+    <noscript>
+        <style>
+            .rings-data {
+                position: static !important;
+                width: auto !important;
+                height: auto !important;
+                clip-path: none !important;
+                overflow: visible !important;
+                margin: 0 0 60px !important;
+                padding: 0 !important;
+            }
+            .rings-section, .rings-caption { display: none !important; }
+        </style>
+    </noscript>
 
     <script src="js/script.js"></script>
 </body>
