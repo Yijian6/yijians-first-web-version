@@ -1040,7 +1040,15 @@
   function initWorkCount() {
     var el = $('#workCount');
     if (!el) return;
-    var target = 10;
+    // Count everything from the DOM so adding a project needs no JS edit:
+    // flagship cards (.timeline-item) + archive rows (.archive-row).
+    var target = $$('.timeline-item').length + $$('.archive-row').length;
+    if (target < 1) target = 1;
+    var countEl = $('#archiveCount');
+    if (countEl) {
+      var n = $$('.archive-row').length;
+      countEl.textContent = (n < 10 ? '0' : '') + n;
+    }
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduce || !('IntersectionObserver' in window)) {
       el.textContent = target;
@@ -1062,6 +1070,33 @@
       requestAnimationFrame(tick);
     }, { threshold: 0.4 });
     io.observe(el);
+  }
+
+  /* -------------------------------------------------------
+     WORK ARCHIVE — accordion index of non-flagship work.
+     Click a row to expand it in place; opening one closes
+     the others so the page stays compact. <button> gives
+     keyboard + focus for free.
+  ------------------------------------------------------- */
+  function initWorkArchive() {
+    var rows = $$('.archive-row');
+    if (!rows.length) return;
+    rows.forEach(function (row) {
+      var btn = row.querySelector('.archive-summary');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var willOpen = !row.classList.contains('open');
+        rows.forEach(function (r) {
+          r.classList.remove('open');
+          var b = r.querySelector('.archive-summary');
+          if (b) b.setAttribute('aria-expanded', 'false');
+        });
+        if (willOpen) {
+          row.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
   }
 
   /* -------------------------------------------------------
@@ -1350,6 +1385,7 @@
     initProjectLightbox();
     initProductTheater();
     initWorkCount();
+    initWorkArchive();
     initWorkStatus();
     initBecomingStatus();
     initMarquee();
