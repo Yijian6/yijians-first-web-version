@@ -39,26 +39,39 @@
                     <p class="section-desc">如果你跟我合作或交流，你会遇到什么样的人。</p>
                 </div>
                 <div class="me-hero-right">
-                    <a href="universe.html" class="me-type" data-fullscreen-link>
-                        <span>I</span>
-                        <span>N</span>
-                        <span>F</span>
-                        <span>P</span>
-                    </a>
+                    <div class="me-type">
+                        <div class="infp-letter" data-note="向内看，在安静中找答案">
+                            <span>I</span>
+                            <span class="infp-note"></span>
+                        </div>
+                        <div class="infp-letter" data-note="在细节里找模式">
+                            <span>N</span>
+                            <span class="infp-note"></span>
+                        </div>
+                        <div class="infp-letter" data-note="先共情，再判断">
+                            <span>F</span>
+                            <span class="infp-note"></span>
+                        </div>
+                        <div class="infp-letter" data-note="保持可能性，不过早关门">
+                            <span>P</span>
+                            <span class="infp-note"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="me-grid">
-                <div class="me-card reveal">
+                <div class="me-card me-card-decompose reveal">
                     <span class="me-card-num">01</span>
-                    <h3>安静地拆解</h3>
+                    <h3 class="decompose-title"><span>安</span><span>静</span><span>地</span><span>拆</span><span>解</span></h3>
                     <p>我喜欢把复杂问题拆成小步骤，然后一个一个解决。不跳步，不绕路。沉默时，往往在思考。</p>
                 </div>
 
-                <div class="me-card reveal delay-1">
+                <div class="me-card me-card-compound reveal delay-1">
                     <span class="me-card-num">02</span>
                     <h3>长期主义</h3>
                     <p>我相信复利效应。每天进步一点点，一年后会完全不同。时间是发展的唯一路径。</p>
+                    <span class="compound-counter" id="compoundCounter">1.00</span>
                 </div>
 
                 <div class="me-card reveal delay-2">
@@ -92,30 +105,27 @@
                 </div>
             </div>
 
-            <div class="me-state reveal">
+            <div class="me-terminal reveal" id="meTerminal">
                 <h2>当前状态</h2>
-                <div class="state-grid">
-                    <div class="state-item">
-                        <span class="state-label">身份</span>
-                        <span class="state-value">大一学生</span>
-                    </div>
-                    <div class="state-item">
-                        <span class="state-label">方向</span>
-                        <span class="state-value">计算机科学</span>
-                    </div>
-                    <div class="state-item">
-                        <span class="state-label">节奏</span>
-                        <span class="state-value">稳步前进，不急于求成</span>
-                    </div>
-                    <div class="state-item">
-                        <span class="state-label">目标</span>
-                        <span class="state-value">做一个有趣的人<br>为世界创造美和价值</span>
-                    </div>
+                <div class="terminal-window">
+                    <div class="terminal-line" data-cmd="whoami" data-val="大一学生"></div>
+                    <div class="terminal-line" data-cmd="direction" data-val="计算机科学"></div>
+                    <div class="terminal-line" data-cmd="rhythm" data-val="稳步前进，不急于求成"></div>
+                    <div class="terminal-line" data-cmd="mission" data-val="做一个有趣的人 ━ 为世界创造美和价值"></div>
+                    <span class="terminal-cursor"></span>
                 </div>
             </div>
 
-            <div class="me-whisper reveal">
+            <div class="me-whisper" id="meWhisper">
                 <p>我在安静中感受，在感受中行动。</p>
+            </div>
+
+            <div class="me-blackhole">
+                <a href="universe.html" class="blackhole-link">
+                    <div class="blackhole-disc"></div>
+                    <div class="blackhole-core"></div>
+                    <div class="blackhole-glow"></div>
+                </a>
             </div>
         </div>
 

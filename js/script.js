@@ -1161,6 +1161,174 @@
   }
 
   /* -------------------------------------------------------
+     ME PAGE — Creative 1: Decompose on mobile (scroll trigger)
+  ------------------------------------------------------- */
+  function initDecompose() {
+    var card = $('.me-card-decompose');
+    if (!card || window.innerWidth >= 769) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          card.classList.add('is-decomposed');
+          setTimeout(function () { card.classList.remove('is-decomposed'); }, 1800);
+        }
+      });
+    }, { threshold: 0.6 });
+    io.observe(card);
+  }
+
+  /* -------------------------------------------------------
+     ME PAGE — Creative 2: Compound interest counter
+  ------------------------------------------------------- */
+  function initCompound() {
+    var el = $('#compoundCounter');
+    if (!el) return;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { el.textContent = '1.01ⁿ'; return; }
+
+    var n = 0;
+    var running = false;
+    var io = new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting && !running) {
+        running = true;
+        var interval = setInterval(function () {
+          n++;
+          var val = Math.pow(1.01, n);
+          el.textContent = val.toFixed(2);
+        }, 1000);
+        io.disconnect();
+      }
+    }, { threshold: 0.5 });
+    io.observe(el);
+  }
+
+  /* -------------------------------------------------------
+     ME PAGE — Creative 3: Terminal typing effect
+  ------------------------------------------------------- */
+  function initTerminal() {
+    var container = $('#meTerminal');
+    if (!container) return;
+    var lines = $$('.terminal-line', container);
+    var cursor = $('.terminal-cursor', container);
+    if (!lines.length) return;
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) {
+      lines.forEach(function (line) {
+        var cmd = document.createElement('span');
+        cmd.className = 'terminal-cmd';
+        cmd.textContent = line.getAttribute('data-cmd');
+        var val = document.createElement('span');
+        val.className = 'terminal-val';
+        val.textContent = line.getAttribute('data-val');
+        line.appendChild(cmd);
+        line.appendChild(val);
+      });
+      return;
+    }
+
+    var fired = false;
+    var io = new IntersectionObserver(function (entries) {
+      if (!entries[0].isIntersecting || fired) return;
+      fired = true;
+      io.disconnect();
+      typeLines(0);
+    }, { threshold: 0.3 });
+    io.observe(container);
+
+    function typeLines(idx) {
+      if (idx >= lines.length) return;
+      var line = lines[idx];
+      var cmdText = line.getAttribute('data-cmd');
+      var valText = line.getAttribute('data-val');
+
+      var cmd = document.createElement('span');
+      cmd.className = 'terminal-cmd';
+      line.appendChild(cmd);
+
+      typeText(cmd, cmdText, 0, function () {
+        var val = document.createElement('span');
+        val.className = 'terminal-val';
+        val.textContent = valText;
+        line.appendChild(val);
+        setTimeout(function () { typeLines(idx + 1); }, 400);
+      });
+    }
+
+    function typeText(el, text, i, cb) {
+      if (i >= text.length) { cb(); return; }
+      el.textContent = text.slice(0, i + 1);
+      setTimeout(function () { typeText(el, text, i + 1, cb); }, 60 + Math.random() * 40);
+    }
+  }
+
+  /* -------------------------------------------------------
+     ME PAGE — Creative 4: Quiet whisper (reward stillness)
+  ------------------------------------------------------- */
+  function initQuietWhisper() {
+    var el = $('#meWhisper');
+    if (!el) return;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { el.classList.add('revealed-quiet'); return; }
+
+    var timer = null;
+    var inView = false;
+
+    var io = new IntersectionObserver(function (entries) {
+      inView = entries[0].isIntersecting;
+      if (inView) startQuiet();
+      else { clearTimeout(timer); el.classList.remove('revealed-quiet'); }
+    }, { threshold: 0.3 });
+    io.observe(el);
+
+    function startQuiet() {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (inView) el.classList.add('revealed-quiet');
+      }, 2000);
+    }
+
+    window.addEventListener('scroll', function () {
+      if (!inView) return;
+      el.classList.remove('revealed-quiet');
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (inView) el.classList.add('revealed-quiet');
+      }, 2000);
+    }, { passive: true });
+  }
+
+  /* -------------------------------------------------------
+     ME PAGE — Creative 5: INFP letter annotations
+  ------------------------------------------------------- */
+  function initINFP() {
+    var letters = $$('.infp-letter');
+    if (!letters.length) return;
+
+    letters.forEach(function (letter) {
+      var note = letter.querySelector('.infp-note');
+      if (note) note.textContent = letter.getAttribute('data-note') || '';
+
+      letter.addEventListener('click', function () {
+        var wasExpanded = letter.classList.contains('expanded');
+        letters.forEach(function (l) { l.classList.remove('expanded'); });
+        if (!wasExpanded) letter.classList.add('expanded');
+      });
+    });
+
+    if (window.innerWidth < 769) {
+      var io = new IntersectionObserver(function (entries) {
+        if (!entries[0].isIntersecting) return;
+        io.disconnect();
+        letters.forEach(function (letter, i) {
+          setTimeout(function () { letter.classList.add('expanded'); }, 400 * (i + 1));
+        });
+      }, { threshold: 0.5 });
+      io.observe(letters[0].parentElement);
+    }
+  }
+
+  /* -------------------------------------------------------
      BOOT
   ------------------------------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
@@ -1188,6 +1356,11 @@
     initTypewriter();
     initParallax();
     initPortraitParallax();
+    initDecompose();
+    initCompound();
+    initTerminal();
+    initQuietWhisper();
+    initINFP();
   });
 
 })();
