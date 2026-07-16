@@ -1085,12 +1085,14 @@
         cta: li.getAttribute('data-cta') || '查看',
         theater: li.getAttribute('data-theater'),
         tags: (li.getAttribute('data-tags') || '').split(',').filter(Boolean),
-        title: h3 ? h3.textContent : '',
-        desc: p ? p.textContent : ''
+        title: h3 ? h3.innerHTML : '',
+        desc: p ? p.innerHTML : ''
       };
     });
     var N = works.length;
     if (!N) return;
+    // Real (grown) rings — the trailing "next" slot is a ring not yet formed
+    var nReal = works.filter(function (w) { return w.type !== 'next'; }).length;
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -1130,8 +1132,8 @@
       canvas.style.height = side + 'px';
       cx = cy = side / 2;
       R0 = side * 0.05;
-      var usable = side / 2 - side * 0.08 - R0;
-      band = usable / (N + 0.55);
+      var usable = side / 2 - side * 0.06 - R0;
+      band = usable / (N + 0.35);
       buildGrain();
     }
 
@@ -1145,7 +1147,7 @@
       var rnd = mulberry32(4242);
       for (var i = 0; i < 420; i++) {
         var a = rnd() * Math.PI * 2;
-        var rr = R0 + rnd() * band * N;
+        var rr = R0 + rnd() * band * nReal;
         var s = 0.4 + rnd() * 0.9;
         g.fillStyle = 'rgba(228,224,216,' + (0.02 + rnd() * 0.05).toFixed(3) + ')';
         g.fillRect(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, s, s);
@@ -1229,10 +1231,22 @@
           if (local <= 0) continue;
           sweep = local >= 1 ? 1 : 1 - Math.pow(1 - local, 3);
         }
-        var flagship = works[k].type === 'flagship';
+        var type = works[k].type;
         var isSel = k === selected && entrance >= 1;
         ctx.save();
-        if (flagship) {
+        if (type === 'next') {
+          // The ring not yet formed — dashed, slowly breathing
+          var tt0 = t || 0;
+          var breathe = reduce ? 0.28 : 0.22 + 0.14 * Math.sin(tt0 / 2400 * Math.PI * 2);
+          ctx.strokeStyle = 'rgba(168,204,136,' + (isSel ? 0.6 : breathe).toFixed(3) + ')';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([2.5, 6.5]);
+          if (!reduce) ctx.lineDashOffset = -tt0 * 0.004;
+          if (isSel) {
+            ctx.shadowColor = 'rgba(168,204,136,0.35)';
+            ctx.shadowBlur = 8;
+          }
+        } else if (type === 'flagship') {
           ctx.strokeStyle = isSel ? 'rgba(200,230,168,0.95)' : 'rgba(168,204,136,0.55)';
           ctx.lineWidth = 1.8;
           ctx.shadowColor = 'rgba(168,204,136,0.4)';
@@ -1273,22 +1287,6 @@
         ctx.restore();
       }
 
-      // Growing edge — today, still growing
-      if (entrance >= 1) {
-        var gr = R0 + N * band + band * 0.35;
-        var tt = t || 0;
-        var alpha = reduce ? 0.28 : 0.22 + 0.14 * Math.sin(tt / 2400 * Math.PI * 2);
-        var a0 = -Math.PI / 2 + (reduce ? 0 : tt * 0.00008);
-        ctx.save();
-        ctx.strokeStyle = 'rgba(168,204,136,' + alpha.toFixed(3) + ')';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([2.5, 6.5]);
-        if (!reduce) ctx.lineDashOffset = -tt * 0.004;
-        ctx.beginPath();
-        ctx.arc(cx, cy, gr, a0, a0 + Math.PI * 1.5);
-        ctx.stroke();
-        ctx.restore();
-      }
     }
 
     function loop(t) {
@@ -1329,6 +1327,16 @@
       var tags = w.tags.map(function (tg) {
         return '<span class="tag">' + tg + '</span>';
       }).join('');
+      if (w.type === 'next') {
+        // The reserved slot — no product, just the promise
+        return (
+          '<div class="stage-meta">' +
+            '<span class="section-number">Next / ' + w.index + '</span>' +
+          '</div>' +
+          '<h3 class="stage-title">' + w.title + '</h3>' +
+          '<p class="stage-desc">' + w.desc + '</p>'
+        );
+      }
       return (
         '<div class="stage-meta">' +
           '<span class="section-number">' + w.index + ' / ' + w.year + '</span>' +
@@ -1344,15 +1352,26 @@
       );
     }
 
+    function renderStage(k) {
+      content.innerHTML = stageHTML(works[k]);
+      content.classList.toggle('stage-next', works[k].type === 'next');
+    }
+
+    var prevBtn = foot.querySelector('.rs-prev');
+    var nextBtn = foot.querySelector('.rs-next');
+
     var switching = false;
     function setWork(k, instant) {
-      k = ((k % N) + N) % N;
+      // Clamp at both ends — the shelf has a first and a last ring
+      k = Math.max(0, Math.min(N - 1, k));
       var changed = k !== selected;
       if (!changed && content.innerHTML !== '') return;
       selected = k;
       posCur.textContent = works[k].index;
+      prevBtn.disabled = k === 0;
+      nextBtn.disabled = k === N - 1;
       if (reduce || instant) {
-        content.innerHTML = stageHTML(works[k]);
+        renderStage(k);
         if (reduce) draw(0);
         return;
       }
@@ -1360,7 +1379,7 @@
       switching = true;
       content.classList.add('stage-out');
       setTimeout(function () {
-        content.innerHTML = stageHTML(works[selected]);
+        renderStage(selected);
         posCur.textContent = works[selected].index;
         content.classList.remove('stage-out');
         switching = false;
@@ -1438,8 +1457,7 @@
       captionDone = true;
       var cap = $('#ringsCaption');
       if (cap) cap.classList.add('on');
-      animateCount($('#ringsCount'), N, 1600);
-      animateCount($('#ringsDay'), daysSinceStart(), 1200);
+      animateCount($('#ringsCount'), nReal, 1600);
     }
 
     /* ——— Boot ——— */
