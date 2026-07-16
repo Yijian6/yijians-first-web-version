@@ -2341,7 +2341,14 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 768px) {
-  .terminal-input { font-size: 16px; }  /* prevent iOS zoom on focus */
+  /* computed 16px so iOS won't auto-zoom on focus; scaled back to a visual 12px
+     to match the terminal output — typing and echoed text stay the same size */
+  .terminal-input {
+    font-size: 16px;
+    transform: scale(0.75);
+    transform-origin: left center;
+  }
+  .terminal-input-row { align-items: center; }
 }
 
 .terminal-chips {
