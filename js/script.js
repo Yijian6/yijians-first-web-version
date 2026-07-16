@@ -1734,7 +1734,6 @@
     var win = $('#terminalWindow');
     var output = $('#terminalOutput');
     var inputRow = $('#terminalInputRow');
-    var typed = $('#terminalTyped');
     var input = $('#terminalInput');
     if (!win || !output || !input) return;
 
@@ -1822,19 +1821,18 @@
 
     function activate() {
       inputRow.classList.add('active');
+      // desktop: focus right away so the gold caret is immediately visible
+      if (window.innerWidth >= 769) input.focus({ preventScroll: true });
       win.addEventListener('click', function () {
+        var sel = window.getSelection();
+        if (sel && sel.toString()) return;   // don't steal an active text selection
         input.focus({ preventScroll: true });
-      });
-      input.addEventListener('input', function () {
-        typed.textContent = input.value;
-        scrollDown();
       });
       input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
           e.preventDefault();
           run(input.value);
           input.value = '';
-          typed.textContent = '';
         }
       });
       $$('.terminal-chip').forEach(function (chip) {
