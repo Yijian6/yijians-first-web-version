@@ -1294,14 +1294,30 @@
 
     }
 
+    var lastFrame = 0;
     function loop(t) {
       if (!running) return;
+      lastFrame = t;
       if (entrance < 1 && started) {
         if (entranceT0 === null) entranceT0 = t;
         entrance = Math.min(1, (t - entranceT0) / 1600);
       }
       draw(t);
       requestAnimationFrame(loop);
+    }
+
+    function rafAlive() {
+      return running && (performance.now() - lastFrame < 200);
+    }
+
+    // If rAF or the IntersectionObserver is frozen (page loaded in a
+    // background tab), finish the entrance by timer so the tree is
+    // there — and interactive — when the tab is revealed.
+    function ensureEntranceFallback() {
+      setTimeout(function () {
+        if (!started) { started = true; startCaption(); }
+        if (entrance < 1) { entrance = 1; draw(0); }
+      }, 2400);
     }
 
     function setRunning(v) {
@@ -1377,7 +1393,7 @@
       nextBtn.disabled = k === N - 1;
       if (reduce || instant) {
         renderStage(k);
-        if (reduce) draw(0);
+        if (reduce || !rafAlive()) draw(0);
         return;
       }
       if (switching) return; // timeout below renders the latest `selected`
@@ -1388,30 +1404,63 @@
         posCur.textContent = works[selected].index;
         content.classList.remove('stage-out');
         switching = false;
+        if (!rafAlive()) draw(0);
       }, 170);
     }
 
     /* ——— Interaction ——— */
-    function bandFromEvent(e) {
+    // snap=true: clamp to the nearest ring (fat-finger friendly) —
+    // only a distance far beyond the outer ring counts as a miss.
+    function bandFromEvent(e, snap) {
       var rect = canvas.getBoundingClientRect();
       var x = e.clientX - rect.left - cx;
       var y = e.clientY - rect.top - cy;
       var d = Math.sqrt(x * x + y * y);
+      if (snap) {
+        if (d > R0 + N * band + band * 1.5) return -1;
+        return Math.max(0, Math.min(N - 1, Math.floor((d - R0) / band)));
+      }
       var k = Math.floor((d - R0) / band);
       if (d < R0) k = 0;
       return (k >= 0 && k < N) ? k : -1;
     }
 
-    canvas.addEventListener('pointermove', function (e) {
-      if (entrance < 1) return;
-      var k = bandFromEvent(e);
-      canvas.style.cursor = k >= 0 ? 'pointer' : '';
-      if (k >= 0 && k !== selected) setWork(k);
+    function buzz() {
+      try {
+        if (navigator.vibrate) navigator.vibrate(8);
+      } catch (err) { /* no haptics — fine */ }
+    }
+
+    // Drag-scrub: press and slide radially to dial through the rings.
+    // Precision comes from dragging + live highlight, not from landing
+    // a single tap on an 8px band.
+    var dragging = false;
+
+    canvas.addEventListener('pointerdown', function (e) {
+      dragging = true;
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      var k = bandFromEvent(e, true);
+      if (k >= 0 && k !== selected) { setWork(k, true); buzz(); }
     });
 
+    canvas.addEventListener('pointermove', function (e) {
+      if (dragging) {
+        var k = bandFromEvent(e, true);
+        if (k >= 0 && k !== selected) { setWork(k, true); buzz(); }
+        return;
+      }
+      if (e.pointerType === 'mouse') {
+        var h = bandFromEvent(e);
+        canvas.style.cursor = h >= 0 ? 'pointer' : '';
+        if (h >= 0 && h !== selected) setWork(h);
+      }
+    });
+
+    canvas.addEventListener('pointerup', function () { dragging = false; });
+    canvas.addEventListener('pointercancel', function () { dragging = false; });
+
     canvas.addEventListener('click', function (e) {
-      if (entrance < 1) return;
-      var k = bandFromEvent(e);
+      var k = bandFromEvent(e, true);
       if (k >= 0) setWork(k);
     });
 
@@ -1507,6 +1556,7 @@
       startCaption();
       setRunning(true);
     }
+    ensureEntranceFallback();
   }
 
   /* -------------------------------------------------------

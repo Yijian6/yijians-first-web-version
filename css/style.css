@@ -1051,17 +1051,17 @@ img { max-width: 100%; display: block; }
   min-height: calc(100svh - var(--nav-h));
   display: flex;
   flex-direction: column;
-  padding: clamp(14px, 2vh, 28px) var(--side-pad) clamp(14px, 2vh, 24px);
+  padding: clamp(12px, 1.6vh, 20px) var(--side-pad) clamp(12px, 1.6vh, 20px);
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
 }
 
-.rings-head { margin-bottom: clamp(12px, 2vh, 20px); }
+.rings-head { margin-bottom: clamp(10px, 1.5vh, 16px); }
 
 .rings-title {
   font-family: var(--font-display);
-  font-size: clamp(30px, 4vw, 44px);
+  font-size: clamp(36px, 5vw, 64px);
   font-weight: 400;
   letter-spacing: -0.02em;
   color: var(--white);
@@ -1092,7 +1092,10 @@ img { max-width: 100%; display: block; }
   outline-offset: 8px;
 }
 
-.rings-canvas-wrap canvas { display: block; }
+.rings-canvas-wrap canvas {
+  display: block;
+  touch-action: none; /* drag-scrub must not scroll the page */
+}
 
 /* ——— Stage: the product card ——— */
 .rings-stage {
@@ -1144,7 +1147,7 @@ img { max-width: 100%; display: block; }
 .stage-thumb {
   width: 100%;
   flex: 1 1 auto;
-  min-height: 88px;
+  min-height: 84px;
   position: relative;
   overflow: hidden;
   margin-bottom: 14px;
@@ -4948,7 +4951,7 @@ img { max-width: 100%; display: block; }
      Everything is trimmed so the whole page holds one screen. */
   .rings-page { padding-top: 10px; padding-bottom: 10px; }
   .rings-head { margin-bottom: 8px; }
-  .rings-title { font-size: clamp(26px, 7.5vw, 32px); }
+  .rings-title { font-size: clamp(36px, 10.5vw, 44px); }
   .rings-section {
     display: flex;
     flex-direction: column;
