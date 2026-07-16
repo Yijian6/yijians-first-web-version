@@ -1446,10 +1446,24 @@
     layout();
     setWork(0, true);
 
-    window.addEventListener('resize', function () {
-      layout();
-      if (reduce || !running) draw(0);
-    });
+    // Re-layout whenever the wrap's box changes (initial 0-size layout,
+    // font load reflow, rotation) — not just window resize.
+    if ('ResizeObserver' in window) {
+      var lastSide = side;
+      var ro = new ResizeObserver(function () {
+        layout();
+        if (side !== lastSide) {
+          lastSide = side;
+          if (reduce || !running) draw(0);
+        }
+      });
+      ro.observe(wrap);
+    } else {
+      window.addEventListener('resize', function () {
+        layout();
+        if (reduce || !running) draw(0);
+      });
+    }
 
     if (reduce) {
       entrance = 1;
