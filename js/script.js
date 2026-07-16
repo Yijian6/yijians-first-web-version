@@ -1650,8 +1650,8 @@
     var ctx = canvas.getContext('2d');
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     var W = 0, H = 0;
-    var SLOT = 56;          // px height of the chart slot; above it = escaped
-    var PX_PER_X = 40;      // pixels per +1.0 of multiplier
+    var CONTAINER = 2.4;    // the dashed "container" is anchored at ×2.4 (a value, not a pixel)
+    var vmax = 2.6;         // top of the visible y-domain; the camera pulls back as value grows
 
     function resize() {
       W = canvas.clientWidth;
@@ -1664,26 +1664,37 @@
     window.addEventListener('resize', function () { resize(); draw(); });
 
     function valueAt(d) { return Math.pow(1.01, d); }
+    function vmaxTarget() { return Math.max(2.6, valueAt(days) * 1.12); }
+    function yOf(v) { return H - (v - 1) / (vmax - 1) * (H - 14); }   // 14px top padding
+
+    function fmtMult(v) {
+      if (v < 10) return '×' + v.toFixed(2);
+      if (v < 100) return '×' + v.toFixed(1);
+      if (v < 10000) return '×' + Math.round(v);
+      return '×' + (v / 10000).toFixed(1) + '万';
+    }
 
     function draw() {
       ctx.clearRect(0, 0, W, H);
 
-      // the "container": dashed ceiling of the chart slot
+      // the "container" — anchored at ×2.4; sinks toward the floor as the camera pulls back
+      var cy = yOf(CONTAINER);
       ctx.strokeStyle = 'rgba(228, 224, 216, 0.09)';
       ctx.lineWidth = 1;
       ctx.setLineDash([4, 5]);
       ctx.beginPath();
-      ctx.moveTo(0, H - SLOT);
-      ctx.lineTo(W, H - SLOT);
+      ctx.moveTo(0, cy);
+      ctx.lineTo(W, cy);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // the curve, gold at the base → warm orange where it escapes
+      // the curve — gold below the container value, warm orange beyond it
       var maxDay = Math.max(120, days);
+      var cStop = Math.min(Math.max((H - cy) / H, 0), 0.88);   // container position, from bottom
       var grad = ctx.createLinearGradient(0, H, 0, 0);
       grad.addColorStop(0, 'rgba(168, 204, 136, 0.9)');
-      grad.addColorStop(Math.min(SLOT / H, 1), 'rgba(168, 204, 136, 0.9)');
-      grad.addColorStop(Math.min(SLOT / H + 0.15, 1), 'rgba(212, 115, 74, 0.9)');
+      grad.addColorStop(cStop, 'rgba(168, 204, 136, 0.9)');
+      grad.addColorStop(Math.min(cStop + 0.12, 1), 'rgba(212, 115, 74, 0.9)');
       grad.addColorStop(1, 'rgba(212, 115, 74, 0.9)');
       ctx.strokeStyle = grad;
       ctx.lineWidth = 1.5;
@@ -1692,28 +1703,28 @@
       for (var i = 0; i <= steps; i++) {
         var d = days * (i / steps);
         var x = W * (d / maxDay);
-        var y = H - (valueAt(d) - 1) * PX_PER_X;
-        if (y < 2) y = 2;
+        var y = yOf(valueAt(d));
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
 
       // tip dot
+      var value = valueAt(days);
       var tipX = W * (days / maxDay);
-      var tipY = Math.max(H - (valueAt(days) - 1) * PX_PER_X, 2);
-      var escaped = (H - tipY) > SLOT;
+      var tipY = yOf(value);
+      var escaped = value > CONTAINER;
       ctx.fillStyle = escaped ? 'rgba(212, 115, 74, 1)' : 'rgba(192, 224, 160, 1)';
       ctx.beginPath();
       ctx.arc(tipX, tipY, 2.2, 0, 7);
       ctx.fill();
 
-      if (label) label.textContent = 'DAY ' + Math.floor(days) + ' → ×' + valueAt(days).toFixed(2);
+      if (label) label.textContent = 'DAY ' + Math.floor(days) + ' → ' + fmtMult(value);
       if (escaped && escapeEl) escapeEl.classList.add('visible');
     }
 
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reduce) { draw(); return; }
+    if (reduce) { vmax = vmaxTarget(); draw(); return; }
 
     var rafId = null;
     var last = null;
@@ -1728,6 +1739,7 @@
         }
       }
       last = t;
+      vmax += (vmaxTarget() - vmax) * 0.05;   // the camera pulls back to keep the curve in frame
       draw();
       rafId = requestAnimationFrame(frame);
     }

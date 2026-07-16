@@ -2219,15 +2219,14 @@ img { max-width: 100%; display: block; }
 .compound-chart {
   position: relative;
   margin-top: 20px;
-  height: 56px;
+  height: 110px;
 }
 
 .compound-chart canvas {
   position: absolute;
-  left: 0;
-  bottom: 0;
+  inset: 0;
   width: 100%;
-  height: 160px;          /* taller than its slot — curve can climb out */
+  height: 100%;
   pointer-events: none;
 }
 
@@ -2246,7 +2245,7 @@ img { max-width: 100%; display: block; }
 .compound-escape {
   position: absolute;
   right: 0;
-  top: -80px;
+  top: 4px;
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--accent2);
