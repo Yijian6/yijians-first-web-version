@@ -2064,14 +2064,14 @@
     function horizonR() { return size * 0.085; }
 
     var mobile = window.innerWidth < 769;
-    var N = mobile ? 60 : 110;
+    var N = mobile ? 80 : 140;
     var parts = [];
 
     function spawn(p, initial) {
-      p.r = outerR() * (initial ? (0.35 + Math.random() * 0.7) : (0.85 + Math.random() * 0.2));
+      p.r = outerR() * (initial ? (0.3 + Math.random() * 0.68) : (0.82 + Math.random() * 0.16));
       p.a = Math.random() * Math.PI * 2;
       p.w = 0.5 + Math.random() * 0.5;
-      p.warm = Math.random() < 0.15;
+      p.warm = Math.random() < 0.25;
       p.pr = p.r;
       p.pa = p.a;
     }
@@ -2081,19 +2081,72 @@
     var precess = 0;
     var TILT = 0.55;
 
-    function drawStatic() {
-      resize();
-      var h = horizonR();
-      ctx.clearRect(0, 0, size, size);
+    function drawDiscGlow(R, h, intensity) {
+      // soft accretion glow: hot warm inner rim fading to green — drawn tilted
+      var glow = ctx.createRadialGradient(0, 0, h * 1.1, 0, 0, R * 0.8);
+      glow.addColorStop(0, 'rgba(212, 115, 74, ' + (0.22 * intensity).toFixed(3) + ')');
+      glow.addColorStop(0.3, 'rgba(168, 204, 136, ' + (0.1 * intensity).toFixed(3) + ')');
+      glow.addColorStop(1, 'rgba(168, 204, 136, 0)');
+      ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(cx, cy, h * 1.18, 0, 7);
-      ctx.strokeStyle = 'rgba(192, 224, 160, 0.5)';
-      ctx.lineWidth = 1.2;
+      ctx.arc(0, 0, R * 0.8, 0, 7);
+      ctx.fill();
+    }
+
+    function drawRingAndCore(h, glowUp) {
+      // dark well the hole sinks into
+      var grd = ctx.createRadialGradient(cx, cy, h * 0.7, cx, cy, h * 2.2);
+      grd.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
+      grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(cx, cy, h * 2.2, 0, 7);
+      ctx.fill();
+
+      ctx.globalCompositeOperation = 'lighter';
+      // soft halo of the photon ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, h * 1.2, 0, 7);
+      ctx.strokeStyle = 'rgba(168, 204, 136, ' + (0.16 + 0.12 * glowUp).toFixed(3) + ')';
+      ctx.lineWidth = 5;
+      ctx.shadowColor = 'rgba(168, 204, 136, 0.9)';
+      ctx.shadowBlur = 16 + 10 * glowUp;
       ctx.stroke();
+      // crisp photon ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, h * 1.2, 0, 7);
+      ctx.strokeStyle = 'rgba(212, 230, 190, ' + (0.55 + 0.3 * glowUp).toFixed(3) + ')';
+      ctx.lineWidth = 1.4;
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      // gravitational-lensing highlight: the upper arc burns brighter
+      ctx.beginPath();
+      ctx.arc(cx, cy, h * 1.2, Math.PI * 1.1, Math.PI * 1.9);
+      ctx.strokeStyle = 'rgba(240, 248, 225, ' + (0.5 + 0.35 * glowUp).toFixed(3) + ')';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      ctx.globalCompositeOperation = 'source-over';
+
+      // event horizon — absolute black
       ctx.beginPath();
       ctx.arc(cx, cy, h, 0, 7);
       ctx.fillStyle = '#000';
       ctx.fill();
+    }
+
+    function drawStatic() {
+      resize();
+      var R = outerR();
+      var h = horizonR();
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(1, TILT);
+      drawDiscGlow(R, h, 1);
+      ctx.restore();
+      drawRingAndCore(h, 0);
     }
 
     function frame() {
@@ -2104,54 +2157,43 @@
       var R = outerR();
       var h = horizonR();
 
-      // tilted accretion disc of infalling dust
+      // tilted accretion disc — additive light so streaks glow and stack
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(precess);
       ctx.scale(1, TILT);
+      ctx.globalCompositeOperation = 'lighter';
+
+      drawDiscGlow(R, h, 0.7 + 0.5 * (speed - 1));
+
       parts.forEach(function (p) {
-        p.pr = p.r;
-        p.pa = p.a;
         var norm = p.r / R;
-        p.a += 0.012 * p.w * speed / Math.pow(Math.max(norm, 0.1), 1.2);
+        var da = 0.012 * p.w * speed / Math.pow(Math.max(norm, 0.1), 1.2);
+        p.a += da;
         p.r -= (0.08 + 0.5 * Math.pow(1 - norm, 2)) * speed;
-        if (p.r <= h * 1.15) { spawn(p, false); return; }
-        var alpha = 0.1 + 0.5 * Math.pow(1 - p.r / R, 1.5);
+        if (p.r <= h * 1.18) { spawn(p, false); return; }
+
+        // comet tail: an arc along the orbit, longer the faster it whirls
+        var trail = Math.min(da * 16, 1.1) + 0.05;
+        var depth = 1 - p.r / R;
+        var alpha = 0.12 + 0.75 * Math.pow(depth, 1.6);
+        // doppler beaming — the approaching side burns brighter
+        alpha *= 0.75 + 0.55 * Math.sin(p.a);
+        if (alpha < 0.03) alpha = 0.03;
+        if (alpha > 0.95) alpha = 0.95;
         ctx.strokeStyle = p.warm
-          ? 'rgba(212, 115, 74, ' + alpha.toFixed(3) + ')'
-          : 'rgba(168, 204, 136, ' + alpha.toFixed(3) + ')';
-        ctx.lineWidth = 0.8 + (1 - p.r / R) * 0.9;
+          ? 'rgba(224, 138, 92, ' + alpha.toFixed(3) + ')'
+          : 'rgba(178, 214, 146, ' + alpha.toFixed(3) + ')';
+        ctx.lineWidth = 0.9 + depth * 1.6;
         ctx.beginPath();
-        ctx.moveTo(Math.cos(p.pa) * p.pr, Math.sin(p.pa) * p.pr);
-        ctx.lineTo(Math.cos(p.a) * p.r, Math.sin(p.a) * p.r);
+        ctx.arc(0, 0, p.r, p.a - trail, p.a);
         ctx.stroke();
       });
+
+      ctx.globalCompositeOperation = 'source-over';
       ctx.restore();
 
-      // dark halo the hole casts over its surroundings
-      var grd = ctx.createRadialGradient(cx, cy, h * 0.5, cx, cy, h * 2.4);
-      grd.addColorStop(0, 'rgba(0, 0, 0, 0.95)');
-      grd.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = grd;
-      ctx.beginPath();
-      ctx.arc(cx, cy, h * 2.4, 0, 7);
-      ctx.fill();
-
-      // photon ring
-      ctx.beginPath();
-      ctx.arc(cx, cy, h * 1.18, 0, 7);
-      ctx.strokeStyle = 'rgba(192, 224, 160, ' + (0.35 + 0.3 * (speed - 1) / 2).toFixed(3) + ')';
-      ctx.lineWidth = 1.2;
-      ctx.shadowColor = 'rgba(168, 204, 136, 0.8)';
-      ctx.shadowBlur = 6 + 5 * (speed - 1);
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
-      // event horizon
-      ctx.beginPath();
-      ctx.arc(cx, cy, h, 0, 7);
-      ctx.fillStyle = '#000';
-      ctx.fill();
+      drawRingAndCore(h, (speed - 1) / 2);
 
       // gravity tugs the cursor ring toward the hole (desktop)
       if (bhPull) {

@@ -2093,8 +2093,7 @@ img { max-width: 100%; display: block; }
 
 .decompose-title {
   position: relative;
-  padding-top: 34px;      /* room for leader lines + index labels */
-  margin-top: -34px;      /* keep visual position unchanged when idle */
+  padding-top: 34px;      /* dedicated space for leader lines + index labels */
 }
 
 .dc-char {
@@ -2159,22 +2158,6 @@ img { max-width: 100%; display: block; }
   transition: opacity 0.4s ease 0.25s;
 }
 
-/* part labels under each half of 拆 */
-.dc-chai i::after {
-  content: attr(data-part);
-  position: absolute;
-  left: 50%;
-  bottom: -16px;
-  transform: translateX(-50%);
-  font-family: var(--font-mono);
-  font-size: 8px;
-  letter-spacing: 0.08em;
-  color: var(--accent2);
-  white-space: nowrap;
-  opacity: 0;
-  transition: opacity 0.5s ease 0.3s;
-}
-
 /* ---- exploded state (hover on desktop, .is-decomposed via JS on mobile) */
 .me-card-decompose:hover::before,
 .me-card-decompose.is-decomposed::before { opacity: 1; }
@@ -2202,8 +2185,6 @@ img { max-width: 100%; display: block; }
 .me-card-decompose.is-decomposed .dc-chai .chai-b { transform: translateX(10px); }
 .me-card-decompose:hover .dc-chai .chai-b::before,
 .me-card-decompose.is-decomposed .dc-chai .chai-b::before { opacity: 0.8; }
-.me-card-decompose:hover .dc-chai i::after,
-.me-card-decompose.is-decomposed .dc-chai i::after { opacity: 0.9; }
 
 /* ── Creative 2: The curve that remembers ────────────── */
 .me-card-compound {
@@ -2557,8 +2538,8 @@ img { max-width: 100%; display: block; }
 
 .blackhole-link {
   position: relative;
-  width: 220px;
-  height: 220px;
+  width: 300px;
+  height: 300px;
   display: block;
   transition: transform 1s var(--ease-out-expo);
 }
@@ -2606,7 +2587,7 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 768px) {
-  .blackhole-link { width: 170px; height: 170px; }
+  .blackhole-link { width: 230px; height: 230px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
