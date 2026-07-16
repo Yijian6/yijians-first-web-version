@@ -414,22 +414,30 @@
      13. PROJECT IMAGE LIGHTBOX
   ------------------------------------------------------- */
   function initProjectLightbox() {
-    var screenshots = $$('.timeline-screenshot');
-    if (!screenshots.length) return;
+    // Delegated: works for static screenshots AND the Growth Rings
+    // stage thumb, which is re-rendered on every ring switch.
+    var overlay = null, overlayImg, inner;
 
-    var overlay = document.createElement('div');
-    overlay.className = 'project-lightbox-overlay';
-    overlay.innerHTML =
-      '<div class="project-lightbox-inner">' +
-        '<button class="lightbox-close" aria-label="Close">×</button>' +
-        '<img src="" alt="Project Screenshot">' +
-      '</div>';
-    document.body.appendChild(overlay);
-    var overlayImg = overlay.querySelector('img');
-    var closeBtn = overlay.querySelector('.lightbox-close');
-    var inner = overlay.querySelector('.project-lightbox-inner');
+    function ensureOverlay() {
+      if (overlay) return;
+      overlay = document.createElement('div');
+      overlay.className = 'project-lightbox-overlay';
+      overlay.innerHTML =
+        '<div class="project-lightbox-inner">' +
+          '<button class="lightbox-close" aria-label="Close">×</button>' +
+          '<img src="" alt="Project Screenshot">' +
+        '</div>';
+      document.body.appendChild(overlay);
+      overlayImg = overlay.querySelector('img');
+      inner = overlay.querySelector('.project-lightbox-inner');
+      overlay.querySelector('.lightbox-close').addEventListener('click', closeOverlay);
+      overlay.addEventListener('click', function (e) {
+        if (!inner.contains(e.target)) closeOverlay();
+      });
+    }
 
     function openLightbox(src, alt) {
+      ensureOverlay();
       overlayImg.src = src;
       overlayImg.alt = alt;
       overlay.classList.add('open');
@@ -437,23 +445,20 @@
     }
 
     function closeOverlay() {
+      if (!overlay) return;
       overlay.classList.remove('open');
       document.body.style.overflow = '';
     }
 
-    screenshots.forEach(function (el) {
-      el.addEventListener('click', function () {
-        var img = el.querySelector('img');
-        if (!img) return;
-        openLightbox(img.src, img.alt);
-      });
+    document.addEventListener('click', function (e) {
+      var el = e.target && e.target.closest
+        ? e.target.closest('.timeline-screenshot, .stage-thumb')
+        : null;
+      if (!el) return;
+      var img = el.querySelector('img');
+      if (!img) return;
+      openLightbox(img.src, img.alt);
     });
-
-    // Close: click overlay background (not the inner content)
-    overlay.addEventListener('click', function (e) {
-      if (!inner.contains(e.target)) closeOverlay();
-    });
-    closeBtn.addEventListener('click', closeOverlay);
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeOverlay();
