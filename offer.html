@@ -66,7 +66,7 @@
                         <span class="ow-orb-fill"></span>
                         <span class="ow-orb-ring"></span>
                     </button>
-                    <div class="ow-center">
+                    <div class="ow-center" role="button" tabindex="0" aria-label="展开转盘选择场景">
                         <span class="ow-center-name" id="owCenterName">用上 AI</span>
                         <span class="ow-center-sub" id="owCenterSub">Get AI Working</span>
                     </div>
@@ -199,6 +199,41 @@
                 <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
             </div>
         </footer>
+    </div>
+
+    <!-- ========== DIAL MODE OVERLAY ========== -->
+    <div class="od-overlay" id="odOverlay" hidden role="dialog" aria-modal="true" aria-label="选择场景转盘">
+        <button class="od-close" aria-label="关闭转盘">×</button>
+        <div class="od-dial" id="odDial">
+            <div class="od-ticks"></div>
+            <div class="od-arm" style="--a:0deg" data-index="0">
+                <span class="od-orb" data-cat="ai"><span class="od-orb-glow"></span><span class="od-orb-fill"></span><span class="od-orb-ring"></span></span>
+                <span class="od-tag">用上 AI</span>
+            </div>
+            <div class="od-arm" style="--a:72deg" data-index="1">
+                <span class="od-orb" data-cat="design"><span class="od-orb-glow"></span><span class="od-orb-fill"></span><span class="od-orb-ring"></span></span>
+                <span class="od-tag">拿得出手</span>
+            </div>
+            <div class="od-arm" style="--a:144deg" data-index="2">
+                <span class="od-orb" data-cat="web"><span class="od-orb-glow"></span><span class="od-orb-fill"></span><span class="od-orb-ring"></span></span>
+                <span class="od-tag">自己的网站</span>
+            </div>
+            <div class="od-arm" style="--a:216deg" data-index="3">
+                <span class="od-orb" data-cat="collab"><span class="od-orb-glow"></span><span class="od-orb-fill"></span><span class="od-orb-ring"></span></span>
+                <span class="od-tag">自动化</span>
+            </div>
+            <div class="od-arm" style="--a:288deg" data-index="4">
+                <span class="od-orb" data-cat="radar"><span class="od-orb-glow"></span><span class="od-orb-fill"></span><span class="od-orb-ring"></span></span>
+                <span class="od-tag">跟上 AI</span>
+            </div>
+            <span class="od-needle"></span>
+            <div class="od-center">
+                <span class="od-name"></span>
+                <span class="od-sub"></span>
+                <p class="od-lead"></p>
+            </div>
+        </div>
+        <div class="od-hint">转动 · 点顶部的球确认</div>
     </div>
 
     <script src="js/script.js"></script>

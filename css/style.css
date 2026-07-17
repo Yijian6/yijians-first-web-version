@@ -1895,6 +1895,270 @@ img { max-width: 100%; display: block; }
   color: var(--bg);
 }
 
+/* =========================================================
+   OFFER PAGE — Dial Mode（点中心展开的全屏转盘）
+========================================================= */
+
+/* 静止层中心：变为可点的「门」 */
+.ow-center {
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.4s var(--ease-out-expo);
+}
+
+.ow-center:hover { transform: translate(-50%, -50%) scale(1.05); }
+
+.ow-center::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 108px;
+  height: 108px;
+  margin: -54px 0 0 -54px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dim);
+  animation: odBreath 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes odBreath {
+  0%, 100% { transform: scale(1); opacity: 0.45; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* Overlay */
+.od-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(12, 14, 11, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.od-overlay.open { opacity: 1; }
+.od-overlay[hidden] { display: none; }
+
+.od-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--white-60);
+  font-family: var(--font-body);
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  z-index: 2;
+}
+
+.od-close:hover { color: var(--white); }
+
+/* Dial */
+.od-dial {
+  --od-size: min(74vw, 56vh, 420px);
+  --od-orb: calc(var(--od-size) * 0.152);
+  --od-r: calc(var(--od-size) / 2 - var(--od-orb) / 2);
+  --wheel: 0deg;
+  position: relative;
+  width: var(--od-size);
+  height: var(--od-size);
+  touch-action: none;
+  transition: transform 0.5s var(--ease-out-expo);
+  will-change: transform;
+}
+
+.od-dial::before {
+  content: '';
+  position: absolute;
+  inset: calc(var(--od-orb) / 2 + 8px);
+  border-radius: 50%;
+  border: 1px solid var(--white-10);
+  pointer-events: none;
+}
+
+/* 随转动可见的刻度纹理 */
+.od-ticks {
+  position: absolute;
+  inset: calc(var(--od-orb) / 2 + 8px);
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--white-30) 0deg 0.8deg, transparent 0.8deg 7.2deg);
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 12px), #000 calc(100% - 11px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 12px), #000 calc(100% - 11px));
+  transform: rotate(var(--wheel));
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* 公转臂：JS 只写 --wheel 一个变量 */
+.od-arm {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform: rotate(calc(var(--wheel) + var(--a)));
+}
+
+.od-orb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  width: var(--od-orb);
+  height: var(--od-orb);
+  border-radius: 50%;
+  cursor: pointer;
+  transform: translate(-50%, -50%) translateY(calc(-1 * var(--od-r))) rotate(calc(-1 * (var(--wheel) + var(--a))));
+}
+
+.od-orb > span { transition: transform 0.3s var(--ease-out-expo), opacity 0.5s ease, filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
+.od-arm.active .od-orb > span { transform: scale(1.15); }
+
+.od-orb-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.od-orb[data-cat="ai"] .od-orb-fill { background: radial-gradient(circle at 38% 32%, #b8e0a0, #88c468 50%, #60a040); }
+.od-orb[data-cat="design"] .od-orb-fill { background: radial-gradient(circle at 38% 32%, #e0b8e8, #c890d8 50%, #a868b8); }
+.od-orb[data-cat="web"] .od-orb-fill { background: radial-gradient(circle at 38% 32%, #a0d0ec, #68b4d8 50%, #4094b8); }
+.od-orb[data-cat="collab"] .od-orb-fill { background: radial-gradient(circle at 38% 32%, #e89878, #d4734a 50%, #b85830); }
+.od-orb[data-cat="radar"] .od-orb-fill { background: radial-gradient(circle at 38% 32%, #f0d0a0, #e0b070 50%, #c89040); }
+
+.od-arm:not(.active) .od-orb-fill { filter: saturate(0.55) brightness(0.65); }
+
+.od-orb-ring {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+}
+
+.od-arm.active .od-orb-ring {
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 24px 4px rgba(255, 255, 255, 0.07);
+}
+
+.od-orb-glow {
+  position: absolute;
+  inset: -18px;
+  border-radius: 50%;
+  opacity: 0;
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.od-arm.active .od-orb-glow { opacity: 0.3; }
+
+.od-orb[data-cat="ai"] .od-orb-glow { background: #88c468; }
+.od-orb[data-cat="design"] .od-orb-glow { background: #c890d8; }
+.od-orb[data-cat="web"] .od-orb-glow { background: #68b4d8; }
+.od-orb[data-cat="collab"] .od-orb-glow { background: #d4734a; }
+.od-orb[data-cat="radar"] .od-orb-glow { background: #e0b070; }
+
+.od-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%) translateY(calc(-1 * (var(--od-r) + var(--od-orb) / 2 + 18px))) rotate(calc(-1 * (var(--wheel) + var(--a))));
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--white-30);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: color 0.4s ease, opacity 0.3s ease;
+}
+
+/* 顶部球的标签让位给指示针与中央大字 */
+.od-arm.active .od-tag { opacity: 0; }
+
+.od-needle {
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--gold);
+  transition: border-top-color 0.4s ease;
+  pointer-events: none;
+}
+
+/* 中央预告 */
+.od-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 62%;
+  text-align: center;
+  cursor: pointer;
+}
+
+.od-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 5.6vw, 28px);
+  color: var(--white);
+  letter-spacing: 0.04em;
+}
+
+.od-sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: 6px;
+  transition: color 0.4s ease;
+}
+
+.od-lead {
+  font-size: 13px;
+  color: var(--white-60);
+  line-height: 1.7;
+  margin-top: 12px;
+  min-height: 3.4em;
+}
+
+.od-hint {
+  margin-top: 44px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  color: var(--white-30);
+}
+
+@media (max-width: 480px) {
+  .od-tag { font-size: 12px; }
+  .od-lead { font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ow-center::after { animation: none; opacity: 0.6; }
+  .od-overlay { transition: none; }
+  .od-dial { transition: none; }
+  .od-ticks { transition: none; }
+  .od-orb > span { transition: none; }
+}
+
 /* --- Responsive: Offer Wheel --- */
 @media (max-width: 1024px) {
   .ow-ring {

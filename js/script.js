@@ -575,6 +575,8 @@
   /* -------------------------------------------------------
      18a. OFFER WHEEL — 5-orb scenario navigation
   ------------------------------------------------------- */
+  var offerWheelAPI = null; // set by initOfferWheel, consumed by initOfferDial
+
   function initOfferWheel() {
     var wheel = document.getElementById('offerWheel');
     if (!wheel) return;
@@ -734,6 +736,13 @@
         setTimeout(function() { wrapper.style.height = 'auto'; }, 600);
       }
     }
+
+    offerWheelAPI = {
+      CATS: CATS,
+      switchTo: switchTo,
+      setActiveColors: setActiveColors,
+      getActive: function () { return activeIndex; }
+    };
   }
 
   /* -------------------------------------------------------
@@ -778,6 +787,214 @@
       document.body.removeChild(ta);
       return ok;
     }
+  }
+
+  /* -------------------------------------------------------
+     18a-3. OFFER DIAL — 点中心展开的全屏转盘（offer.html）
+  ------------------------------------------------------- */
+  function initOfferDial() {
+    var overlay = document.getElementById('odOverlay');
+    var trigger = document.querySelector('#offerWheel .ow-center');
+    if (!overlay || !trigger || !offerWheelAPI) return;
+
+    var dial = document.getElementById('odDial');
+    var arms = $$('.od-arm', dial);
+    var nameEl = overlay.querySelector('.od-name');
+    var subEl = overlay.querySelector('.od-sub');
+    var leadEl = overlay.querySelector('.od-lead');
+    var closeBtn = overlay.querySelector('.od-close');
+    var pageRing = document.querySelector('#offerWheel .ow-ring');
+    var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var CATS = offerWheelAPI.CATS;
+    var leads = $$('.ow-panel .ow-panel-lead').map(function (el) { return el.textContent; });
+
+    var STEP = 72;
+    var FLING_MS = 260;   // 惯性投影时长——越大甩得越远
+    var FLING_MAX = 144;  // 惯性最大角度（2 格）
+    var SNAP_MS = 420;    // 吸附动画时长
+
+    var open = false;
+    var theta = 0;
+    var activeIdx = 0;
+    var raf = null;
+
+    function mod(n, m) { return ((n % m) + m) % m; }
+    function currentIndex() { return mod(Math.round(-theta / STEP), CATS.length); }
+
+    function renderCenter(idx) {
+      arms.forEach(function (a, i) { a.classList.toggle('active', i === idx); });
+      nameEl.textContent = CATS[idx].label;
+      subEl.textContent = CATS[idx].en;
+      leadEl.textContent = leads[idx] || '';
+    }
+
+    function setWheel(deg) {
+      theta = deg;
+      dial.style.setProperty('--wheel', deg + 'deg');
+      var idx = currentIndex();
+      if (idx !== activeIdx) {
+        activeIdx = idx;
+        renderCenter(idx);
+        offerWheelAPI.setActiveColors(idx, reducedMotion);
+        try { if (navigator.vibrate) navigator.vibrate(8); } catch (err) {}
+      }
+    }
+
+    function cancelAnim() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
+
+    function snapTo(target) {
+      if (reducedMotion) { setWheel(target); return; }
+      cancelAnim();
+      var start = theta, t0 = null;
+      function frame(ts) {
+        if (t0 === null) t0 = ts;
+        var p = Math.min((ts - t0) / SNAP_MS, 1);
+        p = 1 - Math.pow(1 - p, 3);
+        setWheel(start + (target - start) * p);
+        raf = p < 1 ? requestAnimationFrame(frame) : null;
+      }
+      raf = requestAnimationFrame(frame);
+    }
+
+    /* ——— 出入场（FLIP：从页面轮盘原位缩放） ——— */
+    function fromTransform() {
+      var r = pageRing.getBoundingClientRect();
+      var d = dial.getBoundingClientRect();
+      var scale = r.width / d.width;
+      var dx = (r.left + r.width / 2) - (d.left + d.width / 2);
+      var dy = (r.top + r.height / 2) - (d.top + d.height / 2);
+      return 'translate(' + dx + 'px,' + dy + 'px) scale(' + scale + ')';
+    }
+
+    function openDial() {
+      if (open) return;
+      open = true;
+      var entry = offerWheelAPI.getActive();
+      activeIdx = entry;
+      theta = -entry * STEP;
+      dial.style.setProperty('--wheel', theta + 'deg');
+      renderCenter(entry);
+      overlay.hidden = false;
+      document.body.style.overflow = 'hidden';
+      if (!reducedMotion) {
+        dial.style.transition = 'none';
+        dial.style.transform = fromTransform();
+        void dial.offsetWidth;
+        dial.style.transition = '';
+        dial.style.transform = '';
+      }
+      setTimeout(function () { overlay.classList.add('open'); }, 20);
+    }
+
+    function closeDial(commitIndex) {
+      if (!open) return;
+      open = false;
+      cancelAnim();
+      if (commitIndex !== null && commitIndex !== undefined) {
+        offerWheelAPI.switchTo(commitIndex);
+      } else {
+        offerWheelAPI.setActiveColors(offerWheelAPI.getActive(), reducedMotion);
+      }
+      overlay.classList.remove('open');
+      if (!reducedMotion) dial.style.transform = fromTransform();
+      setTimeout(function () {
+        overlay.hidden = true;
+        document.body.style.overflow = '';
+        dial.style.transition = 'none';
+        dial.style.transform = '';
+        void dial.offsetWidth;
+        dial.style.transition = '';
+      }, reducedMotion ? 0 : 480);
+    }
+
+    /* ——— 拖动旋转 ——— */
+    var dragging = false;
+    var lastAngle = 0;
+    var downX = 0, downY = 0, tapped = true;
+    var samples = [];
+
+    function pointerAngle(e) {
+      var r = dial.getBoundingClientRect();
+      return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)) * 180 / Math.PI;
+    }
+
+    dial.addEventListener('pointerdown', function (e) {
+      cancelAnim();
+      dragging = true;
+      tapped = true;
+      downX = e.clientX;
+      downY = e.clientY;
+      lastAngle = pointerAngle(e);
+      samples = [{ t: e.timeStamp, theta: theta }];
+      try { dial.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+
+    dial.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      if (tapped && Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 8) tapped = false;
+      if (tapped) return;
+      var a = pointerAngle(e);
+      var d = a - lastAngle;
+      if (d > 180) d -= 360;
+      if (d < -180) d += 360;
+      lastAngle = a;
+      setWheel(theta + d);
+      samples.push({ t: e.timeStamp, theta: theta });
+      if (samples.length > 4) samples.shift();
+    });
+
+    dial.addEventListener('pointerup', function (e) {
+      if (!dragging) return;
+      dragging = false;
+      if (tapped) { handleTap(e); return; }
+      var v = 0;
+      if (samples.length >= 2) {
+        var s0 = samples[0], s1 = samples[samples.length - 1];
+        if (s1.t > s0.t) v = (s1.theta - s0.theta) / (s1.t - s0.t);
+      }
+      var fling = Math.max(-FLING_MAX, Math.min(FLING_MAX, v * FLING_MS));
+      snapTo(Math.round((theta + fling) / STEP) * STEP);
+    });
+
+    dial.addEventListener('pointercancel', function () {
+      if (!dragging) return;
+      dragging = false;
+      snapTo(Math.round(theta / STEP) * STEP);
+    });
+
+    function handleTap(e) {
+      var orb = e.target.closest ? e.target.closest('.od-orb') : null;
+      if (orb) {
+        var idx = parseInt(orb.parentElement.getAttribute('data-index'));
+        if (idx === currentIndex()) { closeDial(idx); return; }
+        var target = -idx * STEP;
+        var delta = mod(target - theta + 180, 360) - 180;
+        snapTo(theta + delta);
+        return;
+      }
+      if (e.target.closest && e.target.closest('.od-center')) closeDial(currentIndex());
+    }
+
+    /* ——— 关闭与键盘 ——— */
+    closeBtn.addEventListener('click', function () { closeDial(null); });
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeDial(null); });
+
+    document.addEventListener('keydown', function (e) {
+      if (!open) return;
+      if (e.key === 'Escape') closeDial(null);
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') snapTo(Math.round(theta / STEP) * STEP - STEP);
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') snapTo(Math.round(theta / STEP) * STEP + STEP);
+      else if (e.key === 'Enter') closeDial(currentIndex());
+      else return;
+      e.preventDefault();
+      e.stopPropagation();
+    }, true);
+
+    trigger.addEventListener('click', openDial);
+    trigger.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDial(); }
+    });
   }
 
   /* -------------------------------------------------------
@@ -2388,6 +2605,7 @@
     initHamburger();
     initActiveNav();
     initOfferWheel();
+    initOfferDial();
     initOpenerCopy();
     initPassionWheel();
     initTabs();
