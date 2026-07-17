@@ -1147,7 +1147,7 @@ img { max-width: 100%; display: block; }
 .stage-thumb {
   width: 100%;
   flex: 1 1 auto;
-  min-height: 84px;
+  min-height: 64px;
   position: relative;
   overflow: hidden;
   margin-bottom: 14px;
@@ -1173,10 +1173,6 @@ img { max-width: 100%; display: block; }
   line-height: 1.8;
   color: var(--white-60);
   margin-bottom: 14px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .stage-content .timeline-tags { margin-bottom: 16px; }
@@ -1319,7 +1315,6 @@ img { max-width: 100%; display: block; }
 .stage-title em { font-style: italic; color: var(--accent2); }
 
 .stage-content.stage-next .stage-desc {
-  -webkit-line-clamp: unset;
   max-width: 420px;
 }
 
@@ -4968,8 +4963,8 @@ img { max-width: 100%; display: block; }
   }
   .stage-meta { margin-bottom: 8px; }
   .stage-title { margin-bottom: 8px; }
-  .stage-thumb { margin-bottom: 10px; min-height: 96px; }
-  .stage-desc { -webkit-line-clamp: 2; margin-bottom: 10px; line-height: 1.65; }
+  .stage-thumb { margin-bottom: 10px; min-height: 72px; }
+  .stage-desc { margin-bottom: 8px; line-height: 1.65; }
   .stage-content .timeline-tags {
     flex-wrap: nowrap;
     overflow: hidden;
