@@ -932,7 +932,7 @@
 
     dial.addEventListener('pointermove', function (e) {
       if (!dragging) return;
-      if (tapped && Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 8) tapped = false;
+      if (tapped && Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 14) tapped = false;
       if (tapped) return;
       var a = pointerAngle(e);
       var d = a - lastAngle;
@@ -963,8 +963,12 @@
       snapTo(Math.round(theta / STEP) * STEP);
     });
 
-    function handleTap(e) {
-      var orb = e.target.closest ? e.target.closest('.od-orb') : null;
+    function handleTap() {
+      // setPointerCapture 会把 pointerup 的 target 重定向为 dial，
+      // 因此按坐标取按下位置的真实元素，而非依赖 event target
+      var el = document.elementFromPoint(downX, downY);
+      if (!el || !el.closest) return;
+      var orb = el.closest('.od-orb');
       if (orb) {
         var idx = parseInt(orb.parentElement.getAttribute('data-index'));
         if (idx === currentIndex()) { closeDial(idx); return; }
@@ -973,7 +977,7 @@
         snapTo(theta + delta);
         return;
       }
-      if (e.target.closest && e.target.closest('.od-center')) closeDial(currentIndex());
+      if (el.closest('.od-center')) closeDial(currentIndex());
     }
 
     /* ——— 关闭与键盘 ——— */
