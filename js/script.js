@@ -1855,6 +1855,12 @@
       return d < 1 ? 1 : d;
     }
 
+    // friends' birthdays — placeholder names for now, month/day only (this is public source)
+    var FRIENDS = {
+      '占位名一': '5月20日',
+      '占位名二': '11月3日'
+    };
+
     function run(raw) {
       var cmd = raw.trim();
       addLine([['t-prompt', PROMPT], ['t-cmd', cmd]]);
@@ -1876,18 +1882,35 @@
       } else if (head === 'uptime') {
         echo('已持续构建 ' + uptimeDays() + ' 天（自 2026-05-08，仍在运行）');
       } else if (head === 'ls') {
-        echo('values/   dreams.txt   passions/   friends/');
+        var dir = (parts[1] || '').replace(/\/$/, '');
+        if (dir === 'friends') {
+          echo('surprise.txt');
+        } else if (!dir) {
+          echo('values/   dreams.txt   passions/   friends/');
+        } else {
+          echo('ls: ' + dir + ': 没有这个目录');
+        }
       } else if (head === 'cat') {
         var file = parts[1] || '';
         if (file === 'dreams.txt' || file === 'dreams') {
-          echo('做一个有趣的人，为世界创造美和价值。');
+          echo('我在成为:');
+          echo('  01 清晰思考者： 把混乱问题整理成清晰结构');
+          echo('  02 问题定义者：先定义问题,再寻找答案');
+          echo('  03 英语信息输入者：把英语当作信息接口');
+          echo('  04 AI 协作者：用 AI 放大判断力,而不是替代思考');
+          echo('  05 工具创造者：把真实痛点做成可用工具');
+          echo('  06 清晰表达者：用写作整理思考');
+          echo('  07 长期学习者：让知识在多年里持续复利');
+          echo('  08 叙事一致者：让行动逐渐匹配所说的方向');
+        } else if (file === 'friends/surprise.txt' || file === 'surprise.txt') {
+          echo('你可以在输入框里直接输入你的名字试试,如果我记得你的话,这里会显示你的生日哦~', 't-accent');
         } else if (!file) {
           echo('cat: 想读哪个文件？试试 cat dreams.txt');
         } else {
           echo('cat: ' + file + ': 没有这个文件。试试 cat dreams.txt');
         }
       } else if (head === 'sudo') {
-        echo('权限不需要。我们已经是朋友了 → 微信 iDoWantiDoWill', 't-accent');
+        echo('权限不需要~我们已经是朋友啦。', 't-accent');
       } else if (head === 'clear') {
         output.textContent = '';
       } else if (head === 'exit') {
@@ -1898,6 +1921,8 @@
         echo('稳步前进，不急于求成');
       } else if (head === 'mission') {
         echo('做一个有趣的人 ━ 为世界创造美和价值');
+      } else if (FRIENDS[cmd]) {
+        echo('记得你!你的生日是 ' + FRIENDS[cmd] + ' 🎂 —— 见到你真好。', 't-accent');
       } else {
         echo('command not found: ' + head + ' —— 但我想认识你。输入 help 看看能做什么。');
       }
