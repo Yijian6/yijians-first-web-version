@@ -829,9 +829,10 @@
       leadEl.textContent = leads[idx] || '';
     }
 
-    function setWheel(deg) {
+    function setWheel(deg, silent) {
       theta = deg;
       dial.style.setProperty('--wheel', deg + 'deg');
+      if (silent) return;
       var idx = currentIndex();
       if (idx !== activeIdx) {
         activeIdx = idx;
@@ -843,16 +844,24 @@
 
     function cancelAnim() { if (raf) { cancelAnimationFrame(raf); raf = null; } }
 
-    function snapTo(target) {
-      if (reducedMotion) { setWheel(target); return; }
+    // 吸附动画。非 silent 时 settle 即选中（转到哪个，就是哪个）
+    function snapTo(target, opts) {
+      opts = opts || {};
+      function settle() {
+        if (!opts.silent) offerWheelAPI.switchTo(currentIndex());
+        if (opts.onDone) opts.onDone();
+      }
+      if (reducedMotion) { setWheel(target, opts.silent); settle(); return; }
       cancelAnim();
       var start = theta, t0 = null;
+      var dur = opts.duration || SNAP_MS;
       function frame(ts) {
         if (t0 === null) t0 = ts;
-        var p = Math.min((ts - t0) / SNAP_MS, 1);
+        var p = Math.min((ts - t0) / dur, 1);
         p = 1 - Math.pow(1 - p, 3);
-        setWheel(start + (target - start) * p);
-        raf = p < 1 ? requestAnimationFrame(frame) : null;
+        setWheel(start + (target - start) * p, opts.silent);
+        if (p < 1) { raf = requestAnimationFrame(frame); }
+        else { raf = null; settle(); }
       }
       raf = requestAnimationFrame(frame);
     }
@@ -872,35 +881,46 @@
       open = true;
       var entry = offerWheelAPI.getActive();
       activeIdx = entry;
-      theta = -entry * STEP;
-      dial.style.setProperty('--wheel', theta + 'deg');
       renderCenter(entry);
       overlay.hidden = false;
       document.body.style.overflow = 'hidden';
-      if (!reducedMotion) {
-        dial.style.transition = 'none';
-        dial.style.transform = fromTransform();
-        void dial.offsetWidth;
-        dial.style.transition = '';
-        dial.style.transform = '';
+      if (reducedMotion) {
+        setWheel(-entry * STEP, true);
+        overlay.classList.add('open');
+        return;
       }
+      // 以零位（与页面五边形方位一致）长出来，再把选中球转上顶部
+      setWheel(0, true);
+      dial.style.transition = 'none';
+      dial.style.transform = fromTransform();
+      void dial.offsetWidth;
+      dial.style.transition = '';
+      dial.style.transform = '';
       setTimeout(function () { overlay.classList.add('open'); }, 20);
+      if (entry !== 0) {
+        var delta = mod(-entry * STEP + 180, 360) - 180;
+        setTimeout(function () {
+          if (open) snapTo(delta, { silent: true, duration: 600 });
+        }, 250);
+      }
     }
 
-    function closeDial(commitIndex) {
+    function closeDial() {
       if (!open) return;
       open = false;
       cancelAnim();
-      if (commitIndex !== null && commitIndex !== undefined) {
-        offerWheelAPI.switchTo(commitIndex);
-      } else {
-        offerWheelAPI.setActiveColors(offerWheelAPI.getActive(), reducedMotion);
-      }
+      offerWheelAPI.switchTo(currentIndex());
       overlay.classList.remove('open');
-      if (!reducedMotion) dial.style.transform = fromTransform();
+      if (!reducedMotion) {
+        // 缩回原位的同时最短路径转回零位——球各归五边形原座，与静止层无缝交接
+        var home = theta + (mod(-theta + 180, 360) - 180);
+        snapTo(home, { silent: true, duration: 480 });
+        dial.style.transform = fromTransform();
+      }
       setTimeout(function () {
         overlay.hidden = true;
         document.body.style.overflow = '';
+        cancelAnim();
         dial.style.transition = 'none';
         dial.style.transform = '';
         void dial.offsetWidth;
@@ -971,25 +991,25 @@
       var orb = el.closest('.od-orb');
       if (orb) {
         var idx = parseInt(orb.parentElement.getAttribute('data-index'));
-        if (idx === currentIndex()) { closeDial(idx); return; }
+        if (idx === currentIndex()) { closeDial(); return; }
         var target = -idx * STEP;
         var delta = mod(target - theta + 180, 360) - 180;
         snapTo(theta + delta);
         return;
       }
-      if (el.closest('.od-center')) closeDial(currentIndex());
+      if (el.closest('.od-center')) closeDial();
     }
 
     /* ——— 关闭与键盘 ——— */
-    closeBtn.addEventListener('click', function () { closeDial(null); });
-    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeDial(null); });
+    closeBtn.addEventListener('click', function () { closeDial(); });
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeDial(); });
 
     document.addEventListener('keydown', function (e) {
       if (!open) return;
-      if (e.key === 'Escape') closeDial(null);
+      if (e.key === 'Escape') closeDial();
       else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') snapTo(Math.round(theta / STEP) * STEP - STEP);
       else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') snapTo(Math.round(theta / STEP) * STEP + STEP);
-      else if (e.key === 'Enter') closeDial(currentIndex());
+      else if (e.key === 'Enter') closeDial();
       else return;
       e.preventDefault();
       e.stopPropagation();
