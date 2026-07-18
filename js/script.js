@@ -335,25 +335,30 @@
         window.location.href = href;
       }
 
+      if (window.JueCompat && window.JueCompat.isWeChat()) {
+        go();
+        return;
+      }
+
       var root = document.documentElement;
       var requestFullscreen = root.requestFullscreen ||
         root.webkitRequestFullscreen ||
         root.msRequestFullscreen;
 
       if (!requestFullscreen) {
-        setTimeout(go, 180);
+        go();
         return;
       }
 
       try {
         var result = requestFullscreen.call(root);
         if (result && typeof result.then === 'function') {
-          result.then(function () { setTimeout(go, 120); }).catch(function () { setTimeout(go, 180); });
+          result.then(function () { setTimeout(go, 120); }).catch(go);
         } else {
           setTimeout(go, 120);
         }
       } catch (err) {
-        setTimeout(go, 180);
+        go();
       }
     });
   }
