@@ -4891,6 +4891,25 @@ img { max-width: 100%; display: block; }
   line-height: 1.8;
 }
 
+/* --- Thematic divider between section groups --- */
+.pe-divider {
+  width: clamp(40px, 8vw, 60px);
+  height: 1px;
+  background: var(--white-10);
+  border: none;
+  margin: clamp(16px, 3vh, 32px) auto;
+}
+
+/* --- Tighter vertical gap for consecutive pe-moment in same theme --- */
+.pe-moment + .pe-moment {
+  padding-top: clamp(24px, 4vh, 48px);
+}
+
+/* --- Wider pe-moment variant (for landscape-heavy image sections) --- */
+.pe-moment--wide {
+  max-width: 900px;
+}
+
 /* --- Closing section --- */
 .pe-close {
   padding: clamp(80px, 14vh, 160px) var(--side-pad);
