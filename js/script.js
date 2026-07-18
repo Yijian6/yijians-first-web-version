@@ -2068,7 +2068,7 @@
 
     var BOOT = [
       ['whoami', '大一学生'],
-      ['direction', '计算机科学'],
+      ['direction', '计算机科学与技术'],
       ['rhythm', '稳步前进，不急于求成'],
       ['mission', '做一个有趣的人 ━ 为世界创造美和价值']
     ];
@@ -2157,7 +2157,7 @@
       } else if (head === 'exit') {
         echo('exit: 你不能退出别人的人生 :)');
       } else if (head === 'direction') {
-        echo('计算机科学');
+        echo('计算机科学与技术');
       } else if (head === 'rhythm') {
         echo('稳步前进，不急于求成');
       } else if (head === 'mission') {
