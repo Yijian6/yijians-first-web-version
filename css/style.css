@@ -4467,6 +4467,42 @@ img { max-width: 100%; display: block; }
   margin-bottom: 0;
 }
 
+/* --- Mathematics archive note --- */
+.pe-math {
+  padding-top: clamp(64px, 10vh, 120px);
+  padding-bottom: clamp(64px, 10vh, 120px);
+}
+
+.pe-math .pe-tag {
+  margin-bottom: 18px;
+}
+
+.pe-math h3 {
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pe-math > p {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.pe-math-figure {
+  width: min(100%, 720px);
+  margin: clamp(28px, 5vh, 52px) auto 0;
+  border: 1px solid var(--white-10);
+  background: var(--bg-surface);
+  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+}
+
+.pe-math-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .pe-moment-badge {
   display: block;
   margin: 0 auto 32px;
