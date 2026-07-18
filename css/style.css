@@ -4504,6 +4504,43 @@ img { max-width: 100%; display: block; }
   height: auto;
 }
 
+/* --- Library reading memory (quiet prelude to the book archive) --- */
+.pe-library {
+  padding-top: clamp(64px, 10vh, 120px);
+  padding-bottom: clamp(40px, 6vh, 72px);
+}
+
+.pe-library .pe-tag {
+  margin-bottom: 18px;
+}
+
+.pe-library h3 {
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pe-library > p {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pe-library-figure {
+  width: min(100%, 520px);
+  margin: clamp(28px, 4vh, 44px) auto 0;
+  border: 1px solid var(--white-10);
+  background: var(--bg-surface);
+  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+}
+
+.pe-library-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 /* --- Mathematics archive note --- */
 .pe-math {
   padding-top: clamp(64px, 10vh, 120px);
