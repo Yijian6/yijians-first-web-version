@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>小宇宙 — 觉</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;700&display=swap');
@@ -34,6 +34,8 @@
             background: var(--bg);
             color: var(--white);
             font-family: var(--font-body);
+            -webkit-text-size-adjust: 100%;
+            color-scheme: dark;
             cursor: crosshair;
         }
 
@@ -83,6 +85,7 @@
         }
         .tooltip-inner {
             background: rgba(8, 14, 24, 0.92);
+            -webkit-backdrop-filter: blur(16px);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(200, 212, 224, 0.1);
             padding: 16px 20px;
@@ -264,6 +267,7 @@
         .modal-overlay {
             position: fixed; inset: 0;
             background: rgba(4, 6, 12, 0.85);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             display: none;
             align-items: center; justify-content: center;
@@ -530,9 +534,32 @@
         const tooltip = document.getElementById('tooltip');
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+        function parseDbDate(value) {
+            if (value == null) return new Date(NaN);
+            var normalized = String(value);
+            if (normalized.indexOf('T') === -1) normalized = normalized.replace(' ', 'T');
+            if (!/(Z|[+-]\d{2}:?\d{2})$/.test(normalized)) normalized += 'Z';
+            return new Date(normalized);
+        }
+
+        function storageGet(key) {
+            try { return localStorage.getItem(key); }
+            catch (err) { return null; }
+        }
+
+        function storageSet(key, value) {
+            try { localStorage.setItem(key, value); }
+            catch (err) { /* Storage can be unavailable in privacy mode. */ }
+        }
+
+        function storageRemove(key) {
+            try { localStorage.removeItem(key); }
+            catch (err) { /* Storage can be unavailable in privacy mode. */ }
+        }
+
         let W, H;
         let isAdmin = false;
-        let currentNickname = localStorage.getItem('universe_nick') || '';
+        let currentNickname = storageGet('universe_nick') || '';
         let messages = [];
         let starNodes = [];
         let hoveredStar = null;
@@ -590,8 +617,9 @@
         function buildStarNodes(msgs) {
             var now = Date.now();
             starNodes = msgs.map(function(msg, i) {
-                var age = (now - new Date(msg.created_at).getTime()) / (1000 * 60 * 60 * 24);
-                var warmth = Math.max(0, 1 - age / 30);
+                var createdTime = parseDbDate(msg.created_at).getTime();
+                var age = (now - createdTime) / (1000 * 60 * 60 * 24);
+                var warmth = isNaN(createdTime) ? 0.5 : Math.max(0, Math.min(1, 1 - age / 30));
                 var contentLen = msg.content ? msg.content.length : 10;
                 var radius = Math.min(4 + contentLen / 25, 8);
                 return {
@@ -744,9 +772,10 @@
         function showTooltip(star) {
             document.getElementById('tooltipNick').textContent = star.nickname;
             document.getElementById('tooltipText').textContent = star.content;
-            var d = new Date(star.created_at);
-            document.getElementById('tooltipTime').textContent =
-                d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
+            var d = parseDbDate(star.created_at);
+            document.getElementById('tooltipTime').textContent = isNaN(d.getTime())
+                ? '—'
+                : d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
 
             var tx = star.x + 20;
             var ty = star.y - 20;
@@ -869,11 +898,18 @@
         async function loadMessages() {
             try {
                 var res = await fetch(API_URL + '/api/messages');
-                messages = await res.json();
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                var data = await res.json();
+                if (!Array.isArray(data)) throw new Error('Invalid messages response');
+                messages = data;
                 document.getElementById('msgCount').textContent = messages.length;
                 buildStarNodes(messages);
                 createDeleteZones();
             } catch (err) {
+                messages = [];
+                buildStarNodes(messages);
+                createDeleteZones();
+                document.getElementById('msgCount').textContent = '—';
                 console.error('Failed to load messages:', err);
             }
         }
@@ -881,7 +917,7 @@
         async function deleteMessage(id) {
             try {
                 var headers = { 'Content-Type': 'application/json' };
-                if (isAdmin) headers['X-Admin-Token'] = localStorage.getItem('admin_token') || '';
+                if (isAdmin) headers['X-Admin-Token'] = storageGet('admin_token') || '';
                 var res = await fetch(API_URL + '/api/messages/' + id, {
                     method: 'DELETE', headers: headers
                 });
@@ -933,7 +969,7 @@
                 });
 
                 if (res.ok) {
-                    localStorage.setItem('universe_nick', nickname);
+                    storageSet('universe_nick', nickname);
                     currentNickname = nickname;
                     nicknameInput.value = '';
                     contentInput.value = '';
@@ -967,7 +1003,7 @@
             if (isAdmin) {
                 isAdmin = false;
                 document.body.classList.remove('admin-mode');
-                localStorage.removeItem('admin_token');
+                storageRemove('admin_token');
                 adminBtn.textContent = 'ADM';
                 loadMessages();
             } else {
@@ -992,7 +1028,7 @@
                 });
                 if (res.ok) {
                     var data = await res.json();
-                    localStorage.setItem('admin_token', data.token);
+                    storageSet('admin_token', data.token);
                     isAdmin = true;
                     document.body.classList.add('admin-mode');
                     adminBtn.textContent = '退出';
@@ -1016,7 +1052,7 @@
         });
 
         // ── Init ──
-        if (localStorage.getItem('admin_token')) {
+        if (storageGet('admin_token')) {
             isAdmin = true;
             document.body.classList.add('admin-mode');
             adminBtn.textContent = '退出';
