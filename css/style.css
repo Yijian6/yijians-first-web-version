@@ -6,7 +6,202 @@
    dark gallery where typography is the art.
 ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;700&display=swap');
+/* =========================================================
+   SELF-HOSTED FONTS
+   Latin: Lora / DM Sans / JetBrains Mono (variable woff2)
+   CJK:   Noto Serif SC subset - regenerate via
+          python tools/subset-fonts.py
+========================================================= */
+@font-face {
+  font-family: 'DM Sans';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/dm-sans-latin-ext-italic-300-10a140.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: italic;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/dm-sans-latin-italic-300-8a0d8e.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/dm-sans-latin-ext-300-e8eef8.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('../fonts/dm-sans-latin-300-8ca1b7.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/dm-sans-latin-ext-300-e8eef8.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/dm-sans-latin-300-8ca1b7.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/dm-sans-latin-ext-300-e8eef8.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/dm-sans-latin-300-8ca1b7.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/jetbrains-mono-latin-ext-400-ba1653.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/jetbrains-mono-latin-400-480c06.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/jetbrains-mono-latin-ext-400-ba1653.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../fonts/jetbrains-mono-latin-400-480c06.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/lora-latin-ext-italic-400-81335f.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/lora-latin-italic-400-6d4ac4.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/lora-latin-ext-italic-400-81335f.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: italic;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/lora-latin-italic-400-6d4ac4.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/lora-latin-ext-400-e12d62.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/lora-latin-400-ecda3b.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/lora-latin-ext-400-e12d62.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../fonts/lora-latin-400-ecda3b.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/lora-latin-ext-400-e12d62.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Lora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../fonts/lora-latin-400-ecda3b.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/noto-serif-sc-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Serif SC';
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url('../fonts/noto-serif-sc-600.woff2') format('woff2');
+}
 
 /* =========================================================
    DESIGN TOKENS
@@ -176,7 +371,7 @@ img { max-width: 100%; display: block; }
 }
 
 .nav-brand {
-  font-family: var(--font-mono);
+  font-family: 'JetBrains Mono', 'Noto Serif SC', 'SF Mono', 'Consolas', monospace;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -243,21 +438,40 @@ img { max-width: 100%; display: block; }
 /* Hamburger */
 .hamburger {
   display: none;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 48px;
   height: 48px;
   background: none;
   border: 1px solid var(--white-10);
-  gap: 5px;
-  padding: 14px;
+  gap: 10px;
+  padding: 0 14px;
+  position: relative;
   transition: border-color 0.3s ease;
 }
 
 .hamburger:hover { border-color: var(--gold); }
 
-.hamburger span {
+.hamburger-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  color: var(--white-60);
+  transition: color 0.3s ease;
+}
+
+.hamburger:hover .hamburger-label { color: var(--gold); }
+
+.hamburger-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 20px;
+}
+
+.hamburger-box span {
   display: block;
   width: 100%;
   height: 1.5px;
@@ -266,9 +480,38 @@ img { max-width: 100%; display: block; }
   transform-origin: center;
 }
 
-.hamburger.active span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-.hamburger.active span:nth-child(2) { opacity: 0; }
-.hamburger.active span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+/* 中间条每 5 秒轻微收缩一次——余光级别的「活着」信号 */
+.hamburger-box span:nth-child(2) {
+  animation: hamburgerBreathe 5s ease-in-out infinite;
+}
+
+@keyframes hamburgerBreathe {
+  0%, 86%, 100% { transform: scaleX(1); }
+  93% { transform: scaleX(0.55); }
+}
+
+.hamburger.active .hamburger-box span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger.active .hamburger-box span:nth-child(2) { opacity: 0; animation: none; }
+.hamburger.active .hamburger-box span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* 首访引导脉冲点：JS 在用户从未打开过菜单时添加 .has-hint */
+.hamburger.has-hint::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: hintPulse 2.4s var(--ease-out-quart) infinite;
+}
+
+@keyframes hintPulse {
+  0% { box-shadow: 0 0 0 0 rgba(168, 204, 136, 0.5); }
+  60% { box-shadow: 0 0 0 9px rgba(168, 204, 136, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(168, 204, 136, 0); }
+}
 
 /* Mobile Menu */
 .mobile-menu {
@@ -2941,6 +3184,78 @@ img { max-width: 100%; display: block; }
   text-shadow: 0 0 120px rgba(212, 115, 74, 0.04);
 }
 
+/* — Scroll hint：首屏底部的下滑提示 ——————————————— */
+.home-scroll-hint {
+  position: absolute;
+  /* hero 顶部被文档流中的导航栏下推约一个 nav-h，补偿后才落在首屏内 */
+  bottom: calc(var(--nav-h) + 52px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.home-scroll-hint-text {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.35em;
+  color: var(--white-30);
+}
+
+.home-scroll-hint-line {
+  width: 1px;
+  height: 44px;
+  background: var(--white-10);
+  position: relative;
+  overflow: hidden;
+}
+
+.home-scroll-hint-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 14px;
+  background: var(--gold);
+  animation: scrollHintDrop 2.2s var(--ease-in-out-circ) infinite;
+}
+
+@keyframes scrollHintDrop {
+  0% { transform: translateY(-14px); }
+  60%, 100% { transform: translateY(44px); }
+}
+
+/* 短屏手机：hero 垂直居中后底部空间不足，换成紧凑的横向提示 */
+@media (max-height: 700px) {
+  .home-scroll-hint {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    bottom: calc(var(--nav-h) + 30px);
+  }
+
+  .home-scroll-hint-line {
+    width: 36px;
+    height: 1px;
+  }
+
+  .home-scroll-hint-line::after {
+    width: 12px;
+    height: 100%;
+    animation-name: scrollHintSlide;
+  }
+}
+
+@keyframes scrollHintSlide {
+  0% { transform: translateX(-12px); }
+  60%, 100% { transform: translateX(36px); }
+}
+
 .home-hero-inner {
   width: 100%;
   max-width: 800px;
@@ -3212,6 +3527,20 @@ img { max-width: 100%; display: block; }
   transform: translateX(0);
 }
 
+.home-nav-left {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.home-nav-index {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--accent2);
+  opacity: 0.65;
+}
+
 .home-nav-name {
   font-family: var(--font-display);
   font-size: clamp(20px, 4.5vw, 28px);
@@ -3249,6 +3578,60 @@ img { max-width: 100%; display: block; }
 
 .home-nav-contact a:hover {
   color: var(--gold);
+}
+
+/* — 触屏设备：可点击暗示常驻（hover 在手机上不存在）—— */
+@media (hover: none) {
+  .home-nav-item::after {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--white-30);
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .home-nav-item:active::after {
+    color: var(--accent2);
+    transform: translateX(4px);
+  }
+
+  .home-nav-item:active::before {
+    transform: scaleY(1);
+  }
+
+  /* 入场教学动画：滚入视口时箭头闪橙滑入、左侧色条生长再收回，
+     一次性示范「这些行可以点」 */
+  .home-nav-item.revealed::after {
+    animation: navArrowTeach 1.3s var(--ease-out-expo) backwards;
+  }
+
+  .home-nav-item.revealed::before {
+    animation: navBarTeach 1.3s var(--ease-out-expo) backwards;
+  }
+
+  .home-nav-item.delay-1.revealed::after,
+  .home-nav-item.delay-1.revealed::before { animation-delay: 0.10s; }
+  .home-nav-item.delay-2.revealed::after,
+  .home-nav-item.delay-2.revealed::before { animation-delay: 0.24s; }
+  .home-nav-item.delay-3.revealed::after,
+  .home-nav-item.delay-3.revealed::before { animation-delay: 0.38s; }
+  .home-nav-item.delay-4.revealed::after,
+  .home-nav-item.delay-4.revealed::before { animation-delay: 0.52s; }
+  .home-nav-item.delay-5.revealed::after,
+  .home-nav-item.delay-5.revealed::before { animation-delay: 0.66s; }
+}
+
+@keyframes navArrowTeach {
+  0% { opacity: 0; transform: translateX(-12px); color: var(--accent2); }
+  40% { opacity: 1; transform: translateX(0); color: var(--accent2); }
+  70% { color: var(--accent2); }
+  100% { opacity: 1; transform: translateX(0); color: var(--white-30); }
+}
+
+@keyframes navBarTeach {
+  0% { transform: scaleY(0); transform-origin: bottom; }
+  40% { transform: scaleY(1); transform-origin: bottom; }
+  60% { transform: scaleY(1); transform-origin: top; }
+  100% { transform: scaleY(0); transform-origin: top; }
 }
 
 /* ————— Desktop: Homepage ————— */

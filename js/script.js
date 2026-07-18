@@ -237,6 +237,26 @@
   }
 
   /* -------------------------------------------------------
+     7b. MENU HINT — 首次访问在汉堡按钮上显示脉冲点，
+         用户打开过一次菜单后永久消失
+  ------------------------------------------------------- */
+  function initMenuHint() {
+    var btn = $('.hamburger');
+    if (!btn) return;
+
+    var KEY = 'jue-menu-opened';
+    try {
+      if (localStorage.getItem(KEY)) return;
+    } catch (e) { return; }
+
+    btn.classList.add('has-hint');
+    btn.addEventListener('click', function () {
+      btn.classList.remove('has-hint');
+      try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    }, { once: true });
+  }
+
+  /* -------------------------------------------------------
      8. ACTIVE NAV LINK
   ------------------------------------------------------- */
   function initActiveNav() {
@@ -2627,6 +2647,7 @@
     initIntro();
     initProgress();
     initHamburger();
+    initMenuHint();
     initActiveNav();
     initOfferWheel();
     initOfferDial();

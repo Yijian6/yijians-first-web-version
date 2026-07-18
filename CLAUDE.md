@@ -25,6 +25,21 @@ wrangler pages deploy . --project-name=yijian6
 
 `universe-worker/` 后端单独部署：`cd universe-worker && wrangler deploy`。
 
+### 字体（自托管）
+
+全部字体自托管在 `fonts/`（不依赖 Google Fonts，大陆可正常加载），`@font-face` 声明在 `css/style.css` 顶部：
+
+- 拉丁字体：Lora / DM Sans / JetBrains Mono（可变字体 woff2）
+- 中文衬线：Noto Serif SC 按全站实际用字子集化（400/600 两个字重）
+
+**新增中文文案后必须重新生成子集**，否则新字符会回落到系统字体：
+
+```bash
+python tools/subset-fonts.py --src <NotoSerifSC 源字体目录>
+```
+
+依赖 `pip install fonttools brotli`；源字体从 https://github.com/notofonts/noto-cjk 的 `Serif/SubsetOTF/SC/` 下载（Regular + SemiBold），不入库。
+
 ## 架构
 
 ### 共享的单文件资源
