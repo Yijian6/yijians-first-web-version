@@ -214,6 +214,11 @@ try:
                     print(f"START {label}", flush=True)
                     page.goto(f"{BASE_URL}/{page_name}", wait_until="domcontentloaded")
                     page.wait_for_timeout(350)
+                    page.evaluate("() => document.fonts.ready")
+                    assert page.evaluate(
+                        """() => ['Lora', 'DM Sans', 'JetBrains Mono']
+                          .every((family) => document.fonts.check(`16px "${family}"`))"""
+                    ), f"{label}: local font face did not load"
                     assert page.evaluate("matchMedia('(hover: none)').matches"), (
                         f"{label}: touch media query did not match"
                     )

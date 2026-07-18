@@ -174,6 +174,28 @@ function checkUniverseAnimation() {
   );
 }
 
+function checkLocalFontsAndImages() {
+  const css = read('css/style.css');
+  const universe = read('universe.html');
+  const passion = read('passion.html');
+  const fontRefs = [
+    ...css.matchAll(/url\(['"]?([^'")]+\.woff2)['"]?\)/g),
+    ...universe.matchAll(/url\(['"]?([^'")]+\.woff2)['"]?\)/g),
+  ];
+
+  check(!/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(css + universe), '主页面仍引用远程 Google Fonts');
+  fontRefs.forEach((match) => {
+    const relative = match[1].replace(/^\.\.\//, '');
+    check(fs.existsSync(path.join(root, relative)), `本地字体缺失：${match[1]}`);
+  });
+
+  const imageTags = passion.match(/<img\b[^>]*>/g) || [];
+  imageTags.forEach((tag, index) => {
+    check(/\bwidth="\d+"/.test(tag) && /\bheight="\d+"/.test(tag), `passion.html 图片 ${index + 1} 缺少真实尺寸`);
+    check(/\bdecoding="async"/.test(tag), `passion.html 图片 ${index + 1} 缺少 async 解码`);
+  });
+}
+
 checkBackdropPrefixes('css/style.css');
 checkBackdropPrefixes('universe.html');
 checkViewportFallbacks('css/style.css');
@@ -182,6 +204,7 @@ checkViewports();
 checkLocalReferences();
 checkTouchBehavior();
 checkUniverseAnimation();
+checkLocalFontsAndImages();
 
 if (failures.length) {
   console.error(`移动兼容检查失败（${failures.length} 项）：`);

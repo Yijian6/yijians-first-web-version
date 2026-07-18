@@ -364,7 +364,7 @@
           '<span class="chat-mode-toggle" aria-hidden="true"><span class="chat-mode-knob"></span></span>' +
         '</div>' +
         '<div class="lightbox-qr">' +
-          '<img src="Wechat Photo.jpg" alt="WeChat QR Code">' +
+          '<img src="Wechat Photo.jpg" alt="WeChat QR Code" width="820" height="1208" decoding="async" loading="lazy">' +
           '<div class="lightbox-hint">Click anywhere to close</div>' +
         '</div>' +
       '</div>';
@@ -451,6 +451,7 @@
       ensureOverlay();
       overlayImg.src = src;
       overlayImg.alt = alt;
+      overlayImg.decoding = 'async';
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
     }
@@ -1338,6 +1339,8 @@
         chip: li.getAttribute('data-chip') || '',
         year: li.getAttribute('data-year') || '',
         img: li.getAttribute('data-img') || '',
+        width: li.getAttribute('data-width') || '',
+        height: li.getAttribute('data-height') || '',
         url: li.getAttribute('data-url') || '#',
         cta: li.getAttribute('data-cta') || '查看',
         theater: li.getAttribute('data-theater'),
@@ -1616,7 +1619,10 @@
           '<span class="' + chipClass + '">' + w.chip + '</span>' +
         '</div>' +
         '<h3 class="stage-title">' + w.title + '</h3>' +
-        '<div class="stage-thumb"><img src="' + w.img + '" alt="' + w.title + '截图"></div>' +
+        '<div class="stage-thumb"><img src="' + w.img + '" alt="' + w.title + '截图"' +
+          (w.width ? ' width="' + w.width + '"' : '') +
+          (w.height ? ' height="' + w.height + '"' : '') +
+          ' decoding="async" loading="eager"></div>' +
         '<p class="stage-desc">' + w.desc + '</p>' +
         '<div class="timeline-tags">' + tags + '</div>' +
         '<a class="timeline-cta" href="' + w.url + '" target="_blank"' +
