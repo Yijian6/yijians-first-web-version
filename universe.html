@@ -485,6 +485,10 @@
                 min-height: 44px;
             }
         }
+
+        @media (pointer: coarse) {
+            body::after { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -564,7 +568,10 @@
         const bgCtx = bgCanvas.getContext('2d');
         const ctx = mainCanvas.getContext('2d');
         const tooltip = document.getElementById('tooltip');
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+        const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+        const dpr = Math.min(window.devicePixelRatio || 1, coarsePointer ? 1.5 : 2);
+        let reducedMotion = motionQuery.matches;
 
         function syncVisualViewport() {
             var viewport = window.visualViewport;
@@ -613,6 +620,7 @@
         let hoveredStar = null;
         let mouseX = -1000, mouseY = -1000;
         let time = 0;
+        let constellationLines = [];
 
         // ── Resize ──
         function resize() {
@@ -622,8 +630,6 @@
             bgCanvas.height = mainCanvas.height = H * dpr;
             bgCanvas.style.width = mainCanvas.style.width = W + 'px';
             bgCanvas.style.height = mainCanvas.style.height = H + 'px';
-            bgCtx.scale(dpr, dpr);
-            ctx.scale(dpr, dpr);
             generateBgStars();
             drawBackground();
         }
@@ -685,6 +691,8 @@
                     alpha: 1
                 };
             });
+            precomputeConstellations();
+            requestStaticRender();
         }
 
         function getStarColor(warmth, alpha) {
@@ -696,29 +704,38 @@
 
         // ── Constellation Lines ──
         var CONSTELLATION_DIST = 220;
-        function drawConstellations() {
-            if (starNodes.length < 2) return;
+        function precomputeConstellations() {
+            constellationLines = [];
             for (var i = 0; i < starNodes.length; i++) {
                 for (var j = i + 1; j < starNodes.length; j++) {
                     var a = starNodes[i], b = starNodes[j];
                     var dx = a.x - b.x, dy = a.y - b.y;
                     var dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < CONSTELLATION_DIST) {
-                        var fade = 1 - dist / CONSTELLATION_DIST;
-                        var baseAlpha = 0.06 * fade;
-                        var isHovered = (hoveredStar === a || hoveredStar === b);
-                        var alpha = isHovered ? 0.25 * fade : baseAlpha;
-                        ctx.beginPath();
-                        ctx.moveTo(a.x, a.y);
-                        ctx.lineTo(b.x, b.y);
-                        ctx.strokeStyle = isHovered
-                            ? getStarColor((a.warmth + b.warmth) / 2, alpha)
-                            : 'rgba(140, 170, 210, ' + alpha + ')';
-                        ctx.lineWidth = isHovered ? 1.2 : 0.6;
-                        ctx.stroke();
+                        constellationLines.push({
+                            a: a,
+                            b: b,
+                            fade: 1 - dist / CONSTELLATION_DIST,
+                            warmth: (a.warmth + b.warmth) / 2
+                        });
                     }
                 }
             }
+        }
+
+        function drawConstellations() {
+            constellationLines.forEach(function(line) {
+                var isHovered = hoveredStar === line.a || hoveredStar === line.b;
+                var alpha = (isHovered ? 0.25 : 0.06) * line.fade;
+                ctx.beginPath();
+                ctx.moveTo(line.a.x, line.a.y);
+                ctx.lineTo(line.b.x, line.b.y);
+                ctx.strokeStyle = isHovered
+                    ? getStarColor(line.warmth, alpha)
+                    : 'rgba(140, 170, 210, ' + alpha + ')';
+                ctx.lineWidth = isHovered ? 1.2 : 0.6;
+                ctx.stroke();
+            });
         }
 
         // ── Draw Stars ──
@@ -886,19 +903,63 @@
         }
 
         // ── Main Loop ──
-        function frame() {
-            time += 0.016;
+        var animationFrameId = null;
+        var lastFrameTime = 0;
+        var frameCount = 0;
+
+        function drawScene(animate) {
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.clearRect(0, 0, W, H);
 
-            if (Math.floor(time * 60) % 3 === 0) drawBackground();
-            maybeSpawnShootingStar();
+            if (!animate || frameCount % 3 === 0) drawBackground();
+            if (animate) maybeSpawnShootingStar();
             drawMouseHalo();
             drawConstellations();
             drawStars();
-            drawShootingStars();
+            if (animate) drawShootingStars();
+        }
 
-            requestAnimationFrame(frame);
+        function frame(timestamp) {
+            animationFrameId = null;
+            if (document.hidden || reducedMotion) return;
+
+            var delta = lastFrameTime ? Math.min((timestamp - lastFrameTime) / 1000, 0.05) : 0.016;
+            lastFrameTime = timestamp;
+            time += delta;
+            frameCount += 1;
+            drawScene(true);
+            animationFrameId = requestAnimationFrame(frame);
+        }
+
+        function stopAnimation() {
+            if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+            lastFrameTime = 0;
+        }
+
+        function startAnimation() {
+            if (reducedMotion) {
+                drawScene(false);
+                return;
+            }
+            if (document.hidden || animationFrameId !== null) return;
+            lastFrameTime = 0;
+            animationFrameId = requestAnimationFrame(frame);
+        }
+
+        function requestStaticRender() {
+            if (reducedMotion && W && H) drawScene(false);
+        }
+
+        function handleMotionPreference() {
+            reducedMotion = motionQuery.matches;
+            shootingStars = [];
+            if (reducedMotion) {
+                stopAnimation();
+                drawScene(false);
+            } else {
+                startAnimation();
+            }
         }
 
         // ── Mouse Events ──
@@ -916,6 +977,7 @@
                     hideTooltip();
                 }
                 updateDeleteZoneVisibility();
+                requestStaticRender();
             }
         });
 
@@ -924,6 +986,7 @@
             hoveredStar = null;
             hideTooltip();
             mainCanvas.style.cursor = 'crosshair';
+            requestStaticRender();
         });
 
         // Touch support
@@ -940,6 +1003,7 @@
                 hideTooltip();
             }
             updateDeleteZoneVisibility();
+            requestStaticRender();
         }, { passive: false });
 
         // ── API ──
@@ -1106,6 +1170,21 @@
             adminBtn.textContent = '退出';
         }
 
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        });
+        window.addEventListener('pagehide', stopAnimation);
+        window.addEventListener('pageshow', startAnimation);
+        if (motionQuery.addEventListener) {
+            motionQuery.addEventListener('change', handleMotionPreference);
+        } else {
+            motionQuery.addListener(handleMotionPreference);
+        }
+
         resize();
         window.addEventListener('resize', function() {
             resize();
@@ -1114,7 +1193,7 @@
         });
 
         loadMessages();
-        frame();
+        startAnimation();
 
     })();
     </script>

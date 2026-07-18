@@ -150,6 +150,30 @@ function checkTouchBehavior() {
   );
 }
 
+function checkUniverseAnimation() {
+  const source = read('universe.html');
+  const drawSource = extractFunction(source, 'drawConstellations') || '';
+
+  check(
+    source.includes('function precomputeConstellations'),
+    'Universe 缺少预计算星座连线'
+  );
+  check(
+    !/Math\.sqrt/.test(drawSource),
+    'Universe 绘制连线时仍重复执行距离计算'
+  );
+  check(
+    source.includes('document.hidden') &&
+      source.includes("window.addEventListener('pagehide'") &&
+      source.includes("window.addEventListener('pageshow'"),
+    'Universe 没有完整的页面可见性与 bfcache 动画生命周期'
+  );
+  check(
+    source.includes('pointer: coarse') && source.includes('1.5'),
+    'Universe 粗指针设备没有降低 DPR 上限'
+  );
+}
+
 checkBackdropPrefixes('css/style.css');
 checkBackdropPrefixes('universe.html');
 checkViewportFallbacks('css/style.css');
@@ -157,6 +181,7 @@ checkDateParser();
 checkViewports();
 checkLocalReferences();
 checkTouchBehavior();
+checkUniverseAnimation();
 
 if (failures.length) {
   console.error(`移动兼容检查失败（${failures.length} 项）：`);

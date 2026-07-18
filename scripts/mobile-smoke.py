@@ -104,7 +104,7 @@ def exercise_menu(page, label):
     )
 
 
-def exercise_key_interactions(page, page_name):
+def exercise_key_interactions(page, page_name, device_name):
     if page_name == "work.html":
         page.locator("#ringsWrap").press("ArrowRight")
         stepper = page.locator(".rings-stepper button:not([disabled])")
@@ -130,6 +130,12 @@ def exercise_key_interactions(page, page_name):
         if gallery.count():
             gallery.evaluate("(element) => { element.scrollLeft = element.scrollWidth; }")
     elif page_name == "universe.html":
+        assert page.evaluate(
+            "document.getElementById('mainCanvas').width / innerWidth"
+        ) <= 1.51
+        assert page.evaluate(
+            "getComputedStyle(document.body, '::after').display"
+        ) == "none"
         page.locator("#postBtn").click()
         assert page.locator("#postModal").evaluate(
             "(element) => element.classList.contains('active')"
@@ -141,6 +147,18 @@ def exercise_key_interactions(page, page_name):
         )
         assert visual_height > 0
         page.locator("#cancelPost").click()
+        assert page.evaluate("window.__rafPendingCount()") <= 1
+
+        if device_name == "iphone-14-390":
+            page.emulate_media(reduced_motion="reduce")
+            page.reload(wait_until="domcontentloaded")
+            page.wait_for_timeout(350)
+            assert page.evaluate("window.__rafPendingCount()") == 0
+            page.emulate_media(reduced_motion="no-preference")
+            page.goto("about:blank")
+            page.go_back(wait_until="domcontentloaded")
+            page.wait_for_timeout(350)
+            assert page.evaluate("window.__rafPendingCount()") <= 1
 
 
 try:
@@ -154,6 +172,27 @@ try:
                 device_scale_factor=2,
                 has_touch=True,
                 is_mobile=True,
+            )
+            context.add_init_script(
+                """(() => {
+                  const nativeRequest = window.requestAnimationFrame.bind(window);
+                  const nativeCancel = window.cancelAnimationFrame.bind(window);
+                  const pending = new Set();
+                  window.requestAnimationFrame = (callback) => {
+                    let id;
+                    id = nativeRequest((timestamp) => {
+                      pending.delete(id);
+                      callback(timestamp);
+                    });
+                    pending.add(id);
+                    return id;
+                  };
+                  window.cancelAnimationFrame = (id) => {
+                    pending.delete(id);
+                    nativeCancel(id);
+                  };
+                  window.__rafPendingCount = () => pending.size;
+                })();"""
             )
             page = context.new_page()
             page.set_default_timeout(5000)
@@ -187,7 +226,7 @@ try:
                     page.wait_for_timeout(120)
                     assert_no_overflow(page, label)
                     if device_name in {"iphone-14-390", "ipad-touch"}:
-                        exercise_key_interactions(page, page_name)
+                        exercise_key_interactions(page, page_name, device_name)
                     assert not errors, f"{label}: uncaught errors: {errors}"
                     print(f"PASS {label}")
                 except Exception as error:

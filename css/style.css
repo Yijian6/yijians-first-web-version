@@ -5135,6 +5135,21 @@ img { max-width: 100%; display: block; }
 
   .nav-links { display: none; }
   .hamburger { display: flex; }
+  .mobile-menu {
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+  }
+
+  .intro-name {
+    filter: blur(12px);
+    animation-name: introCharRevealMobile;
+  }
+
+  @keyframes introCharRevealMobile {
+    0% { opacity: 0; filter: blur(12px); transform: scale(1.15); }
+    60% { opacity: 1; filter: blur(0); transform: scale(0.98); }
+    100% { opacity: 1; filter: blur(0); transform: scale(1); }
+  }
 
   /* --- HERO: Magazine-style mobile layout --- */
   .hero-section {
