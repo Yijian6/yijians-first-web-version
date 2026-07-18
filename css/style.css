@@ -1070,6 +1070,15 @@ img { max-width: 100%; display: block; }
 
 .rings-title em { font-style: italic; color: var(--accent2); }
 
+.rings-intro {
+  max-width: 520px;
+  margin-top: 12px;
+  font-size: clamp(13px, 1.5vw, 15px);
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--white-60);
+}
+
 .rings-section {
   flex: 1;
   min-height: 0;
@@ -4865,6 +4874,16 @@ img { max-width: 100%; display: block; }
   color: var(--white-30);
   max-width: 500px;
   line-height: 1.6;
+}
+
+.footer-feedback {
+  grid-column: 1 / -1;
+  max-width: 520px;
+  margin: -12px 0 0;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--white-60);
 }
 
 .footer-contact {
