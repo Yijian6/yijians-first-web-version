@@ -8,6 +8,65 @@
 
   var $ = function (sel, ctx) { return (ctx || document).querySelector(sel); };
   var $$ = function (sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); };
+  var compat = window.JueCompat || null;
+
+  function storageGet(key, fallback) {
+    return compat ? compat.storage.get(key, fallback) : fallback;
+  }
+
+  function storageSet(key, value) {
+    return compat ? compat.storage.set(key, value) : false;
+  }
+
+  function lockPage() {
+    if (compat) compat.lockBodyScroll();
+    else document.body.style.overflow = 'hidden';
+  }
+
+  function unlockPage() {
+    if (compat) compat.unlockBodyScroll();
+    else document.body.style.overflow = '';
+  }
+
+  function canFineHover() {
+    if (compat) {
+      var caps = compat.getInputCapabilities();
+      return caps.hover && caps.finePointer;
+    }
+    return window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  }
+
+  function focusableElements(container) {
+    if (!container) return [];
+    return $$('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])', container)
+      .filter(function (el) {
+        return !el.hidden && el.getAttribute('aria-hidden') !== 'true' && el.getClientRects().length > 0;
+      });
+  }
+
+  function trapDialogKey(e, container, close) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    var focusable = focusableElements(container);
+    if (!focusable.length) {
+      e.preventDefault();
+      container.focus();
+      return;
+    }
+    var first = focusable[0];
+    var last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
 
   // Shared origin for the "day N" counters (Work rings caption + footer)
   function daysSinceStart() {
@@ -24,27 +83,36 @@
   var mouseX = 0, mouseY = 0;
   var ringX = 0, ringY = 0;
   var bhPull = null;   // set by the black hole while hovering: {x, y, s}
+  var cursorRaf = null;
 
   function initCursor() {
-    if (window.innerWidth < 769) return;
-
-    cursorDot = document.createElement('div');
-    cursorDot.className = 'cursor-dot';
-    document.body.appendChild(cursorDot);
-
-    cursorRing = document.createElement('div');
-    cursorRing.className = 'cursor-ring';
-    document.body.appendChild(cursorRing);
-
-    document.addEventListener('mousemove', function (e) {
+    function onMove(e) {
+      if (!cursorDot) return;
       mouseX = e.clientX;
       mouseY = e.clientY;
       cursorDot.style.left = mouseX + 'px';
       cursorDot.style.top = mouseY + 'px';
-    });
+    }
 
-    // Smooth ring follow (black hole gravity can tug the target)
+    var hoverTargets = 'a, button, .offer-card, .info-card, .timeline-item, .moment-row, .statement-section, .magnetic';
+    function onOver(e) {
+      if (cursorDot && e.target.closest(hoverTargets)) {
+        cursorDot.classList.add('hovering');
+        cursorRing.classList.add('hovering');
+      }
+    }
+    function onOut(e) {
+      if (cursorDot && e.target.closest(hoverTargets)) {
+        cursorDot.classList.remove('hovering');
+        cursorRing.classList.remove('hovering');
+      }
+    }
+
     function animateRing() {
+      if (!cursorRing) {
+        cursorRaf = null;
+        return;
+      }
       var tx = mouseX, ty = mouseY;
       if (bhPull) {
         tx += (bhPull.x - mouseX) * bhPull.s;
@@ -54,24 +122,42 @@
       ringY += (ty - ringY) * 0.12;
       cursorRing.style.left = ringX + 'px';
       cursorRing.style.top = ringY + 'px';
-      requestAnimationFrame(animateRing);
+      cursorRaf = requestAnimationFrame(animateRing);
     }
-    animateRing();
 
-    // Hover effect on interactive elements
-    var hoverTargets = 'a, button, .offer-card, .info-card, .timeline-item, .moment-row, .statement-section, .magnetic';
-    document.addEventListener('mouseover', function (e) {
-      if (e.target.closest(hoverTargets)) {
-        cursorDot.classList.add('hovering');
-        cursorRing.classList.add('hovering');
-      }
-    });
-    document.addEventListener('mouseout', function (e) {
-      if (e.target.closest(hoverTargets)) {
-        cursorDot.classList.remove('hovering');
-        cursorRing.classList.remove('hovering');
-      }
-    });
+    function enable() {
+      if (cursorDot || !canFineHover()) return;
+      cursorDot = document.createElement('div');
+      cursorDot.className = 'cursor-dot';
+      document.body.appendChild(cursorDot);
+      cursorRing = document.createElement('div');
+      cursorRing.className = 'cursor-ring';
+      document.body.appendChild(cursorRing);
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseover', onOver);
+      document.addEventListener('mouseout', onOut);
+      cursorRaf = requestAnimationFrame(animateRing);
+    }
+
+    function disable() {
+      if (cursorRaf) cancelAnimationFrame(cursorRaf);
+      cursorRaf = null;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseover', onOver);
+      document.removeEventListener('mouseout', onOut);
+      if (cursorDot) cursorDot.remove();
+      if (cursorRing) cursorRing.remove();
+      cursorDot = cursorRing = null;
+      bhPull = null;
+    }
+
+    function sync() {
+      if (canFineHover()) enable();
+      else disable();
+    }
+
+    sync();
+    if (compat) compat.onInputCapabilitiesChange(sync);
   }
 
   /* -------------------------------------------------------
@@ -149,10 +235,9 @@
      4. MAGNETIC HOVER
   ------------------------------------------------------- */
   function initMagnetic() {
-    if (window.innerWidth < 769) return;
-
     $$('.magnetic').forEach(function (el) {
       el.addEventListener('mousemove', function (e) {
+        if (!canFineHover()) return;
         var rect = el.getBoundingClientRect();
         var x = e.clientX - rect.left - rect.width / 2;
         var y = e.clientY - rect.top - rect.height / 2;
@@ -160,10 +245,15 @@
       });
 
       el.addEventListener('mouseenter', function () {
+        if (!canFineHover()) return;
         el.style.transition = 'none';
       });
 
       el.addEventListener('mouseleave', function () {
+        if (!canFineHover()) {
+          el.style.transform = '';
+          return;
+        }
         el.style.transition = 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
         el.style.transform = 'translate(0, 0)';
       });
@@ -221,18 +311,52 @@
     var menu = $('.mobile-menu');
     if (!btn || !menu) return;
 
+    if (!menu.id) menu.id = 'mobileMenu';
+    btn.setAttribute('aria-controls', menu.id);
+    btn.setAttribute('aria-expanded', 'false');
+    var previousFocus = null;
+
+    function closeMenu(restoreFocus) {
+      if (!menu.classList.contains('open')) return;
+      btn.classList.remove('active');
+      menu.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      unlockPage();
+      if (restoreFocus !== false && previousFocus && previousFocus.focus) previousFocus.focus();
+      previousFocus = null;
+    }
+
+    function openMenu() {
+      previousFocus = document.activeElement;
+      btn.classList.add('active');
+      menu.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      lockPage();
+      var firstLink = $('.mobile-link', menu);
+      if (firstLink) window.requestAnimationFrame(function () { firstLink.focus(); });
+    }
+
     btn.addEventListener('click', function () {
-      btn.classList.toggle('active');
-      menu.classList.toggle('open');
-      document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+      if (menu.classList.contains('open')) closeMenu();
+      else openMenu();
     });
 
     $$('.mobile-link', menu).forEach(function (link) {
       link.addEventListener('click', function () {
-        btn.classList.remove('active');
-        menu.classList.remove('open');
-        document.body.style.overflow = '';
+        closeMenu(false);
       });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!menu.classList.contains('open')) return;
+      trapDialogKey(e, menu, function () { closeMenu(); });
+    });
+    window.addEventListener('pagehide', function () { closeMenu(false); });
+    window.addEventListener('pageshow', function () {
+      btn.classList.remove('active');
+      menu.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      unlockPage();
     });
   }
 
@@ -245,14 +369,12 @@
     if (!btn) return;
 
     var KEY = 'jue-menu-opened';
-    try {
-      if (localStorage.getItem(KEY)) return;
-    } catch (e) { return; }
+    if (storageGet(KEY)) return;
 
     btn.classList.add('has-hint');
     btn.addEventListener('click', function () {
       btn.classList.remove('has-hint');
-      try { localStorage.setItem(KEY, '1'); } catch (e) {}
+      storageSet(KEY, '1');
     }, { once: true });
   }
 
@@ -369,10 +491,13 @@
   function initLightbox() {
     var overlay = document.createElement('div');
     overlay.className = 'lightbox-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'wechatLightboxTitle');
     overlay.innerHTML =
       '<div class="lightbox-card">' +
         '<button class="lightbox-close" aria-label="Close">×</button>' +
-        '<div class="lightbox-label">WeChat / 微信</div>' +
+        '<div class="lightbox-label" id="wechatLightboxTitle">WeChat / 微信</div>' +
         '<div class="chat-mode" role="switch" aria-checked="false" tabindex="0" aria-label="进入聊天模式">' +
           '<span class="chat-mode-text">进入聊天模式</span>' +
           '<span class="chat-mode-toggle" aria-hidden="true"><span class="chat-mode-knob"></span></span>' +
@@ -387,6 +512,7 @@
     var card = overlay.querySelector('.lightbox-card');
     var closeBtn = overlay.querySelector('.lightbox-close');
     var chatMode = overlay.querySelector('.chat-mode');
+    var previousFocus = null;
 
     function setChatOn(on) {
       card.classList.toggle('chat-on', on);
@@ -405,14 +531,19 @@
 
     function openLightbox(e) {
       e.preventDefault();
+      previousFocus = e.currentTarget || document.activeElement;
       setChatOn(false);
       overlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
+      lockPage();
+      window.requestAnimationFrame(function () { closeBtn.focus(); });
     }
 
     function closeLightbox() {
+      if (!overlay.classList.contains('open')) return;
       overlay.classList.remove('open');
-      document.body.style.overflow = '';
+      unlockPage();
+      if (previousFocus && previousFocus.focus) previousFocus.focus();
+      previousFocus = null;
     }
 
     // Click on WeChat trigger
@@ -429,9 +560,8 @@
     });
     closeBtn.addEventListener('click', closeLightbox);
 
-    // Close: ESC key
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeLightbox();
+      if (overlay.classList.contains('open')) trapDialogKey(e, overlay, closeLightbox);
     });
   }
 
@@ -447,6 +577,9 @@
       if (overlay) return;
       overlay = document.createElement('div');
       overlay.className = 'project-lightbox-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-label', '项目图片预览');
       overlay.innerHTML =
         '<div class="project-lightbox-inner">' +
           '<button class="lightbox-close" aria-label="Close">×</button>' +
@@ -461,18 +594,25 @@
       });
     }
 
+    var previousFocus = null;
     function openLightbox(src, alt) {
       ensureOverlay();
+      previousFocus = document.activeElement;
       overlayImg.src = src;
       overlayImg.alt = alt;
       overlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
+      lockPage();
+      window.requestAnimationFrame(function () {
+        overlay.querySelector('.lightbox-close').focus();
+      });
     }
 
     function closeOverlay() {
       if (!overlay) return;
       overlay.classList.remove('open');
-      document.body.style.overflow = '';
+      unlockPage();
+      if (previousFocus && previousFocus.focus) previousFocus.focus();
+      previousFocus = null;
     }
 
     document.addEventListener('click', function (e) {
@@ -486,7 +626,7 @@
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeOverlay();
+      if (overlay && overlay.classList.contains('open')) trapDialogKey(e, overlay, closeOverlay);
     });
   }
 
@@ -840,6 +980,7 @@
     var SNAP_MS = 420;    // 吸附动画时长
 
     var open = false;
+    var previousFocus = null;
     var theta = 0;
     var activeIdx = 0;
     var raf = null;
@@ -904,14 +1045,16 @@
     function openDial() {
       if (open) return;
       open = true;
+      previousFocus = document.activeElement;
       var entry = offerWheelAPI.getActive();
       activeIdx = entry;
       renderCenter(entry);
       overlay.hidden = false;
-      document.body.style.overflow = 'hidden';
+      lockPage();
       if (reducedMotion) {
         setWheel(-entry * STEP, true);
         overlay.classList.add('open');
+        closeBtn.focus({ preventScroll: true });
         return;
       }
       // 以零位（与页面五边形方位一致）长出来，再把选中球转上顶部
@@ -921,7 +1064,10 @@
       void dial.offsetWidth;
       dial.style.transition = '';
       dial.style.transform = '';
-      setTimeout(function () { overlay.classList.add('open'); }, 20);
+      setTimeout(function () {
+        overlay.classList.add('open');
+        closeBtn.focus({ preventScroll: true });
+      }, 20);
       if (entry !== 0) {
         var delta = mod(-entry * STEP + 180, 360) - 180;
         setTimeout(function () {
@@ -944,7 +1090,10 @@
       }
       setTimeout(function () {
         overlay.hidden = true;
-        document.body.style.overflow = '';
+        unlockPage();
+        var focusTarget = previousFocus && document.contains(previousFocus) ? previousFocus : trigger;
+        previousFocus = null;
+        focusTarget.focus({ preventScroll: true });
         cancelAnim();
         dial.style.transition = 'none';
         dial.style.transform = '';
@@ -992,6 +1141,9 @@
     dial.addEventListener('pointerup', function (e) {
       if (!dragging) return;
       dragging = false;
+      if (dial.hasPointerCapture && dial.hasPointerCapture(e.pointerId)) {
+        dial.releasePointerCapture(e.pointerId);
+      }
       if (tapped) { handleTap(e); return; }
       var v = 0;
       if (samples.length >= 2) {
@@ -1031,6 +1183,10 @@
 
     document.addEventListener('keydown', function (e) {
       if (!open) return;
+      if (e.key === 'Tab') {
+        trapDialogKey(e, overlay, closeDial);
+        return;
+      }
       if (e.key === 'Escape') closeDial();
       else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') snapTo(Math.round(theta / STEP) * STEP - STEP);
       else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') snapTo(Math.round(theta / STEP) * STEP + STEP);
@@ -1235,14 +1391,18 @@
     var overlay = null;
     var title, openLink, closeBtn, frame, loading;
     var iframe = null;
+    var previousFocus = null;
 
     function ensureOverlay() {
       if (overlay) return;
       overlay = document.createElement('div');
       overlay.className = 'product-theater';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('aria-labelledby', 'productTheaterTitle');
       overlay.innerHTML =
         '<div class="pt-bar">' +
-          '<span class="pt-title"></span>' +
+          '<span class="pt-title" id="productTheaterTitle"></span>' +
           '<a class="pt-open" href="" target="_blank" rel="noopener">新窗口打开 ↗</a>' +
           '<button class="pt-close" aria-label="Close">×</button>' +
         '</div>' +
@@ -1259,6 +1419,7 @@
 
     function openTheater(url, name) {
       ensureOverlay();
+      previousFocus = document.activeElement;
       title.textContent = name;
       openLink.href = url;
       loading.style.display = '';
@@ -1271,14 +1432,17 @@
       iframe.src = url;
       frame.appendChild(iframe);
       overlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
+      lockPage();
+      window.requestAnimationFrame(function () { closeBtn.focus(); });
     }
 
     function closeTheater() {
       if (!overlay || !overlay.classList.contains('open')) return;
       overlay.classList.remove('open');
-      document.body.style.overflow = '';
+      unlockPage();
       if (iframe) { iframe.remove(); iframe = null; }
+      if (previousFocus && previousFocus.focus) previousFocus.focus();
+      previousFocus = null;
     }
 
     document.addEventListener('click', function (e) {
@@ -1291,7 +1455,7 @@
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeTheater();
+      if (overlay && overlay.classList.contains('open')) trapDialogKey(e, overlay, closeTheater);
     });
   }
 
@@ -1928,7 +2092,7 @@
   ------------------------------------------------------- */
   function initDecompose() {
     var card = $('.me-card-decompose');
-    if (!card || window.innerWidth >= 769) return;
+    if (!card || canFineHover()) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     var io = new IntersectionObserver(function (entries) {
@@ -1956,8 +2120,7 @@
     if (!canvas || !canvas.getContext) return;
 
     var KEY = 'jue_compound_days';
-    var days = 0;
-    try { days = parseFloat(localStorage.getItem(KEY)) || 0; } catch (err) {}
+    var days = parseFloat(storageGet(KEY, '0')) || 0;
 
     if (days >= 1 && memory) {
       memory.textContent = '这条曲线记得你上次来 — 已累计 ' + Math.floor(days) + ' 天。它一直在长。';
@@ -2051,7 +2214,7 @@
         days += (t - last) / 1000;   // 1 real second = 1 day
         if (t - lastSave > 2000) {
           lastSave = t;
-          try { localStorage.setItem(KEY, days.toFixed(2)); } catch (err) {}
+          storageSet(KEY, days.toFixed(2));
         }
       }
       last = t;
@@ -2066,13 +2229,13 @@
       } else if (rafId) {
         cancelAnimationFrame(rafId);
         rafId = null;
-        try { localStorage.setItem(KEY, days.toFixed(2)); } catch (err) {}
+        storageSet(KEY, days.toFixed(2));
       }
     }, { threshold: 0.2 });
     io.observe(canvas);
 
     window.addEventListener('pagehide', function () {
-      try { localStorage.setItem(KEY, days.toFixed(2)); } catch (err) {}
+      storageSet(KEY, days.toFixed(2));
     });
   }
 

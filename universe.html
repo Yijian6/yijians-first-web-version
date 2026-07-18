@@ -24,6 +24,9 @@
             --font-display: 'Lora', Georgia, serif;
             --font-body: 'DM Sans', system-ui, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
+            --visual-viewport-height: 100vh;
+            --visual-viewport-top: 0px;
+            --visual-viewport-bottom: 0px;
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -35,6 +38,9 @@
             color: var(--white);
             font-family: var(--font-body);
             cursor: crosshair;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+            color-scheme: dark;
         }
 
         /* Nebula background */
@@ -83,6 +89,7 @@
         }
         .tooltip-inner {
             background: rgba(8, 14, 24, 0.92);
+            -webkit-backdrop-filter: blur(16px);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(200, 212, 224, 0.1);
             padding: 16px 20px;
@@ -164,6 +171,17 @@
             font-weight: 400;
             font-family: var(--font-display);
         }
+        .load-status {
+            min-height: 44px;
+            padding: 0 8px;
+            border: 0;
+            background: transparent;
+            color: var(--star-warm);
+            font: 10px/1.2 var(--font-mono);
+            letter-spacing: 0.04em;
+            cursor: pointer;
+        }
+        .load-status[hidden] { display: none; }
         .admin-btn {
             font-family: var(--font-mono);
             font-size: 10px;
@@ -262,8 +280,13 @@
 
         /* Modal — Glass */
         .modal-overlay {
-            position: fixed; inset: 0;
+            position: fixed;
+            top: var(--visual-viewport-top);
+            right: 0;
+            left: 0;
+            height: var(--visual-viewport-height);
             background: rgba(4, 6, 12, 0.85);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             display: none;
             align-items: center; justify-content: center;
@@ -278,6 +301,7 @@
             max-width: 420px;
             width: 90%;
             max-height: 90vh;
+            max-height: calc(var(--visual-viewport-height) - 32px);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             position: relative;
@@ -344,6 +368,8 @@
             padding: 10px 18px;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 44px;
+            min-height: 44px;
         }
         .btn-cancel:hover { border-color: var(--white-30); color: var(--white); }
 
@@ -358,6 +384,8 @@
             padding: 10px 18px;
             cursor: pointer;
             transition: all 0.3s ease;
+            min-width: 44px;
+            min-height: 44px;
         }
         .btn-submit:hover { background: #bfdf9e; }
 
@@ -389,6 +417,11 @@
             opacity: 0;
             transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
         }
+        .delete-zone::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+        }
         .delete-zone.visible { opacity: 1; }
         .delete-zone:hover {
             background: rgba(231, 76, 60, 0.3);
@@ -418,8 +451,8 @@
             .title-main { font-size: clamp(26px, 9vw, 36px); }
             .title-sub { max-width: 210px; font-size: 11px; }
             .post-btn {
-                bottom: 24px;
-                right: 24px;
+                bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px));
+                right: max(24px, calc(env(safe-area-inset-right) + 12px));
                 width: 50px;
                 height: 50px;
                 border-color: rgba(168, 204, 136, 0.48);
@@ -429,7 +462,11 @@
             .hint { display: none; }
             .modal-overlay.active {
                 align-items: flex-start;
-                padding: max(74px, calc(env(safe-area-inset-top) + 56px)) 16px 16px;
+                padding:
+                    max(20px, calc(env(safe-area-inset-top) + 12px))
+                    max(16px, env(safe-area-inset-right))
+                    max(16px, calc(env(safe-area-inset-bottom) + var(--visual-viewport-bottom)))
+                    max(16px, env(safe-area-inset-left));
             }
             .modal {
                 width: 100%;
@@ -442,12 +479,49 @@
                 border-color: rgba(200, 212, 224, 0.2);
             }
             .modal-actions { gap: 12px; }
-            .btn-cancel, .btn-submit { min-height: 42px; padding: 12px 18px; }
+            .btn-cancel, .btn-submit { min-height: 44px; padding: 12px 18px; }
             .tooltip {
                 left: 20px !important;
                 right: 20px;
                 max-width: none;
             }
+        }
+
+        @media (hover: none) {
+            .back-btn:hover,
+            .admin-btn:hover { color: inherit; }
+            .post-btn:hover {
+                border-color: var(--white-30);
+                transform: none;
+                box-shadow: none;
+            }
+            .post-btn:hover::before { opacity: 0; }
+            .post-btn:hover svg { color: var(--white-60); }
+            .post-btn:active { transform: scale(0.96); opacity: 0.82; }
+        }
+
+        @media (prefers-reduced-transparency: reduce) {
+            .tooltip-inner,
+            .modal-overlay {
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+            }
+            .tooltip-inner { background: #080e18; }
+            .modal-overlay { background: rgba(4, 6, 12, 0.97); }
+        }
+
+        @media (forced-colors: active) {
+            .post-btn,
+            .modal,
+            .modal input,
+            .modal textarea,
+            .btn-cancel,
+            .btn-submit,
+            .delete-zone {
+                border: 1px solid ButtonText;
+                forced-color-adjust: auto;
+            }
+            :focus-visible { outline: 2px solid Highlight; outline-offset: 3px; }
         }
     </style>
 </head>
@@ -472,6 +546,7 @@
                 <span>返回</span>
             </a>
             <div class="header-right">
+                <button type="button" class="load-status" id="retryLoad" hidden>网络异常 · 重试</button>
                 <div class="star-count"><strong id="msgCount">0</strong> STARS</div>
                 <a href="#" class="admin-btn" id="adminBtn">ADM</a>
             </div>
@@ -484,7 +559,7 @@
         </div>
 
         <span class="hint">留下一颗属于你的星 →</span>
-        <button class="post-btn" id="postBtn">
+        <button class="post-btn" id="postBtn" type="button" aria-label="留下一颗星">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                 <path d="M12 5v14M5 12h14"/>
             </svg>
@@ -492,9 +567,9 @@
     </div>
 
     <!-- Post Modal -->
-    <div class="modal-overlay" id="postModal">
+    <div class="modal-overlay" id="postModal" role="dialog" aria-modal="true" aria-labelledby="postModalTitle" aria-hidden="true">
         <div class="modal">
-            <h2>留下一颗星</h2>
+            <h2 id="postModalTitle">留下一颗星</h2>
             <div class="modal-sub">Leave your mark in the constellation</div>
             <input type="text" id="nickname" placeholder="你的名字" maxlength="20" autocomplete="off">
             <textarea id="content" placeholder="想说的话…" maxlength="200"></textarea>
@@ -506,9 +581,9 @@
     </div>
 
     <!-- Admin Modal -->
-    <div class="modal-overlay" id="adminModal">
+    <div class="modal-overlay" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle" aria-hidden="true">
         <div class="modal">
-            <h2>管理员</h2>
+            <h2 id="adminModalTitle">管理员</h2>
             <div class="modal-sub">Admin authentication</div>
             <input type="password" id="adminPassword" placeholder="密码" autocomplete="off">
             <div class="modal-actions">
@@ -529,16 +604,34 @@
         const bgCtx = bgCanvas.getContext('2d');
         const ctx = mainCanvas.getContext('2d');
         const tooltip = document.getElementById('tooltip');
+        const compat = window.JueCompat;
+        const storage = compat.storage;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
         let W, H;
         let isAdmin = false;
-        let currentNickname = localStorage.getItem('universe_nick') || '';
+        let currentNickname = storage.get('universe_nick', '') || '';
         let messages = [];
         let starNodes = [];
         let hoveredStar = null;
         let mouseX = -1000, mouseY = -1000;
         let time = 0;
+
+        function parseDbDate(value) {
+            if (value instanceof Date) {
+                return Number.isFinite(value.getTime()) ? new Date(value.getTime()) : null;
+            }
+            if (typeof value !== 'string') return null;
+            var text = value.trim();
+            if (!text) return null;
+
+            if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(text)) {
+                text = text.replace(/\s+/, 'T') + 'Z';
+            }
+
+            var timestamp = Date.parse(text);
+            return Number.isFinite(timestamp) ? new Date(timestamp) : null;
+        }
 
         // ── Resize ──
         function resize() {
@@ -591,17 +684,23 @@
         function buildStarNodes(msgs) {
             var now = Date.now();
             starNodes = msgs.map(function(msg, i) {
-                var age = (now - new Date(msg.created_at).getTime()) / (1000 * 60 * 60 * 24);
-                var warmth = Math.max(0, 1 - age / 30);
+                var parsedDate = parseDbDate(msg.created_at);
+                var age = parsedDate ? (now - parsedDate.getTime()) / (1000 * 60 * 60 * 24) : null;
+                var warmth = age === null ? 0.5 : Math.max(0, Math.min(1, 1 - age / 30));
                 var contentLen = msg.content ? msg.content.length : 10;
                 var radius = Math.min(4 + contentLen / 25, 8);
+                var xPercent = Number(msg.x);
+                var yPercent = Number(msg.y);
+                if (!Number.isFinite(xPercent)) xPercent = 50;
+                if (!Number.isFinite(yPercent)) yPercent = 50;
                 return {
                     id: msg.id,
                     nickname: msg.nickname,
                     content: msg.content,
                     created_at: msg.created_at,
-                    x: (msg.x / 100) * (W - 120) + 60,
-                    y: (msg.y / 100) * (H - 160) + 80,
+                    parsedDate: parsedDate,
+                    x: (xPercent / 100) * (W - 120) + 60,
+                    y: (yPercent / 100) * (H - 160) + 80,
                     radius: radius,
                     warmth: warmth,
                     phase: (i * 1.37) % (Math.PI * 2),
@@ -745,9 +844,10 @@
         function showTooltip(star) {
             document.getElementById('tooltipNick').textContent = star.nickname;
             document.getElementById('tooltipText').textContent = star.content;
-            var d = new Date(star.created_at);
-            document.getElementById('tooltipTime').textContent =
-                d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0');
+            var d = star.parsedDate || parseDbDate(star.created_at);
+            document.getElementById('tooltipTime').textContent = d
+                ? d.getFullYear() + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + String(d.getDate()).padStart(2, '0')
+                : '—';
 
             var tx = star.x + 20;
             var ty = star.y - 20;
@@ -825,9 +925,11 @@
             requestAnimationFrame(frame);
         }
 
-        // ── Mouse Events ──
+        // ── Pointer Events ──
         mainCanvas.style.pointerEvents = 'auto';
-        mainCanvas.addEventListener('mousemove', function(e) {
+        mainCanvas.style.touchAction = 'manipulation';
+        mainCanvas.addEventListener('pointermove', function(e) {
+            if (e.pointerType === 'touch') return;
             mouseX = e.clientX;
             mouseY = e.clientY;
             var hit = hitTest(mouseX, mouseY);
@@ -843,49 +945,73 @@
             }
         });
 
-        mainCanvas.addEventListener('mouseleave', function() {
+        mainCanvas.addEventListener('pointerleave', function() {
             mouseX = mouseY = -1000;
             hoveredStar = null;
             hideTooltip();
             mainCanvas.style.cursor = 'crosshair';
         });
 
-        // Touch support
-        mainCanvas.addEventListener('touchstart', function(e) {
-            var touch = e.touches[0];
-            mouseX = touch.clientX;
-            mouseY = touch.clientY;
+        mainCanvas.addEventListener('pointerdown', function(e) {
+            if (e.pointerType === 'mouse') return;
+            try { mainCanvas.setPointerCapture(e.pointerId); } catch (captureError) {}
+            mouseX = e.clientX;
+            mouseY = e.clientY;
             var hit = hitTest(mouseX, mouseY);
             hoveredStar = hit;
             if (hit) {
-                e.preventDefault();
                 showTooltip(hit);
             } else {
                 hideTooltip();
             }
             updateDeleteZoneVisibility();
-        }, { passive: false });
+        });
+        mainCanvas.addEventListener('pointerup', function(e) {
+            if (mainCanvas.hasPointerCapture && mainCanvas.hasPointerCapture(e.pointerId)) {
+                mainCanvas.releasePointerCapture(e.pointerId);
+            }
+        });
+        mainCanvas.addEventListener('pointercancel', function(e) {
+            if (mainCanvas.hasPointerCapture && mainCanvas.hasPointerCapture(e.pointerId)) {
+                mainCanvas.releasePointerCapture(e.pointerId);
+            }
+        });
 
         // ── API ──
+        var retryLoad = document.getElementById('retryLoad');
+
+        function setLoadError(hasError) {
+            retryLoad.hidden = !hasError;
+        }
+
         async function loadMessages() {
+            setLoadError(false);
             try {
-                var res = await fetch(API_URL + '/api/messages');
-                messages = await res.json();
+                var res = await compat.fetchWithTimeout(API_URL + '/api/messages', {}, 10000);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                var payload = await res.json();
+                if (!Array.isArray(payload)) throw new TypeError('Unexpected messages response');
+                messages = payload.filter(function(message) {
+                    return message && typeof message === 'object';
+                });
                 document.getElementById('msgCount').textContent = messages.length;
                 buildStarNodes(messages);
                 createDeleteZones();
             } catch (err) {
-                console.error('Failed to load messages:', err);
+                console.warn('Failed to load messages:', err);
+                setLoadError(true);
             }
         }
+
+        retryLoad.addEventListener('click', loadMessages);
 
         async function deleteMessage(id) {
             try {
                 var headers = { 'Content-Type': 'application/json' };
-                if (isAdmin) headers['X-Admin-Token'] = localStorage.getItem('admin_token') || '';
-                var res = await fetch(API_URL + '/api/messages/' + id, {
+                if (isAdmin) headers['X-Admin-Token'] = storage.get('admin_token', '') || '';
+                var res = await compat.fetchWithTimeout(API_URL + '/api/messages/' + id, {
                     method: 'DELETE', headers: headers
-                });
+                }, 10000);
                 if (res.ok) {
                     hideTooltip();
                     hoveredStar = null;
@@ -898,6 +1024,57 @@
             }
         }
 
+        // ── Modal focus and scroll handling ──
+        var activeModal = null;
+        var modalPreviousFocus = null;
+
+        function getModalFocusables(modal) {
+            return Array.prototype.slice.call(modal.querySelectorAll(
+                'button, input, textarea, select, a[href], [tabindex]:not([tabindex="-1"])'
+            )).filter(function(el) {
+                return !el.disabled && el.offsetParent !== null;
+            });
+        }
+
+        function openModal(modal, firstField) {
+            if (activeModal && activeModal !== modal) closeModal(activeModal);
+            modalPreviousFocus = document.activeElement;
+            activeModal = modal;
+            modal.hidden = false;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            compat.lockBodyScroll();
+            setTimeout(function() {
+                (firstField || getModalFocusables(modal)[0] || modal).focus({ preventScroll: true });
+            }, 0);
+        }
+
+        function closeModal(modal) {
+            if (!modal) return;
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+            modal.hidden = true;
+            if (activeModal === modal) activeModal = null;
+            compat.unlockBodyScroll();
+            var focusTarget = modalPreviousFocus && document.contains(modalPreviousFocus) ? modalPreviousFocus : postBtn;
+            modalPreviousFocus = null;
+            if (focusTarget) focusTarget.focus({ preventScroll: true });
+        }
+
+        function trapModalKey(e) {
+            if (!activeModal || e.key !== 'Tab') return;
+            var items = getModalFocusables(activeModal);
+            if (!items.length) return;
+            var first = items[0], last = items[items.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+
         // ── Post Modal ──
         var postModal = document.getElementById('postModal');
         var postBtn = document.getElementById('postBtn');
@@ -905,14 +1082,13 @@
         var submitPost = document.getElementById('submitPost');
 
         postBtn.addEventListener('click', function() {
-            postModal.classList.add('active');
+            openModal(postModal, document.getElementById('nickname'));
             if (currentNickname) document.getElementById('nickname').value = currentNickname;
-            document.getElementById('nickname').focus();
         });
 
-        cancelPost.addEventListener('click', function() { postModal.classList.remove('active'); });
+        cancelPost.addEventListener('click', function() { closeModal(postModal); });
         postModal.addEventListener('click', function(e) {
-            if (e.target === postModal) postModal.classList.remove('active');
+            if (e.target === postModal) closeModal(postModal);
         });
 
         async function handleSubmitPost() {
@@ -927,21 +1103,22 @@
             submitPost.textContent = '发布中…';
 
             try {
-                var res = await fetch(API_URL + '/api/messages', {
+                var res = await compat.fetchWithTimeout(API_URL + '/api/messages', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ nickname: nickname, content: content })
-                });
+                }, 15000);
 
                 if (res.ok) {
-                    localStorage.setItem('universe_nick', nickname);
+                    storage.set('universe_nick', nickname);
                     currentNickname = nickname;
                     nicknameInput.value = '';
                     contentInput.value = '';
-                    postModal.classList.remove('active');
+                    closeModal(postModal);
                     loadMessages();
                 } else {
-                    var err = await res.json();
+                    var err = {};
+                    try { err = await res.json(); } catch (parseError) {}
                     alert(err.error || '发布失败');
                 }
             } catch (err) {
@@ -968,36 +1145,35 @@
             if (isAdmin) {
                 isAdmin = false;
                 document.body.classList.remove('admin-mode');
-                localStorage.removeItem('admin_token');
+                storage.remove('admin_token');
                 adminBtn.textContent = 'ADM';
                 loadMessages();
             } else {
-                adminModal.classList.add('active');
-                document.getElementById('adminPassword').focus();
+                openModal(adminModal, document.getElementById('adminPassword'));
             }
         });
 
-        cancelAdmin.addEventListener('click', function() { adminModal.classList.remove('active'); });
+        cancelAdmin.addEventListener('click', function() { closeModal(adminModal); });
         adminModal.addEventListener('click', function(e) {
-            if (e.target === adminModal) adminModal.classList.remove('active');
+            if (e.target === adminModal) closeModal(adminModal);
         });
 
         submitAdmin.addEventListener('click', async function() {
             var password = document.getElementById('adminPassword').value;
             if (!password) return;
             try {
-                var res = await fetch(API_URL + '/api/admin/login', {
+                var res = await compat.fetchWithTimeout(API_URL + '/api/admin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ password: password })
-                });
+                }, 10000);
                 if (res.ok) {
                     var data = await res.json();
-                    localStorage.setItem('admin_token', data.token);
+                    storage.set('admin_token', data.token);
                     isAdmin = true;
                     document.body.classList.add('admin-mode');
                     adminBtn.textContent = '退出';
-                    adminModal.classList.remove('active');
+                    closeModal(adminModal);
                     document.getElementById('adminPassword').value = '';
                     loadMessages();
                 } else {
@@ -1010,14 +1186,20 @@
 
         // ── Keyboard ──
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                postModal.classList.remove('active');
-                adminModal.classList.remove('active');
-            }
+            trapModalKey(e);
+            if (e.key !== 'Escape' || !activeModal) return;
+            closeModal(activeModal);
+        });
+
+        window.addEventListener('pagehide', function() {
+            if (activeModal) closeModal(activeModal);
+        });
+        window.addEventListener('pageshow', function() {
+            if (activeModal) closeModal(activeModal);
         });
 
         // ── Init ──
-        if (localStorage.getItem('admin_token')) {
+        if (storage.get('admin_token', '')) {
             isAdmin = true;
             document.body.classList.add('admin-mode');
             adminBtn.textContent = '退出';

@@ -233,6 +233,14 @@
   --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
 
   --nav-h: 72px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --nav-offset: calc(var(--nav-h) + var(--safe-top));
+  --visual-viewport-height: 100vh;
+  --visual-viewport-top: 0px;
+  --visual-viewport-bottom: 0px;
   --section-gap: clamp(80px, 12vh, 160px);
   --side-pad: clamp(20px, 5vw, 80px);
 
@@ -251,7 +259,10 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  cursor: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  color-scheme: dark;
+  cursor: auto;
   overflow-x: hidden;
   overflow-x: clip;
 }
@@ -266,13 +277,17 @@ body {
   overflow-x: clip;
   font-weight: 300;
   font-size: 16px;
-  cursor: none;
+  cursor: auto;
 }
 
-a { color: var(--gold); text-decoration: none; cursor: none; }
-button { cursor: none; }
+a { color: var(--gold); text-decoration: none; cursor: pointer; }
+button { cursor: pointer; }
 img { max-width: 100%; display: block; }
 ::selection { background: var(--accent2); color: var(--bg); }
+
+@media (hover: hover) and (pointer: fine) {
+  html, body, a, button, [role="button"] { cursor: none; }
+}
 
 /* =========================================================
    AMBIENT TEXTURE (removed grain — clean dark surface)
@@ -358,11 +373,11 @@ img { max-width: 100%; display: block; }
   top: 0;
   left: 0;
   right: 0;
-  height: var(--nav-h);
+  height: var(--nav-offset);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 var(--side-pad);
+  padding: var(--safe-top) max(var(--side-pad), var(--safe-right)) 0 max(var(--side-pad), var(--safe-left));
   z-index: 1000;
   background: rgba(12, 14, 11, 0.6);
   backdrop-filter: blur(24px) saturate(1.2);
@@ -518,13 +533,14 @@ img { max-width: 100%; display: block; }
   position: fixed;
   inset: 0;
   background: rgba(12, 14, 11, 0.97);
+  -webkit-backdrop-filter: blur(40px);
   backdrop-filter: blur(40px);
   z-index: 10001;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  padding: 0 var(--side-pad);
+  padding: max(var(--safe-top), 20px) max(var(--side-pad), var(--safe-right)) max(var(--safe-bottom), 20px) max(var(--side-pad), var(--safe-left));
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s var(--ease-out-expo), visibility 0.5s;
@@ -710,7 +726,7 @@ img { max-width: 100%; display: block; }
 ========================================================= */
 .main {
   min-height: 100vh;
-  padding-top: var(--nav-h);
+  padding-top: var(--nav-offset);
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.8s var(--ease-out-expo) 0.2s,
@@ -826,6 +842,7 @@ img { max-width: 100%; display: block; }
   letter-spacing: 0.15em;
   color: var(--white-60);
   background: rgba(12, 14, 11, 0.7);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   padding: 6px 12px;
   border: 1px solid var(--white-10);
@@ -1170,7 +1187,10 @@ img { max-width: 100%; display: block; }
 /* ——— Product Theater: in-page live product experience ——— */
 .product-theater {
   position: fixed;
-  inset: 0;
+  top: var(--visual-viewport-top);
+  right: 0;
+  left: 0;
+  height: var(--visual-viewport-height);
   z-index: 99995;
   background: rgba(6, 8, 5, 0.94);
   display: flex;
@@ -1189,9 +1209,9 @@ img { max-width: 100%; display: block; }
   display: flex;
   align-items: center;
   gap: 14px;
-  height: 56px;
+  height: calc(56px + var(--safe-top));
   flex-shrink: 0;
-  padding: 0 clamp(16px, 3vw, 32px);
+  padding: var(--safe-top) max(clamp(16px, 3vw, 32px), var(--safe-right)) 0 max(clamp(16px, 3vw, 32px), var(--safe-left));
   background: var(--bg);
   border-bottom: 1px solid var(--white-10);
 }
@@ -1291,7 +1311,8 @@ img { max-width: 100%; display: block; }
    in the hidden semantic list .rings-data.
 ========================================================= */
 .rings-page {
-  min-height: calc(100svh - var(--nav-h));
+  min-height: calc(100vh - var(--nav-offset));
+  min-height: calc(100svh - var(--nav-offset));
   display: flex;
   flex-direction: column;
   padding: clamp(12px, 1.6vh, 20px) var(--side-pad) clamp(12px, 1.6vh, 20px);
@@ -1454,6 +1475,13 @@ img { max-width: 100%; display: block; }
   line-height: 1;
   cursor: pointer;
   transition: color 0.3s ease, border-color 0.3s ease;
+  position: relative;
+}
+
+.rings-stepper button::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
 }
 
 .rings-stepper button:hover,
@@ -1586,7 +1614,10 @@ img { max-width: 100%; display: block; }
 /* ——— Image Lightbox ——— */
 .project-lightbox-overlay {
   position: fixed;
-  inset: 0;
+  top: var(--visual-viewport-top);
+  right: 0;
+  left: 0;
+  height: var(--visual-viewport-height);
   z-index: 99990;
   background: rgba(0, 0, 0, 0.94);
   backdrop-filter: blur(24px);
@@ -2182,7 +2213,10 @@ img { max-width: 100%; display: block; }
 /* Overlay */
 .od-overlay {
   position: fixed;
-  inset: 0;
+  top: var(--visual-viewport-top);
+  right: 0;
+  left: 0;
+  height: var(--visual-viewport-height);
   z-index: 400;
   display: flex;
   flex-direction: column;
@@ -2200,8 +2234,8 @@ img { max-width: 100%; display: block; }
 
 .od-close {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: max(14px, var(--safe-top));
+  right: max(14px, var(--safe-right));
   width: 44px;
   height: 44px;
   background: none;
@@ -3405,6 +3439,7 @@ img { max-width: 100%; display: block; }
   letter-spacing: 0.15em;
   color: var(--white-60);
   background: rgba(12, 14, 11, 0.7);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   padding: 5px 10px;
   border: 1px solid var(--white-10);
@@ -5378,7 +5413,10 @@ img { max-width: 100%; display: block; }
 ========================================================= */
 .lightbox-overlay {
   position: fixed;
-  inset: 0;
+  top: var(--visual-viewport-top);
+  right: 0;
+  left: 0;
+  height: var(--visual-viewport-height);
   z-index: 99990;
   background: rgba(0, 0, 0, 0.92);
   backdrop-filter: blur(20px);
@@ -5451,10 +5489,10 @@ img { max-width: 100%; display: block; }
 
 .lightbox-close {
   position: absolute;
-  top: -48px;
+  top: -56px;
   right: 0;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   background: none;
   border: 1px solid var(--white-10);
   color: var(--white-60);
@@ -5523,7 +5561,8 @@ img { max-width: 100%; display: block; }
 
   /* --- HERO: Magazine-style mobile layout --- */
   .hero-section {
-    min-height: calc(100svh - var(--nav-h));
+    min-height: calc(100vh - var(--nav-offset));
+    min-height: calc(100svh - var(--nav-offset));
     padding: 0 24px;
     display: flex;
     flex-direction: column;
@@ -5620,6 +5659,7 @@ img { max-width: 100%; display: block; }
   }
   .rings-canvas-wrap {
     flex: 0 0 auto;
+    height: min(23vh, 58vw);
     height: min(23svh, 58vw);
   }
   .rings-stage {
@@ -5739,6 +5779,117 @@ img { max-width: 100%; display: block; }
   }
   .pw-center-name { font-size: 16px; }
   .pw-orb::after { font-size: 11px; }
+}
+
+/* =========================================================
+   INPUT AND ACCESSIBILITY PREFERENCES
+========================================================= */
+@media (hover: none) {
+  .portrait-section:hover .portrait-img {
+    filter: grayscale(20%) contrast(1.05);
+  }
+  .home-portrait:hover .home-portrait-img {
+    filter: grayscale(30%) contrast(1.08) brightness(0.92);
+  }
+  .offer-card:hover,
+  .me-card:hover,
+  .info-card:hover,
+  .sport-card:hover,
+  .pe-evidence-item:hover {
+    background: var(--bg);
+  }
+  .offer-card:hover::after,
+  .me-card:hover::after {
+    width: 0;
+  }
+  .me-card:hover .me-card-num { color: var(--white-30); }
+  .value-item:hover { padding-left: 0; }
+  .value-item:hover .value-marker { color: var(--gold); }
+  .ow-orb:hover:not(.active),
+  .pw-orb:hover:not(.active) {
+    transform: scale(1);
+  }
+  .ow-center:hover {
+    transform: translate(-50%, -50%);
+  }
+  .home-nav-item:hover {
+    background: transparent;
+    transform: none;
+  }
+  .home-nav-item:hover::before { transform: scaleY(0); }
+  .home-nav-item:hover .home-nav-name { color: var(--white); }
+  .moment-row:hover { border-color: var(--white-10); }
+  .sport-card:hover .sport-image img,
+  .sport-card:hover .sport-gallery img,
+  .sport-featured:hover .sport-hero img,
+  .sport-featured:hover .sport-gallery-grid img,
+  .pe-gallery-item:hover img,
+  .pe-split:hover .pe-split-image img,
+  .pe-book-covers img:hover {
+    transform: none;
+  }
+  .me-card-decompose:not(.is-decomposed):hover::before { opacity: 0; }
+  .me-card-decompose:not(.is-decomposed):hover .dc-char,
+  .me-card-decompose:not(.is-decomposed):hover .dc-chai .chai-a,
+  .me-card-decompose:not(.is-decomposed):hover .dc-chai .chai-b {
+    transform: none;
+  }
+  .me-card-decompose:not(.is-decomposed):hover .dc-char::before {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  .me-card-decompose:not(.is-decomposed):hover .dc-char::after,
+  .me-card-decompose:not(.is-decomposed):hover .dc-chai .chai-b::before {
+    opacity: 0;
+  }
+  a:active,
+  button:active,
+  [role="button"]:active {
+    opacity: 0.78;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --white-60: rgba(228, 224, 216, 0.78);
+    --white-30: rgba(228, 224, 216, 0.5);
+    --white-10: rgba(228, 224, 216, 0.2);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .navbar,
+  .mobile-menu,
+  .project-lightbox-overlay,
+  .od-overlay,
+  .lightbox-overlay {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .navbar,
+  .mobile-menu { background: var(--bg); }
+}
+
+@media (forced-colors: active) {
+  a,
+  button,
+  [role="button"],
+  input,
+  textarea {
+    forced-color-adjust: auto;
+  }
+  button,
+  [role="button"],
+  .timeline-cta,
+  .home-nav-item,
+  .offer-card,
+  .me-card {
+    border: 1px solid ButtonText;
+  }
+  :focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
 }
 
 /* =========================================================
