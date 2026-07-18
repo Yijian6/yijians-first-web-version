@@ -4467,6 +4467,43 @@ img { max-width: 100%; display: block; }
   margin-bottom: 0;
 }
 
+/* --- Great Wall memory (portrait archive image) --- */
+.pe-great-wall {
+  padding-top: clamp(64px, 10vh, 120px);
+  padding-bottom: clamp(64px, 10vh, 120px);
+}
+
+.pe-great-wall .pe-tag {
+  margin-bottom: 18px;
+}
+
+.pe-great-wall h3 {
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pe-great-wall > p {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.pe-great-wall-figure {
+  width: min(100%, 480px);
+  margin: clamp(32px, 5vh, 56px) auto 0;
+  border: 1px solid var(--white-10);
+  background: var(--bg-surface);
+  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+}
+
+.pe-great-wall-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 /* --- Mathematics archive note --- */
 .pe-math {
   padding-top: clamp(64px, 10vh, 120px);
