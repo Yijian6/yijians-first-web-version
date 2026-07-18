@@ -1516,6 +1516,8 @@
         chip: li.getAttribute('data-chip') || '',
         year: li.getAttribute('data-year') || '',
         img: li.getAttribute('data-img') || '',
+        width: li.getAttribute('data-width') || '',
+        height: li.getAttribute('data-height') || '',
         url: li.getAttribute('data-url') || '#',
         cta: li.getAttribute('data-cta') || '查看',
         theater: li.getAttribute('data-theater'),
@@ -1794,7 +1796,8 @@
           '<span class="' + chipClass + '">' + w.chip + '</span>' +
         '</div>' +
         '<h3 class="stage-title">' + w.title + '</h3>' +
-        '<div class="stage-thumb"><img src="' + w.img + '" alt="' + w.title + '截图"></div>' +
+        '<div class="stage-thumb"><img src="' + w.img + '" alt="' + w.title + '截图"' +
+          ' width="' + w.width + '" height="' + w.height + '" decoding="async" fetchpriority="high"></div>' +
         '<p class="stage-desc">' + w.desc + '</p>' +
         '<div class="timeline-tags">' + tags + '</div>' +
         '<a class="timeline-cta" href="' + w.url + '" target="_blank"' +
