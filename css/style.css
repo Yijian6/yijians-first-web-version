@@ -5231,6 +5231,42 @@ img { max-width: 100%; display: block; }
   }
 }
 
+/* ============ FOOTER NEXT-PAGE HINT (mobile only) ============ */
+.footer-next {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .footer-next {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        margin-top: 48px;
+        text-decoration: none;
+    }
+
+    .footer-next-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        color: var(--white-30);
+        text-transform: uppercase;
+    }
+
+    .footer-next-target {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        color: var(--white-60);
+        transition: color 0.3s ease;
+    }
+
+    .footer-next:active .footer-next-target {
+        color: var(--gold);
+    }
+}
+
 /* ——— Work Footer Status ———
    持续生长 ── ● ── 第 N 天
    Choreography on reveal: dot lights up → lines grow outward → texts fade in */
