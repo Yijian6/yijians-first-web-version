@@ -26,7 +26,7 @@
   var bhPull = null;   // set by the black hole while hovering: {x, y, s}
 
   function initCursor() {
-    if (window.innerWidth < 769) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
     cursorDot = document.createElement('div');
     cursorDot.className = 'cursor-dot';
@@ -220,20 +220,31 @@
     var btn = $('.hamburger');
     var menu = $('.mobile-menu');
     if (!btn || !menu) return;
+    var navbar = btn.closest('.navbar');
+
+    if (!menu.id) menu.id = 'mobile-menu';
+    btn.setAttribute('aria-controls', menu.id);
+    btn.setAttribute('aria-expanded', 'false');
+
+    function setOpen(open) {
+      btn.classList.toggle('active', open);
+      menu.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', String(open));
+      if (navbar) navbar.style.zIndex = open ? '10002' : '';
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
 
     btn.addEventListener('click', function () {
-      btn.classList.toggle('active');
-      menu.classList.toggle('open');
-      document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
+      setOpen(!menu.classList.contains('open'));
     });
 
     $$('.mobile-link', menu).forEach(function (link) {
       link.addEventListener('click', function () {
-        btn.classList.remove('active');
-        menu.classList.remove('open');
-        document.body.style.overflow = '';
+        setOpen(false);
       });
     });
+
+    window.addEventListener('pagehide', function () { setOpen(false); });
   }
 
   /* -------------------------------------------------------
@@ -1903,7 +1914,7 @@
   ------------------------------------------------------- */
   function initDecompose() {
     var card = $('.me-card-decompose');
-    if (!card || window.innerWidth >= 769) return;
+    if (!card || window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     var io = new IntersectionObserver(function (entries) {
@@ -2655,6 +2666,17 @@
 
   window.addEventListener('pageshow', function (e) {
     if (e.persisted) {
+      var hamburger = $('.hamburger');
+      var mobileMenu = $('.mobile-menu');
+      if (hamburger && mobileMenu) {
+        var navbar = hamburger.closest('.navbar');
+        hamburger.classList.remove('active');
+        mobileMenu.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        if (navbar) navbar.style.zIndex = '';
+        document.body.style.overflow = '';
+      }
+
       var main = $('#main');
       if (main) {
         main.style.opacity = '';

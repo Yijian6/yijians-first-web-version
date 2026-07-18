@@ -127,12 +127,36 @@ function checkLocalReferences() {
   check(missing.size === 0, `本地资源引用缺失：${Array.from(missing).join(', ')}`);
 }
 
+function checkTouchBehavior() {
+  const script = read('js/script.js');
+  const styles = read('css/style.css');
+  const universe = read('universe.html');
+
+  check(
+    script.includes("(hover: hover) and (pointer: fine)"),
+    '自定义光标和 Me 拆解动画未按输入能力判断'
+  );
+  check(
+    script.includes("setAttribute('aria-expanded'"),
+    '汉堡菜单没有同步 aria-expanded'
+  );
+  check(
+    styles.includes('@media (hover: none)'),
+    '共享样式缺少触控设备 hover 复位'
+  );
+  check(
+    universe.includes('window.visualViewport'),
+    'Universe 没有同步软键盘可视视口'
+  );
+}
+
 checkBackdropPrefixes('css/style.css');
 checkBackdropPrefixes('universe.html');
 checkViewportFallbacks('css/style.css');
 checkDateParser();
 checkViewports();
 checkLocalReferences();
+checkTouchBehavior();
 
 if (failures.length) {
   console.error(`移动兼容检查失败（${failures.length} 项）：`);

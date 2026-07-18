@@ -24,6 +24,8 @@
             --font-display: 'Lora', Georgia, serif;
             --font-body: 'DM Sans', system-ui, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
+            --visual-viewport-height: 100vh;
+            --visual-viewport-top: 0px;
         }
 
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -265,12 +267,17 @@
 
         /* Modal — Glass */
         .modal-overlay {
-            position: fixed; inset: 0;
+            position: fixed;
+            inset: auto 0 auto 0;
+            top: var(--visual-viewport-top, 0px);
+            height: var(--visual-viewport-height, 100vh);
             background: rgba(4, 6, 12, 0.85);
             -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             display: none;
             align-items: center; justify-content: center;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             z-index: 200;
         }
         .modal-overlay.active { display: flex; }
@@ -438,6 +445,7 @@
             .modal {
                 width: 100%;
                 padding: 24px;
+                max-height: calc(var(--visual-viewport-height, 100vh) - 90px);
                 border-color: rgba(200, 212, 224, 0.22);
                 box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(168, 204, 136, 0.08);
             }
@@ -451,6 +459,30 @@
                 left: 20px !important;
                 right: 20px;
                 max-width: none;
+            }
+        }
+
+        @media (hover: none) {
+            html, body { cursor: default; }
+
+            .post-btn:hover {
+                transform: none;
+            }
+            .post-btn:hover::before { opacity: 0; }
+            .delete-zone:hover { transform: none; }
+
+            .back-btn,
+            .admin-btn {
+                min-width: 44px;
+                min-height: 44px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .btn-cancel,
+            .btn-submit {
+                min-height: 44px;
             }
         }
     </style>
@@ -488,7 +520,7 @@
         </div>
 
         <span class="hint">留下一颗属于你的星 →</span>
-        <button class="post-btn" id="postBtn">
+        <button class="post-btn" id="postBtn" aria-label="留言">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
                 <path d="M12 5v14M5 12h14"/>
             </svg>
@@ -533,6 +565,22 @@
         const ctx = mainCanvas.getContext('2d');
         const tooltip = document.getElementById('tooltip');
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        function syncVisualViewport() {
+            var viewport = window.visualViewport;
+            var height = viewport ? viewport.height : window.innerHeight;
+            var offsetTop = viewport ? viewport.offsetTop : 0;
+            document.documentElement.style.setProperty('--visual-viewport-height', height + 'px');
+            document.documentElement.style.setProperty('--visual-viewport-top', offsetTop + 'px');
+        }
+
+        syncVisualViewport();
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', syncVisualViewport);
+            window.visualViewport.addEventListener('scroll', syncVisualViewport);
+        } else {
+            window.addEventListener('resize', syncVisualViewport);
+        }
 
         function parseDbDate(value) {
             if (value == null) return new Date(NaN);
