@@ -1,9 +1,14 @@
 $ErrorActionPreference = 'Stop'
 
 function Invoke-Checked([string]$Exe, [string[]]$ArgList) {
-  & $Exe @ArgList
+  $resolvedExe = switch ($Exe) {
+    'npm' { 'npm.cmd'; break }
+    'wrangler' { 'wrangler.cmd'; break }
+    default { $Exe }
+  }
+  & $resolvedExe @ArgList
   if ($LASTEXITCODE -ne 0) {
-    throw "$Exe failed with exit code $LASTEXITCODE"
+    throw "$resolvedExe failed with exit code $LASTEXITCODE"
   }
 }
 
