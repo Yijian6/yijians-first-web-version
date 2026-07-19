@@ -6,6 +6,7 @@ const policy = JSON.parse(fs.readFileSync(path.join(root, 'tools/site-policy.jso
 const ignoredHtml = policy.excludedHtml;
 const errors = [];
 const warnings = [];
+const checkedTargets = new Set();
 
 function discoverProductionPages() {
   return fs.readdirSync(root, { withFileTypes: true })
@@ -33,6 +34,9 @@ function isExternal(value) {
 function checkTarget(owner, target) {
   const clean = target.split(/[?#]/, 1)[0];
   if (!clean || isExternal(clean) || clean.startsWith('data:')) return;
+  const targetKey = `${owner}:${clean}`;
+  if (checkedTargets.has(targetKey)) return;
+  checkedTargets.add(targetKey);
   const full = path.resolve(path.dirname(path.join(root, owner)), clean);
   const relative = path.relative(root, full);
   if (relative.startsWith('..') || path.isAbsolute(relative) || !fs.existsSync(full)) {
@@ -112,9 +116,9 @@ for (const page of pages) {
       errors.push(`${page}: image alt is empty (${src || 'dynamic'})`);
     }
     if (!width || !height) {
-      warnings.push(`${page}: image is missing width/height (${src || 'dynamic'})`);
+      errors.push(`${page}: image width/height is required (${src || 'dynamic'})`);
     }
-    if (decoding && decoding !== 'async') {
+    if (decoding !== 'async') {
       errors.push(`${page}: image decoding must be async (${src || 'dynamic'})`);
     }
     if (loading && !['lazy', 'eager'].includes(loading)) {
@@ -122,6 +126,9 @@ for (const page of pages) {
     }
     if (fit && !['natural', 'contain', 'cover'].includes(fit)) {
       errors.push(`${page}: invalid data-media-fit (${src || 'dynamic'})`);
+    }
+    if (!fit) {
+      errors.push(`${page}: image must declare data-media-fit (${src || 'dynamic'})`);
     }
     if (highPriority) {
       highPriorityImages += 1;

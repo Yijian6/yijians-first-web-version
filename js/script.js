@@ -503,7 +503,7 @@
           '<span class="chat-mode-toggle" aria-hidden="true"><span class="chat-mode-knob"></span></span>' +
         '</div>' +
         '<div class="lightbox-qr">' +
-          '<img src="Wechat Photo.jpg" alt="WeChat QR Code">' +
+          '<img src="Wechat Photo.jpg" alt="WeChat QR Code" width="820" height="1208" decoding="async" data-media-fit="contain">' +
           '<div class="lightbox-hint">Click anywhere to close</div>' +
         '</div>' +
       '</div>';
@@ -583,7 +583,7 @@
       overlay.innerHTML =
         '<div class="project-lightbox-inner">' +
           '<button class="lightbox-close" aria-label="Close">×</button>' +
-          '<img src="" alt="Project Screenshot">' +
+          '<img src="" alt="Project Screenshot" decoding="async" data-media-fit="contain">' +
         '</div>';
       document.body.appendChild(overlay);
       overlayImg = overlay.querySelector('img');
@@ -595,11 +595,17 @@
     }
 
     var previousFocus = null;
-    function openLightbox(src, alt) {
+    function openLightbox(src, alt, sourceImage) {
       ensureOverlay();
       previousFocus = document.activeElement;
       overlayImg.src = src;
       overlayImg.alt = alt;
+      var width = sourceImage && (sourceImage.naturalWidth || sourceImage.width);
+      var height = sourceImage && (sourceImage.naturalHeight || sourceImage.height);
+      if (width && height) {
+        overlayImg.width = width;
+        overlayImg.height = height;
+      }
       overlay.classList.add('open');
       lockPage();
       window.requestAnimationFrame(function () {
@@ -622,7 +628,7 @@
       if (!el) return;
       var img = el.querySelector('img');
       if (!img) return;
-      openLightbox(img.src, img.alt);
+      openLightbox(img.src, img.alt, img);
     });
 
     document.addEventListener('keydown', function (e) {
@@ -1797,7 +1803,7 @@
         '</div>' +
         '<h3 class="stage-title">' + w.title + '</h3>' +
         '<div class="stage-thumb"><img src="' + w.img + '" alt="' + w.title + '截图"' +
-          ' width="' + w.width + '" height="' + w.height + '" decoding="async" fetchpriority="high"></div>' +
+          ' width="' + w.width + '" height="' + w.height + '" decoding="async" fetchpriority="high" data-media-fit="natural"></div>' +
         '<p class="stage-desc">' + w.desc + '</p>' +
         '<div class="timeline-tags">' + tags + '</div>' +
         '<a class="timeline-cta" href="' + w.url + '" target="_blank"' +

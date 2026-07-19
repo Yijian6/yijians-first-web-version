@@ -46,9 +46,8 @@ def scroll_full_page(page):
           const step = Math.max(240, Math.floor(window.innerHeight * 0.65));
           for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
             window.scrollTo(0, y);
-            await new Promise(resolve => setTimeout(resolve, 80));
+            await new Promise(resolve => setTimeout(resolve, 40));
           }
-          window.scrollTo(0, 0);
         }"""
     )
 
@@ -58,7 +57,17 @@ def inspect_images(page):
         """async () => {
           const images = [...document.images];
           await Promise.all(images.map(async image => {
-            try { if (image.decode) await image.decode(); } catch (_) {}
+            try {
+              if (image.decode) {
+                await Promise.race([
+                  image.decode(),
+                  new Promise((_, reject) => setTimeout(
+                    () => reject(new Error('image decode timeout')),
+                    2500
+                  ))
+                ]);
+              }
+            } catch (_) {}
           }));
           return images.map(image => {
             const rect = image.getBoundingClientRect();
@@ -87,6 +96,17 @@ def run(engine_names, quick):
     origin = f"http://127.0.0.1:{server.server_port}"
     issues = []
     viewports = [(390, 844), (1366, 768)] if quick else VIEWPORTS
+    pages = (
+        [page for page in PAGES if page in {
+            "index.html",
+            "work.html",
+            "offer.html",
+            "passion.html",
+            "universe.html",
+        }]
+        if quick
+        else PAGES
+    )
 
     with sync_playwright() as playwright:
         launchers = {
@@ -112,7 +132,7 @@ def run(engine_names, quick):
                         options["user_agent"] = user_agent
                     context = browser.new_context(**options)
 
-                    for page_name in PAGES:
+                    for page_name in pages:
                         page = context.new_page()
                         page_errors = []
                         bad_responses = []
@@ -152,6 +172,7 @@ def run(engine_names, quick):
                             scroll_full_page(page)
                             page.wait_for_timeout(250)
                             image_results = inspect_images(page)
+                            page.evaluate("window.scrollTo(0, 0)")
                             broken_images = [
                                 image for image in image_results
                                 if not image["complete"]
@@ -195,8 +216,8 @@ def run(engine_names, quick):
     print(
         json.dumps(
             {
-                "checked": len(engine_names) * len(viewports) * len(PAGES),
-                "pages": len(PAGES),
+                "checked": len(engine_names) * len(viewports) * len(pages),
+                "pages": len(pages),
                 "issues": issues,
             },
             ensure_ascii=False,
