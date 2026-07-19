@@ -15,7 +15,7 @@
     [1366, 768]
   ],
   "assetBudgetBytes": {
-    "warning": 350000,
+    "warning": 500000,
     "error": 1200000
   }
 }

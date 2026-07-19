@@ -1,16 +1,15 @@
 // 管理员密码，你应该换成自己的
-const ADMIN_PASSWORD = 'jue2026';
-
-async function getAdminToken() {
-  const data = new TextEncoder().encode(ADMIN_PASSWORD);
+async function getAdminToken(adminPassword) {
+  if (!adminPassword) throw new Error('ADMIN_PASSWORD is not configured');
+  const data = new TextEncoder().encode(adminPassword);
   const digest = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(digest))
     .map((byte) => byte.toString(16).padStart(2, '0'))
     .join('');
 }
 
-async function isValidAdminToken(token) {
-  return Boolean(token) && token === await getAdminToken();
+async function isValidAdminToken(token, adminPassword) {
+  return Boolean(token) && token === await getAdminToken(adminPassword);
 }
 
 export default {
@@ -79,7 +78,7 @@ export default {
         const adminToken = request.headers.get('X-Admin-Token');
 
         // 管理员可以删除任何留言
-        if (await isValidAdminToken(adminToken)) {
+        if (await isValidAdminToken(adminToken, env.ADMIN_PASSWORD)) {
           await env.universe_messages.prepare(
             'DELETE FROM messages WHERE id = ?'
           ).bind(id).run();
@@ -105,8 +104,15 @@ export default {
         const body = await request.json();
         const { password } = body;
 
-        if (password === ADMIN_PASSWORD) {
-          const token = await getAdminToken();
+        if (!env.ADMIN_PASSWORD) {
+          return new Response(JSON.stringify({ error: 'ADMIN_PASSWORD is not configured' }), {
+            status: 503,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        if (password === env.ADMIN_PASSWORD) {
+          const token = await getAdminToken(env.ADMIN_PASSWORD);
           return new Response(JSON.stringify({ success: true, token }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });

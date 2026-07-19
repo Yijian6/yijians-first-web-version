@@ -1,0 +1,10 @@
+{
+  "name": "yijian6-site",
+  "private": true,
+  "scripts": {
+    "check": "node tools/mobile-compat-check.mjs",
+    "test:compat:quick": "python tools/mobile-compat-smoke.py --engines chromium --quick",
+    "test:compat": "python tools/mobile-compat-smoke.py --engines chromium firefox webkit",
+    "verify": "npm run check && npm run test:compat"
+  }
+}

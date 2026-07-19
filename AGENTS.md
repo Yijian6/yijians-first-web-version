@@ -1,42 +1,64 @@
 # self_web 项目规范
 
-继承 `~/Desktop/AGENTS.md` 中的全局规范。
+这是一个 HTML + CSS + 原生 JavaScript 的个人静态网站，部署到 Cloudflare Pages，项目名为 `yijian6`。
 
-## 项目信息
+## 工作原则
 
-- 类型：个人静态网站
-- 技术栈：HTML + CSS + 原生 JS
-- 部署：Cloudflare Pages（项目名 `yijian6`）
-- 仓库：https://github.com/Yijian6/yijians-first-web-version
+- 手机端优先：先验证手机，再验证桌面。
+- 保持现有视觉与交互风格，不无故重构框架。
+- 留言 API 响应格式保持不变。
+- 不绕过测试，不通过把页面加入排除列表来“修复”测试。
+- 修改前先阅读 `docs/compatibility/media-policy.md`。
 
-## 设计原则
+## 图片与媒体
 
-- **手机端优先**：所有页面改动先保证手机端观感最佳，桌面端是增强体验
-- 实现顺序：先调手机端 → 再适配桌面端
-- 字号、间距、动画效果以手机端表现为基准
+- 静态图片必须有 `alt`、真实 `width`/`height`、`decoding="async"` 和 `data-media-fit`。
+- `natural`/`contain` 用于证书、截图、书封、人物照和带文字图片。
+- `cover` 只能显式使用；禁止通用 `img` 选择器设置固定比例或裁切。
+- 新图片使用小写 ASCII kebab-case 文件名。
+- 动态生成的图片也必须遵守同一媒体契约。
 
-## 部署流程
+完整规则见 `docs/compatibility/media-policy.md`。
 
-每次代码变更后必须：
-1. `git add` + `git commit`
-2. `git push`
-3. `wrangler pages deploy . --project-name=yijian6`
+## 自动验证
 
-## 页面结构
+修改 HTML、CSS、JS 或图片后运行：
 
-- `index.html` — 首页
-- `work.html` — 作品
-- `offer.html` — 技能/服务
-- `passion.html` — 热情/理念
-- `hobby.html` — 爱好（Sports / Music / Books / Skills 四个 Tab）
-- `prediction.html` — Becoming（成为）
-- `test.html` — 测试页面
+```text
+npm run verify
+```
 
-## Compact Instructions
+它会自动检查所有生产页面、图片资源、三种浏览器引擎、手机视口、懒加载、自然比例、控制台错误和横向溢出。
 
-压缩时请保留：
-- 当前正在实现的功能需求和设计决策
-- 已确认的 bug 和修复方案
-- 未完成的任务列表
-- 用户的偏好和约束
-- 部署流程和 Cloudflare 配置信息
+快速检查可以运行：
+
+```text
+npm run check
+npm run test:compat:quick
+```
+
+## 发布
+
+禁止直接运行 `wrangler pages deploy .`，禁止使用 `git add .`。
+
+只有完整验证通过且工作区干净时，使用：
+
+```powershell
+powershell -File tools/release.ps1
+```
+
+发布脚本会从当前 Git commit 生成临时部署目录，推送 `master`，部署到 Cloudflare Pages，并执行生产资源冒烟检查。
+
+## 后端秘密
+
+- 管理员密码只通过 Cloudflare Pages Secret `ADMIN_PASSWORD` 提供。
+- 禁止把密码、Token 或其他真实凭据写入 HTML、JavaScript、Worker 或配置文件。
+- 修改 Functions 前先检查秘密扫描结果，不改变留言 API 响应格式。
+
+## Claude / Codex 协作
+
+- Codex 先读本文件；Claude Code 先读 `CLAUDE.md`。
+- 两者都必须继续阅读 `docs/compatibility/media-policy.md`。
+- 并行任务不要同时修改同一个文件。
+- 子任务完成后必须运行 `npm run verify`，再由主任务审查 diff。
+- 未经明确要求，协作代理不得推送或部署。
