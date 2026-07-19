@@ -1,9 +1,9 @@
 $ErrorActionPreference = 'Stop'
 
-function Invoke-Checked($Command, [string[]]$Arguments) {
-  & $Command @Arguments
+function Invoke-Checked([string]$Exe, [string[]]$ArgList) {
+  & $Exe @ArgList
   if ($LASTEXITCODE -ne 0) {
-    throw "$Command failed with exit code $LASTEXITCODE"
+    throw "$Exe failed with exit code $LASTEXITCODE"
   }
 }
 
