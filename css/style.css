@@ -5260,9 +5260,10 @@ img { max-width: 100%; display: block; }
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 6px;
-        margin-top: 48px;
+        gap: 8px;
+        padding: 40px var(--side-pad) 48px;
         text-decoration: none;
+        border-top: 1px solid var(--white-05);
     }
 
     .footer-next-label {
@@ -5275,7 +5276,7 @@ img { max-width: 100%; display: block; }
 
     .footer-next-target {
         font-family: var(--font-mono);
-        font-size: 13px;
+        font-size: 14px;
         letter-spacing: 0.08em;
         color: var(--white-60);
         transition: color 0.3s ease;
