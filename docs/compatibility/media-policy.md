@@ -80,7 +80,7 @@ https://yijian6.pages.dev/passion?imageDiag=1
 powershell -File tools/release.ps1
 ```
 
-发布脚本会从当前 Git commit 生成临时部署目录，推送 `master`，部署到 Cloudflare Pages，并检查生产环境 HTML 和图片 MIME。
+发布脚本会从当前 Git commit 生成临时部署目录，推送 `master`，部署 Cloudflare Pages 和独立 `universe-api` Worker，并检查生产环境 HTML 和图片 MIME。
 
 ## 微信兼容排查
 

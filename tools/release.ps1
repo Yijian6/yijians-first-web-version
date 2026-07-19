@@ -43,6 +43,10 @@ try {
 
   Expand-Archive -LiteralPath $archive -DestinationPath $deployDir -Force
   Invoke-Checked 'wrangler' @('pages', 'deploy', $deployDir, '--project-name=yijian6', '--branch=master')
+  $workerConfig = Join-Path $deployDir 'universe-worker/wrangler.toml'
+  if (Test-Path -LiteralPath $workerConfig) {
+    Invoke-Checked 'wrangler' @('deploy', '--config', $workerConfig)
+  }
   Invoke-Checked 'node' @('tools/production-media-smoke.mjs', 'https://yijian6.pages.dev')
 }
 finally {
