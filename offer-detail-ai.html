@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>举个栗子 · 用上 AI — 觉</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .detail-hero {
+            min-height: 40vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px var(--side-pad) 60px;
+            background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg) 100%);
+        }
+
+        .detail-hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(36px, 5vw, 56px);
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+
+        .detail-hero p {
+            font-size: clamp(16px, 2vw, 20px);
+            color: var(--white-60);
+            max-width: 600px;
+        }
+
+        .detail-section {
+            padding: 60px var(--side-pad);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .detail-section > p {
+            font-size: 16px;
+            color: var(--white-60);
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--white-60);
+            text-decoration: none;
+            margin-bottom: 40px;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--gold);
+        }
+
+        .back-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .example-list {
+            display: flex;
+            flex-direction: column;
+            gap: 64px;
+            margin-top: 40px;
+        }
+
+        .example-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .example-image {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--white-10);
+        }
+
+        .example-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .example-info h3 {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 2.5vw, 24px);
+            color: var(--white);
+            margin-bottom: 12px;
+        }
+
+        .example-info p {
+            font-size: 15px;
+            color: var(--white-60);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 768px) {
+            .example-item {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .example-image {
+                max-width: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <div class="nav-links">
+            <a href="work.html" class="nav-link" data-index="01">Work</a>
+            <a href="offer.html" class="nav-link active" data-index="02">Offer</a>
+            <a href="me.html" class="nav-link" data-index="03">Me</a>
+            <a href="passion.html" class="nav-link" data-index="04">Passion</a>
+            <a href="prediction.html" class="nav-link" data-index="05">Becoming</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
+    </nav>
+
+    <div class="mobile-menu">
+        <a href="index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="offer.html" class="mobile-link active"><span class="mobile-menu-index">02</span> Offer</a>
+        <a href="me.html" class="mobile-link"><span class="mobile-menu-index">03</span> Me</a>
+        <a href="passion.html" class="mobile-link"><span class="mobile-menu-index">04</span> Passion</a>
+        <a href="prediction.html" class="mobile-link"><span class="mobile-menu-index">05</span> Becoming</a>
+    </div>
+
+    <div id="main" class="main">
+        <div class="detail-hero">
+            <div>
+                <h1>举个栗子</h1>
+                <p>用上 AI，具体长什么样。</p>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <a href="offer.html" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                返回 Offer
+            </a>
+
+            <div class="example-list">
+
+                <div class="example-item reveal">
+                    <div class="example-image">
+                        <img src="offer-detail/chatbox-models.jpg" alt="Chatbox 接入多个大模型" loading="lazy" decoding="async">
+                    </div>
+                    <div class="example-info">
+                        <h3>使用 Chatbox 和 API Key 接入不同大模型</h3>
+                        <p>只和大模型聊天、学习的情况下，其实不需要支付每个月高昂的订阅费，而且还可以在同一个界面切换不同的模型提问。</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"慢就是快"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：<span class="wechat-trigger">iDoWantiDoWill</span></p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/compat.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
