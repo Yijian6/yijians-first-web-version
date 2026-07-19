@@ -56,15 +56,32 @@ def inspect_images(page):
     return page.evaluate(
         """async () => {
           const images = [...document.images];
+          const delay = milliseconds => new Promise(resolve => {
+            setTimeout(resolve, milliseconds);
+          });
+
+          for (const image of images.filter(item => !item.complete)) {
+            image.scrollIntoView({ block: 'center', inline: 'nearest' });
+            await new Promise(resolve => requestAnimationFrame(
+              () => requestAnimationFrame(resolve)
+            ));
+            if (!image.complete) {
+              await Promise.race([
+                new Promise(resolve => {
+                  image.addEventListener('load', resolve, { once: true });
+                  image.addEventListener('error', resolve, { once: true });
+                }),
+                delay(5000)
+              ]);
+            }
+          }
+
           await Promise.all(images.map(async image => {
             try {
               if (image.decode) {
                 await Promise.race([
                   image.decode(),
-                  new Promise((_, reject) => setTimeout(
-                    () => reject(new Error('image decode timeout')),
-                    2500
-                  ))
+                  delay(5000)
                 ]);
               }
             } catch (_) {}
