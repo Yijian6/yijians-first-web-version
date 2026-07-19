@@ -2,21 +2,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const pages = [
-  'index.html',
-  'work.html',
-  'offer.html',
-  'me.html',
-  'passion.html',
-  'prediction.html',
-  'offer-detail-doc.html',
-  'offer-detail-doc-view.html',
-  'universe.html',
-  '十五五人工智能产业安全发展规划建议报告稿-智算7班第3组.html'
-];
-const ignoredHtml = ['design-preview.html', 'hero-demos.html', 'test.html'];
+const policy = JSON.parse(fs.readFileSync(path.join(root, 'tools/site-policy.json'), 'utf8'));
+const ignoredHtml = policy.excludedHtml;
 const errors = [];
 const warnings = [];
+
+function discoverProductionPages() {
+  return fs.readdirSync(root, { withFileTypes: true })
+    .filter((entry) => entry.isFile() && entry.name.endsWith('.html'))
+    .map((entry) => entry.name)
+    .filter((file) => !ignoredHtml.includes(file))
+    .sort();
+}
+
+const pages = discoverProductionPages();
+for (const requiredPage of ['offer-detail-ai.html', 'offer-detail-auto.html']) {
+  if (!pages.includes(requiredPage)) {
+    errors.push(`production page discovery omitted ${requiredPage}`);
+  }
+}
 
 function read(file) {
   return fs.readFileSync(path.join(root, file), 'utf8');
@@ -30,38 +34,19 @@ function checkTarget(owner, target) {
   const clean = target.split(/[?#]/, 1)[0];
   if (!clean || isExternal(clean) || clean.startsWith('data:')) return;
   const full = path.resolve(path.dirname(path.join(root, owner)), clean);
-  if (!full.startsWith(root) || !fs.existsSync(full)) {
+  const relative = path.relative(root, full);
+  if (relative.startsWith('..') || path.isAbsolute(relative) || !fs.existsSync(full)) {
     errors.push(`${owner}: missing local resource ${target}`);
+    return;
   }
-}
 
-for (const page of pages) {
-  const html = read(page);
-  if (/user-scalable\s*=\s*no/i.test(html)) errors.push(`${page}: user-scalable=no is forbidden`);
-  const viewport = html.match(/<meta\s+name=["']viewport["'][^>]*content=["']([^"']+)["']/i)?.[1] || '';
-  if (!/viewport-fit=cover/i.test(viewport) || !/interactive-widget=resizes-content/i.test(viewport)) {
-    errors.push(`${page}: viewport compatibility directives are incomplete`);
-  }
-  if (!/<script\s+src=["']js\/compat\.js["']/i.test(html)) {
-    errors.push(`${page}: shared compatibility layer is not loaded`);
-  }
-  if (/new\s+Date\s*\([^)]*created_at/i.test(html)) errors.push(`${page}: direct created_at Date parsing`);
-  if (/<img\b/i.test(html)) {
-    for (const match of html.matchAll(/<img\b([^>]*)>/gi)) {
-      const attrs = match[1];
-      const src = attrs.match(/\bsrc\s*=\s*["']([^"']+)/i)?.[1];
-      if (src) checkTarget(page, src);
-      if (!/\bwidth\s*=\s*["'][^"']+["']/i.test(attrs) ||
-          !/\bheight\s*=\s*["'][^"']+["']/i.test(attrs)) {
-        warnings.push(`${page}: image is missing width/height (${src || 'dynamic'})`);
-      }
+  if (/\.(?:avif|gif|jpe?g|png|webp)$/i.test(full)) {
+    const bytes = fs.statSync(full).size;
+    if (bytes > policy.assetBudgetBytes.error) {
+      errors.push(`${owner}: image exceeds hard budget (${bytes} bytes): ${target}`);
+    } else if (bytes > policy.assetBudgetBytes.warning) {
+      warnings.push(`${owner}: image exceeds warning budget (${bytes} bytes): ${target}`);
     }
-  }
-  for (const match of html.matchAll(/\b(?:href|src)\s*=\s*["']([^"']+)["']/gi)) {
-    checkTarget(page, match[1]);
-  }
-  for (const match of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) {
-    checkCss(`${page} inline style`, match[1]);
   }
 }
 
@@ -69,8 +54,9 @@ function checkCss(owner, css) {
   for (const match of css.matchAll(/url\(\s*['"]?([^'")]+)['"]?\s*\)/gi)) {
     checkTarget(owner, match[1]);
   }
-  for (const block of css.matchAll(/\{([\s\S]*?)\}/g)) {
-    const body = block[1];
+  for (const block of css.matchAll(/([^{}]+)\{([\s\S]*?)\}/g)) {
+    const selector = block[1].trim();
+    const body = block[2];
     if (/\bbackdrop-filter\s*:/.test(body) && !/-webkit-backdrop-filter\s*:/.test(body)) {
       errors.push(`${owner}: backdrop-filter is missing -webkit-backdrop-filter`);
     }
@@ -79,18 +65,94 @@ function checkCss(owner, css) {
     if (usesModernViewport && !hasVhFallback) {
       errors.push(`${owner}: svh/dvh/lvh declaration is missing a vh fallback`);
     }
+    if (/\b(?:aspect-ratio|object-fit)\s*:/.test(body) && /\bimg\b/.test(selector)) {
+      if (!/\[data-media-fit=["']cover["']\]/.test(selector)
+        && !/\[data-media-fit=["']contain["']\]/.test(selector)
+        && !/\[data-media-fit=["']natural["']\]/.test(selector)) {
+        warnings.push(`${owner}: image sizing rule should use an explicit data-media-fit selector (${selector})`);
+      }
+    }
+  }
+}
+
+for (const page of pages) {
+  const html = read(page);
+  if (/user-scalable\s*=\s*no/i.test(html)) {
+    errors.push(`${page}: user-scalable=no is forbidden`);
+  }
+
+  const viewport = html.match(
+    /<meta\s+name=["']viewport["'][^>]*content=["']([^"']+)["']/i
+  )?.[1] || '';
+  if (!/viewport-fit=cover/i.test(viewport)
+    || !/interactive-widget=resizes-content/i.test(viewport)) {
+    errors.push(`${page}: viewport compatibility directives are incomplete`);
+  }
+  if (!/<script\s+src=["']js\/compat\.js["']/i.test(html)) {
+    errors.push(`${page}: shared compatibility layer is not loaded`);
+  }
+  if (/new\s+Date\s*\([^)]*created_at/i.test(html)) {
+    errors.push(`${page}: direct created_at Date parsing`);
+  }
+
+  let highPriorityImages = 0;
+  for (const match of html.matchAll(/<img\b([^>]*)>/gi)) {
+    const attrs = match[1];
+    const src = attrs.match(/\bsrc\s*=\s*["']([^"']+)/i)?.[1] || '';
+    const alt = attrs.match(/\balt\s*=\s*["']([^"']*)["']/i)?.[1];
+    const width = attrs.match(/\bwidth\s*=\s*["'](\d+)["']/i)?.[1];
+    const height = attrs.match(/\bheight\s*=\s*["'](\d+)["']/i)?.[1];
+    const loading = attrs.match(/\bloading\s*=\s*["']([^"']+)["']/i)?.[1];
+    const decoding = attrs.match(/\bdecoding\s*=\s*["']([^"']+)["']/i)?.[1];
+    const fit = attrs.match(/\bdata-media-fit\s*=\s*["']([^"']+)["']/i)?.[1];
+    const highPriority = /\bfetchpriority\s*=\s*["']high["']/i.test(attrs);
+
+    if (src) checkTarget(page, src);
+    if (alt === undefined || !alt.trim()) {
+      errors.push(`${page}: image alt is empty (${src || 'dynamic'})`);
+    }
+    if (!width || !height) {
+      warnings.push(`${page}: image is missing width/height (${src || 'dynamic'})`);
+    }
+    if (decoding && decoding !== 'async') {
+      errors.push(`${page}: image decoding must be async (${src || 'dynamic'})`);
+    }
+    if (loading && !['lazy', 'eager'].includes(loading)) {
+      errors.push(`${page}: invalid loading policy (${src || 'dynamic'})`);
+    }
+    if (fit && !['natural', 'contain', 'cover'].includes(fit)) {
+      errors.push(`${page}: invalid data-media-fit (${src || 'dynamic'})`);
+    }
+    if (highPriority) {
+      highPriorityImages += 1;
+      if (loading === 'lazy') {
+        errors.push(`${page}: high-priority image cannot be lazy (${src || 'dynamic'})`);
+      }
+    }
+  }
+  if (highPriorityImages > 1) {
+    errors.push(`${page}: at most one image may use fetchpriority=high`);
+  }
+
+  for (const match of html.matchAll(/\b(?:href|src)=["']([^"']+)["']/gi)) {
+    checkTarget(page, match[1]);
+  }
+  for (const match of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) {
+    checkCss(`${page} inline style`, match[1]);
   }
 }
 
 checkCss('css/style.css', read('css/style.css'));
 for (const file of ['js/script.js', 'universe.html']) {
-  if (/\blocalStorage\s*\./.test(read(file)) && file !== 'js/compat.js') {
+  if (/\blocalStorage\s*\./.test(read(file))) {
     errors.push(`${file}: business code accesses localStorage directly`);
   }
 }
 
 for (const page of ignoredHtml) {
-  if (fs.existsSync(path.join(root, page))) warnings.push(`${page}: excluded prototype/test page`);
+  if (fs.existsSync(path.join(root, page))) {
+    warnings.push(`${page}: excluded prototype/test page`);
+  }
 }
 
 if (errors.length) {

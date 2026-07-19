@@ -1,0 +1,21 @@
+{
+  "excludedHtml": [
+    "design-preview.html",
+    "hero-demos.html",
+    "test.html"
+  ],
+  "viewports": [
+    [280, 653],
+    [320, 568],
+    [375, 667],
+    [390, 844],
+    [430, 932],
+    [844, 390],
+    [1024, 768],
+    [1366, 768]
+  ],
+  "assetBudgetBytes": {
+    "warning": 350000,
+    "error": 1200000
+  }
+}

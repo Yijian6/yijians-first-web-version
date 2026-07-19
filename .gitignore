@@ -19,3 +19,11 @@ build/
 
 # Wrangler缓存
 .wrangler/
+
+# Local agent sessions and prototypes
+.claude/
+.superpowers/
+hero-demos.html
+
+# Historical design notes are kept locally and are not part of Pages output
+docs/superpowers/specs/
