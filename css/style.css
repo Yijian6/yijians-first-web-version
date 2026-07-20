@@ -5292,6 +5292,33 @@ img[data-media-fit="contain"] {
     .footer-next:active .footer-next-target {
         color: var(--gold);
     }
+
+    /* Ghost variant — hidden page entry */
+    .footer-next--ghost {
+        border-top: none;
+    }
+
+    .footer-next--ghost .footer-next-target {
+        opacity: 0.2;
+        filter: blur(3px);
+        animation: ghostFlicker 5s ease-in-out infinite;
+        transition: opacity 0.6s ease, filter 0.6s ease;
+    }
+
+    .footer-next--ghost:hover .footer-next-target,
+    .footer-next--ghost:active .footer-next-target {
+        opacity: 1;
+        filter: blur(0);
+        animation: none;
+        color: var(--gold);
+    }
+}
+
+@keyframes ghostFlicker {
+    0%, 100% { opacity: 0.15; filter: blur(3.5px); }
+    40%      { opacity: 0.45; filter: blur(1.5px); }
+    50%      { opacity: 0.5;  filter: blur(1px); }
+    60%      { opacity: 0.45; filter: blur(1.5px); }
 }
 
 /* ——— Work Footer Status ———

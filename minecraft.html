@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>Minecraft — 觉</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .mc-scene {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 120px var(--side-pad) 60px;
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(1px 1px at 7% 14%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 18% 42%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1.5px 1.5px at 32% 8%, rgba(255,255,255,0.55), transparent),
+                radial-gradient(1px 1px at 44% 55%, rgba(255,255,255,0.25), transparent),
+                radial-gradient(1.5px 1.5px at 58% 18%, rgba(255,255,255,0.5), transparent),
+                radial-gradient(1px 1px at 71% 62%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 83% 9%, rgba(255,255,255,0.45), transparent),
+                radial-gradient(1.5px 1.5px at 12% 72%, rgba(255,255,255,0.35), transparent),
+                radial-gradient(1px 1px at 51% 34%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 66% 78%, rgba(255,255,255,0.25), transparent),
+                radial-gradient(1.5px 1.5px at 89% 44%, rgba(255,255,255,0.4), transparent),
+                radial-gradient(1px 1px at 38% 88%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1px 1px at 95% 22%, rgba(255,255,255,0.35), transparent),
+                radial-gradient(1px 1px at 4% 56%, rgba(255,255,255,0.3), transparent),
+                radial-gradient(1.5px 1.5px at 76% 36%, rgba(255,255,255,0.45), transparent),
+                radial-gradient(1px 1px at 24% 92%, rgba(255,255,255,0.25), transparent),
+                linear-gradient(180deg, #080c18 0%, #0c1024 50%, #111630 100%);
+        }
+
+        .mc-scene::after {
+            content: '';
+            position: absolute;
+            top: 12%;
+            right: 10%;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(240,238,210,0.12) 0%, transparent 70%);
+            box-shadow: 0 0 40px 16px rgba(240,238,210,0.04);
+            pointer-events: none;
+        }
+
+        .mc-sign-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mc-sign {
+            max-width: 400px;
+            width: 85vw;
+            padding: 24px 28px;
+            background:
+                repeating-linear-gradient(
+                    180deg,
+                    transparent 0px,
+                    transparent 13px,
+                    rgba(0,0,0,0.06) 13px,
+                    rgba(0,0,0,0.06) 15px
+                ),
+                linear-gradient(180deg, #c8a96e 0%, #b89558 100%);
+            border: 4px solid #4a3728;
+            box-shadow:
+                inset 0 2px 0 rgba(255,255,255,0.12),
+                inset 0 -2px 0 rgba(0,0,0,0.08),
+                0 6px 32px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .mc-sign p {
+            font-family: var(--font-mono);
+            font-size: clamp(13px, 2.5vw, 16px);
+            color: #3d2b1a;
+            line-height: 2.2;
+            letter-spacing: 0.03em;
+            margin: 0;
+        }
+
+        .mc-post {
+            width: 14px;
+            height: 72px;
+            background: linear-gradient(90deg, #5e4128 0%, #7a5535 45%, #5e4128 100%);
+            border-left: 2px solid #4a3728;
+            border-right: 2px solid #4a3728;
+            border-bottom: 2px solid #4a3728;
+        }
+
+        .mc-ground {
+            width: min(560px, 90vw);
+            margin-top: -2px;
+        }
+
+        .mc-grass-top {
+            height: 6px;
+            background: #6fa34a;
+        }
+
+        .mc-grass {
+            height: 10px;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    #5d8a3c 0px, #5d8a3c 15px,
+                    #53802e 15px, #53802e 16px
+                );
+        }
+
+        .mc-dirt {
+            height: 32px;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    #8b6240 0px, #8b6240 15px,
+                    #7a5535 15px, #7a5535 16px
+                );
+            border-bottom: 3px solid #5e4128;
+        }
+
+        .mc-back {
+            margin-top: 48px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--white-60);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mc-back:hover {
+            color: var(--gold);
+        }
+
+        .mc-back svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .mc-sign {
+                padding: 20px 20px;
+            }
+
+            .mc-post {
+                height: 56px;
+            }
+
+            .mc-scene::after {
+                top: 8%;
+                right: 6%;
+                width: 36px;
+                height: 36px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .mc-scene::before {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <div class="nav-links">
+            <a href="work.html" class="nav-link" data-index="01">Work</a>
+            <a href="me.html" class="nav-link" data-index="02">Me</a>
+            <a href="passion.html" class="nav-link" data-index="03">Passion</a>
+            <a href="prediction.html" class="nav-link" data-index="04">Becoming</a>
+            <a href="offer.html" class="nav-link" data-index="05">Offer</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
+    </nav>
+
+    <div class="mobile-menu">
+        <a href="index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="me.html" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="prediction.html" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="offer.html" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+    </div>
+
+    <div id="main" class="main">
+        <div class="mc-scene">
+            <div class="mc-sign-group reveal">
+                <div class="mc-sign">
+                    <p>欢迎到来，<br>但这里似乎尚未竣工……<br>先看看别处吧~</p>
+                </div>
+                <div class="mc-post"></div>
+            </div>
+            <div class="mc-ground reveal delay-1">
+                <div class="mc-grass-top"></div>
+                <div class="mc-grass"></div>
+                <div class="mc-dirt"></div>
+            </div>
+            <a href="offer.html" class="mc-back reveal delay-2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                回到 Offer
+            </a>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"一切伟大的建筑，都始于第一个方块"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：<span class="wechat-trigger">iDoWantiDoWill</span></p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/compat.js"></script>
+    <script src="js/script.js"></script>
+</body>
+</html>
