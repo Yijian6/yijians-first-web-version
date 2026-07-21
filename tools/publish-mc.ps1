@@ -59,18 +59,33 @@ Invoke-Checked 'git' @('add', 'content/minecraft', 'mc')
 
 $staged = git -c core.quotepath=false diff --cached --name-only
 if (-not $staged) {
-  Write-Host ''
-  Write-Host '没有发现新内容，无需发布。' -ForegroundColor Green
-  exit 0
+  # 没有新内容，但检查上次发布是否没走完（本地领先远程 = 有提交没推上去）
+  $ahead = 0
+  try { $ahead = [int](git rev-list origin/master..master --count 2>$null) } catch {}
+  if ($ahead -gt 0) {
+    Write-Host ''
+    Write-Host "发现上次未完成的发布（$ahead 个提交还没上线），正在重试……" -ForegroundColor Yellow
+  } else {
+    Write-Host ''
+    Write-Host '没有发现新内容，无需发布。' -ForegroundColor Green
+    exit 0
+  }
+} else {
+  $articleCount = @($staged | Where-Object { $_ -like 'content/minecraft/*.md' -and $_ -notlike '*_*.md' }).Count
+  $msg = "content: update Minecraft world ($articleCount article(s))"
+  Invoke-Checked 'git' @('commit', '-m', $msg)
 }
-
-$articleCount = @($staged | Where-Object { $_ -like 'content/minecraft/*.md' -and $_ -notlike '*_*.md' }).Count
-$msg = "content: update Minecraft world ($articleCount article(s))"
-Invoke-Checked 'git' @('commit', '-m', $msg)
 
 # 5. 标准发布流程（verify + push + 部署，全自动，约 2-5 分钟）
 Write-Host '[4/4] 正在发布上线（含全套兼容性测试，约 2-5 分钟，请耐心等待）……'
-Invoke-Checked 'powershell' @('-NoProfile', '-File', 'tools/release.ps1')
+try {
+  Invoke-Checked 'powershell' @('-NoProfile', '-File', 'tools/release.ps1')
+} catch {
+  Write-Host ''
+  Write-Host '发布上线这一步失败了（多为网络波动）。' -ForegroundColor Red
+  Write-Host '你的文章已经安全保存，不会丢。稍等片刻，重新双击「发布文章.cmd」即可重试。' -ForegroundColor Yellow
+  throw
+}
 
 Write-Host ''
 Write-Host '=========================================' -ForegroundColor Green
