@@ -1013,6 +1013,7 @@
     var previousFocus = null;
     var theta = 0;
     var activeIdx = 0;
+    var entryIndex = 0;
     var raf = null;
 
     function mod(n, m) { return ((n % m) + m) % m; }
@@ -1081,6 +1082,7 @@
       openedFromFab = !!fromFab;
       previousFocus = document.activeElement;
       var entry = offerWheelAPI.getActive();
+      entryIndex = entry;
       activeIdx = entry;
       renderCenter(entry);
       overlay.hidden = false;
@@ -1116,33 +1118,49 @@
       var wasFromFab = openedFromFab;
       openedFromFab = false;
       cancelAnim();
-      offerWheelAPI.switchTo(currentIndex());
+      var selectedIdx = currentIndex();
+      var changed = selectedIdx !== entryIndex;
+      offerWheelAPI.switchTo(selectedIdx);
       overlay.classList.remove('open');
-      var origin = wasFromFab ? fab : pageRing;
-      if (!reducedMotion) {
-        var home = theta + (mod(-theta + 180, 360) - 180);
-        snapTo(home, { silent: true, duration: 480 });
-        dial.style.transform = fromTransform(origin);
-      }
-      setTimeout(function () {
-        overlay.hidden = true;
-        unlockPage();
-        cancelAnim();
-        dial.style.transition = 'none';
-        dial.style.transform = '';
-        void dial.offsetWidth;
-        dial.style.transition = '';
-        if (wasFromFab) {
-          fab.classList.remove('visible');
-          var wheel = document.getElementById('offerWheel');
-          if (wheel) wheel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      if (wasFromFab) {
+        if (changed && compat && compat.patchScrollLock) {
+          var wheelEl = document.getElementById('offerWheel');
+          if (wheelEl) {
+            var targetScrollY = Math.max(0, wheelEl.offsetTop - (window.innerHeight - wheelEl.offsetHeight) / 2);
+            compat.patchScrollLock(targetScrollY);
+          }
+        }
+        setTimeout(function () {
+          overlay.hidden = true;
+          unlockPage();
+          if (changed) fab.classList.remove('visible');
+          cancelAnim();
+          dial.style.transition = 'none';
+          dial.style.transform = '';
+          void dial.offsetWidth;
+          dial.style.transition = '';
           previousFocus = null;
-        } else {
+        }, reducedMotion ? 0 : 380);
+      } else {
+        if (!reducedMotion) {
+          var home = theta + (mod(-theta + 180, 360) - 180);
+          snapTo(home, { silent: true, duration: 480 });
+          dial.style.transform = fromTransform(pageRing);
+        }
+        setTimeout(function () {
+          overlay.hidden = true;
+          unlockPage();
           var focusTarget = previousFocus && document.contains(previousFocus) ? previousFocus : trigger;
           previousFocus = null;
           focusTarget.focus({ preventScroll: true });
-        }
-      }, reducedMotion ? 0 : 480);
+          cancelAnim();
+          dial.style.transition = 'none';
+          dial.style.transform = '';
+          void dial.offsetWidth;
+          dial.style.transition = '';
+        }, reducedMotion ? 0 : 480);
+      }
     }
 
     /* ——— 拖动旋转 ——— */

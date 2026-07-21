@@ -265,6 +265,7 @@
     installVisualViewport: installVisualViewport,
     lockBodyScroll: lockBodyScroll,
     unlockBodyScroll: unlockBodyScroll,
+    patchScrollLock: function (newScrollY) { if (scrollLock) scrollLock.scrollY = newScrollY; },
     fetchWithTimeout: fetchWithTimeout,
     collectImageDiagnostics: collectImageDiagnostics,
     installImageRecovery: installImageRecovery
