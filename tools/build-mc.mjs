@@ -290,7 +290,8 @@ function main() {
 
   const domains = [];
   for (const entry of fs.readdirSync(CONTENT_DIR, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name === 'assets') continue;
+    // 跳过隐藏目录、下划线开头的目录（如 _模板、_日记）和 assets
+    if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name.startsWith('_') || entry.name === 'assets') continue;
     const d = parseDomain(entry.name);
     if (d) domains.push(d);
   }
