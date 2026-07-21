@@ -37,7 +37,10 @@ window.MC_WORLD = {
           "date": "2026-07-21"
         }
       ],
-      "ghosts": [],
+      "ghosts": [
+        "虚拟内存的原理",
+        ""
+      ],
       "lastDate": "2026-07-21",
       "stale": false
     }
