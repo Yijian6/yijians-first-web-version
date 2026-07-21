@@ -9,11 +9,28 @@ const warnings = [];
 const checkedTargets = new Set();
 
 function discoverProductionPages() {
-  return fs.readdirSync(root, { withFileTypes: true })
+  const rootPages = fs.readdirSync(root, { withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.endsWith('.html'))
     .map((entry) => entry.name)
-    .filter((file) => !ignoredHtml.includes(file))
-    .sort();
+    .filter((file) => !ignoredHtml.includes(file));
+
+  // mc/ 为构建产物目录（Minecraft 思考空间），递归纳入检查
+  const mcPages = [];
+  const mcRoot = path.join(root, 'mc');
+  if (fs.existsSync(mcRoot)) {
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (entry.isFile() && entry.name.endsWith('.html')) {
+          mcPages.push(path.relative(root, full).split(path.sep).join('/'));
+        }
+      }
+    };
+    walk(mcRoot);
+  }
+
+  return [...rootPages, ...mcPages].sort();
 }
 
 const pages = discoverProductionPages();
@@ -92,7 +109,7 @@ for (const page of pages) {
     || !/interactive-widget=resizes-content/i.test(viewport)) {
     errors.push(`${page}: viewport compatibility directives are incomplete`);
   }
-  if (!/<script\s+src=["']js\/compat\.js["']/i.test(html)) {
+  if (!/<script\s+src=["'](?:\.\.\/)*js\/compat\.js["']/i.test(html)) {
     errors.push(`${page}: shared compatibility layer is not loaded`);
   }
   if (/new\s+Date\s*\([^)]*created_at/i.test(html)) {

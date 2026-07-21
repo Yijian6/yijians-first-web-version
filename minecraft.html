@@ -95,9 +95,208 @@
             border-bottom: 2px solid #4a3728;
         }
 
+        /* ===== 世界横带：告示牌和建筑站在同一条地面上 ===== */
+        .mcw-strip {
+            max-width: min(1100px, 94vw);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .mcw-strip::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mcw-inner {
+            display: flex;
+            flex-direction: column;
+            min-width: 100%;
+            width: max-content;
+        }
+
+        .mcw-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 44px;
+            width: max-content;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        .mcw-building {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            text-decoration: none;
+            position: relative;
+            transition: transform 0.5s var(--ease-out-expo);
+            animation: mcwRise 0.9s var(--ease-out-expo) both;
+        }
+
+        .mcw-building:hover {
+            transform: translateY(-5px);
+        }
+
+        @keyframes mcwRise {
+            from { opacity: 0; transform: translateY(16px); }
+        }
+
+        .mcw-scaffold {
+            width: 88px;
+            height: 16px;
+            border: 2px dashed rgba(200, 169, 110, 0.45);
+            border-bottom: none;
+            position: relative;
+        }
+
+        .mcw-scaffold--vine::after {
+            content: '🌿';
+            position: absolute;
+            top: -9px;
+            right: -7px;
+            font-size: 13px;
+        }
+
+        .mcw-ghost {
+            width: 88px;
+            border: 2px dashed rgba(168, 204, 136, 0.22);
+            border-bottom: none;
+            display: block;
+        }
+
+        .mcw-body {
+            width: 88px;
+            background: #3a4a5c;
+            border: 2px solid #22303f;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mcw-floor-row {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            padding: 7px 0;
+        }
+
+        .mcw-win {
+            width: 10px;
+            height: 10px;
+            background: rgba(232, 196, 106, 0.55);
+        }
+
+        .mcw-win--dim {
+            background: rgba(232, 196, 106, 0.22);
+        }
+
+        .mcw-win--bright {
+            background: #e8c46a;
+            box-shadow: 0 0 9px rgba(232, 196, 106, 0.55);
+        }
+
+        .mcw-name {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            color: var(--white-90);
+            z-index: 1;
+        }
+
+        .mcw-stat {
+            position: absolute;
+            top: calc(100% + 25px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: max-content;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.08em;
+            color: rgba(228, 224, 216, 0.45);
+            z-index: 1;
+        }
+
+        /* ===== 冒险日志 ===== */
+        .mcw-log {
+            margin-top: 56px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .mcw-log-title {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            color: var(--white-30);
+            margin-bottom: 4px;
+        }
+
+        .mcw-log-line {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            text-decoration: none;
+            color: var(--white-60);
+            transition: color 0.3s ease;
+        }
+
+        .mcw-log-line:hover {
+            color: var(--gold);
+        }
+
+        .mcw-log-date {
+            color: var(--white-30);
+            font-size: 11px;
+        }
+
+        .mcw-log-domain {
+            color: var(--gold);
+            font-size: 11px;
+        }
+
         .mc-ground {
-            width: min(560px, 90vw);
+            width: 100%;
+            min-width: min(560px, 90vw);
             margin-top: -2px;
+        }
+
+        .mcw-hint {
+            margin-top: 18px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--white-30);
+            animation: mcwHintPulse 2.6s ease-in-out infinite;
+        }
+
+        @keyframes mcwHintPulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        /* 手机端：缩小告示牌，让第一栋楼露出一角，暗示可以横滑 */
+        @media (max-width: 600px) {
+            .mcw-row:not(:only-child) .mc-sign,
+            .mcw-row.has-buildings .mc-sign {
+                width: 60vw;
+                padding: 18px 16px;
+            }
+
+            .mcw-row.has-buildings {
+                gap: 30px;
+                padding: 0 20px;
+            }
         }
 
         .mc-grass-top {
@@ -199,17 +398,25 @@
 
     <div id="main" class="main">
         <div class="mc-scene">
-            <div class="mc-sign-group reveal">
-                <div class="mc-sign">
-                    <p>欢迎到来，<br>但这里似乎尚未竣工……<br>先看看别处吧~</p>
+            <div class="mcw-strip reveal" id="mcStrip">
+                <div class="mcw-inner">
+                    <div class="mcw-row" id="mcRow">
+                        <div class="mc-sign-group">
+                            <div class="mc-sign">
+                                <p>欢迎到来，<br>但这里似乎尚未竣工……<br>先看看别处吧~</p>
+                            </div>
+                            <div class="mc-post"></div>
+                        </div>
+                    </div>
+                    <div class="mc-ground">
+                        <div class="mc-grass-top"></div>
+                        <div class="mc-grass"></div>
+                        <div class="mc-dirt"></div>
+                    </div>
                 </div>
-                <div class="mc-post"></div>
             </div>
-            <div class="mc-ground reveal delay-1">
-                <div class="mc-grass-top"></div>
-                <div class="mc-grass"></div>
-                <div class="mc-dirt"></div>
-            </div>
+            <p class="mcw-hint" id="mcHint" hidden>← 向右滑 · 世界在生长 →</p>
+            <div class="mcw-log" id="mcLog" hidden></div>
             <a href="offer.html" class="mc-back reveal delay-2">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -228,6 +435,8 @@
         </footer>
     </div>
 
+    <script src="mc/world-data.js"></script>
+    <script src="js/mc-world.js"></script>
     <script src="js/compat.js"></script>
     <script src="js/script.js"></script>
 </body>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="300" viewBox="0 0 720 300">
+  <rect width="720" height="300" fill="#0c0e0b"/>
+  <text x="30" y="42" font-family="monospace" font-size="16" fill="#a8cc88">数组 · 连续内存</text>
+  <g font-family="monospace" font-size="18" text-anchor="middle">
+    <rect x="30" y="60" width="60" height="48" fill="#141812" stroke="#a8cc88" stroke-width="2"/>
+    <text x="60" y="90" fill="#e4e0d8">3</text>
+    <rect x="90" y="60" width="60" height="48" fill="#141812" stroke="#a8cc88" stroke-width="2"/>
+    <text x="120" y="90" fill="#e4e0d8">7</text>
+    <rect x="150" y="60" width="60" height="48" fill="#141812" stroke="#a8cc88" stroke-width="2"/>
+    <text x="180" y="90" fill="#e4e0d8">2</text>
+    <rect x="210" y="60" width="60" height="48" fill="#141812" stroke="#a8cc88" stroke-width="2"/>
+    <text x="240" y="90" fill="#e4e0d8">9</text>
+    <rect x="270" y="60" width="60" height="48" fill="#141812" stroke="#a8cc88" stroke-width="2"/>
+    <text x="300" y="90" fill="#e4e0d8">4</text>
+  </g>
+  <text x="30" y="140" font-family="monospace" font-size="12" fill="rgba(228,224,216,0.55)">下标直达任意位置，但中间插入需要整体后移</text>
+
+  <text x="30" y="192" font-family="monospace" font-size="16" fill="#d4734a">链表 · 指针相连</text>
+  <g font-family="monospace" font-size="18" text-anchor="middle">
+    <rect x="30" y="210" width="60" height="48" fill="#141812" stroke="#d4734a" stroke-width="2"/>
+    <text x="60" y="240" fill="#e4e0d8">3</text>
+    <rect x="150" y="210" width="60" height="48" fill="#141812" stroke="#d4734a" stroke-width="2"/>
+    <text x="180" y="240" fill="#e4e0d8">7</text>
+    <rect x="270" y="210" width="60" height="48" fill="#141812" stroke="#d4734a" stroke-width="2"/>
+    <text x="300" y="240" fill="#e4e0d8">2</text>
+    <rect x="390" y="210" width="60" height="48" fill="#141812" stroke="#d4734a" stroke-width="2"/>
+    <text x="420" y="240" fill="#e4e0d8">9</text>
+  </g>
+  <g stroke="#d4734a" stroke-width="2" fill="none" marker-end="none">
+    <path d="M 90 234 L 144 234"/>
+    <path d="M 138 228 L 148 234 L 138 240" fill="#d4734a"/>
+    <path d="M 210 234 L 264 234"/>
+    <path d="M 258 228 L 268 234 L 258 240" fill="#d4734a"/>
+    <path d="M 330 234 L 384 234"/>
+    <path d="M 378 228 L 388 234 L 378 240" fill="#d4734a"/>
+  </g>
+  <text x="30" y="290" font-family="monospace" font-size="12" fill="rgba(228,224,216,0.55)">插入只改指针，但访问必须从头遍历</text>
+</svg>

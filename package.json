@@ -2,9 +2,15 @@
   "name": "yijian6-site",
   "private": true,
   "scripts": {
+    "build:mc": "node tools/build-mc.mjs",
     "check": "node tools/mobile-compat-check.mjs",
     "test:compat:quick": "python tools/mobile-compat-smoke.py --engines chromium --quick",
     "test:compat": "python tools/mobile-compat-smoke.py --engines chromium firefox webkit",
     "verify": "npm run check && npm run test:compat"
+  },
+  "devDependencies": {
+    "gray-matter": "^4.0.3",
+    "image-size": "^2.0.2",
+    "marked": "^18.0.7"
   }
 }

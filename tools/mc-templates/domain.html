@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>{{DOMAIN_NAME}} — 觉的 Minecraft</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        :root {
+            --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
+        }
+
+        .mcd-wrap {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 48px var(--side-pad) 64px;
+        }
+
+        .mcd-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: var(--white-60);
+            text-decoration: none;
+            margin-bottom: 40px;
+            transition: color 0.3s ease;
+        }
+
+        .mcd-back:hover {
+            color: var(--gold);
+        }
+
+        .mcd-head {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .mcd-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        .mcd-title {
+            font-family: var(--font-display-mc);
+            font-size: clamp(36px, 8vw, 56px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 10px 0 8px;
+        }
+
+        .mcd-count {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            color: var(--white-30);
+        }
+
+        /* ===== 建筑立面 ===== */
+        .mcd-facade {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mcd-scaffold {
+            border: 2px dashed rgba(200, 169, 110, 0.4);
+            border-bottom: none;
+            padding: 12px 16px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            color: rgba(200, 169, 110, 0.55);
+            position: relative;
+        }
+
+        .mcd-vine {
+            color: #5d8a3c;
+            font-size: 11px;
+            display: block;
+            margin-top: 6px;
+            letter-spacing: 0.05em;
+        }
+
+        .mcd-ghost {
+            border: 2px dashed rgba(168, 204, 136, 0.22);
+            border-bottom: none;
+            padding: 14px 18px;
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            font-family: var(--font-mono);
+        }
+
+        .mcd-ghost .mcd-floor-num {
+            color: rgba(168, 204, 136, 0.3);
+        }
+
+        .mcd-ghost .mcd-ghost-topic {
+            font-size: 14px;
+            color: rgba(228, 224, 216, 0.25);
+        }
+
+        .mcd-ghost .mcd-ghost-tag {
+            margin-left: auto;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            color: rgba(168, 204, 136, 0.3);
+        }
+
+        .mcd-floor {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            padding: 16px 18px;
+            background: var(--bg-surface);
+            border: 2px solid var(--white-10);
+            border-bottom: none;
+            text-decoration: none;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mcd-floor:hover {
+            background: rgba(168, 204, 136, 0.06);
+            border-color: var(--gold-dim);
+        }
+
+        .mcd-floor-num {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: var(--gold);
+            flex-shrink: 0;
+            width: 30px;
+        }
+
+        .mcd-floor-title {
+            font-family: var(--font-display-mc);
+            font-size: clamp(16px, 2.5vw, 18px);
+            color: var(--white-90);
+            line-height: 1.5;
+        }
+
+        .mcd-floor-date {
+            margin-left: auto;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--white-30);
+            flex-shrink: 0;
+        }
+
+        .mcd-ground {
+            margin-top: 0;
+        }
+
+        .mcd-ground-grass {
+            height: 10px;
+            background: repeating-linear-gradient(90deg, #5d8a3c 0px, #5d8a3c 15px, #53802e 15px, #53802e 16px);
+            border-top: 4px solid #6fa34a;
+        }
+
+        .mcd-ground-dirt {
+            height: 22px;
+            background: repeating-linear-gradient(90deg, #8b6240 0px, #8b6240 15px, #7a5535 15px, #7a5535 16px);
+            border-bottom: 3px solid #5e4128;
+        }
+
+        @media (max-width: 480px) {
+            .mcd-floor-date { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <nav class="navbar">
+        <a href="../../index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <div class="nav-links">
+            <a href="../../work.html" class="nav-link" data-index="01">Work</a>
+            <a href="../../me.html" class="nav-link" data-index="02">Me</a>
+            <a href="../../passion.html" class="nav-link" data-index="03">Passion</a>
+            <a href="../../prediction.html" class="nav-link" data-index="04">Becoming</a>
+            <a href="../../offer.html" class="nav-link" data-index="05">Offer</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
+    </nav>
+
+    <div class="mobile-menu">
+        <a href="../../index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="../../work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="../../me.html" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="../../passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="../../prediction.html" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="../../offer.html" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+    </div>
+
+    <div id="main" class="main">
+        <div class="mcd-wrap">
+            <a href="../../minecraft.html" class="mcd-back">← 回到世界</a>
+
+            <header class="mcd-head">
+                <span class="mcd-label">MC WORLD · {{NAME_EN}}</span>
+                <h1 class="mcd-title">{{DOMAIN_NAME}}</h1>
+                <p class="mcd-count">已建 {{FLOOR_COUNT}} 层{{PLAN_COUNT}}</p>
+            </header>
+
+            <div class="mcd-facade">
+{{FACADE}}
+                <div class="mcd-ground">
+                    <div class="mcd-ground-grass"></div>
+                    <div class="mcd-ground-dirt"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"一切伟大的建筑，都始于第一个方块"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：iDoWantiDoWill</p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../js/compat.js"></script>
+    <script src="../../js/script.js"></script>
+</body>
+</html>

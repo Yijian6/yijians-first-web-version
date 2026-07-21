@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>链表与数组之争 — 觉的 Minecraft</title>
+    <meta name="description" content="从&quot;插入一个转学生&quot;讲清楚链表和数组各自的代价。（示例文章，可删除）">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        :root {
+            --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
+        }
+
+        .mca-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px var(--side-pad) 0;
+        }
+
+        .mca-crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            color: var(--gold);
+            text-decoration: none;
+            margin-bottom: 28px;
+        }
+
+        .mca-crumb:hover {
+            color: var(--gold-bright);
+        }
+
+        .mca-title {
+            font-family: var(--font-display-mc);
+            font-size: clamp(30px, 6vw, 44px);
+            font-weight: 400;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            margin-bottom: 14px;
+        }
+
+        .mca-meta {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: var(--white-30);
+            margin-bottom: 28px;
+        }
+
+        .mca-rule {
+            height: 1px;
+            background: var(--white-10);
+            margin-bottom: 40px;
+        }
+
+        .mca-body {
+            font-size: clamp(15px, 2vw, 16px);
+            font-weight: 300;
+            line-height: 2;
+            color: var(--white-60);
+        }
+
+        .mca-body h2 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(22px, 3.5vw, 28px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 48px 0 16px;
+        }
+
+        .mca-body h3 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(18px, 3vw, 22px);
+            font-weight: 400;
+            color: var(--white-90);
+            margin: 36px 0 12px;
+        }
+
+        .mca-body p {
+            margin-bottom: 20px;
+        }
+
+        .mca-body strong {
+            color: var(--white-90);
+            font-weight: 500;
+        }
+
+        .mca-body em {
+            color: var(--gold);
+            font-style: normal;
+        }
+
+        .mca-body a {
+            color: var(--gold);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .mca-body blockquote {
+            border-left: 3px solid var(--gold-dim);
+            padding: 4px 0 4px 18px;
+            margin: 24px 0;
+            color: var(--white-30);
+        }
+
+        .mca-body blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        .mca-body ul, .mca-body ol {
+            margin: 0 0 20px;
+            padding-left: 24px;
+        }
+
+        .mca-body li {
+            margin-bottom: 8px;
+        }
+
+        .mca-body li::marker {
+            color: var(--gold);
+        }
+
+        .mca-body code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            color: var(--gold-bright);
+            background: var(--bg-surface);
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .mca-body pre {
+            background: var(--bg-surface);
+            border: 1px solid var(--white-10);
+            border-left: 3px solid var(--gold);
+            border-radius: 2px;
+            padding: 18px 20px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+
+        .mca-body pre code {
+            background: none;
+            padding: 0;
+            font-size: 13px;
+            line-height: 1.9;
+            color: var(--white-60);
+        }
+
+        .mca-body img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 28px auto;
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+        }
+
+        .mca-body hr {
+            border: none;
+            height: 1px;
+            background: var(--white-10);
+            margin: 40px 0;
+        }
+
+        .mc-table-wrap {
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        .mca-body table {
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 320px;
+        }
+
+        .mca-body th, .mca-body td {
+            border: 1px solid var(--white-10);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .mca-body th {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: var(--gold);
+            background: var(--bg-surface);
+        }
+
+        .mca-stairs {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            max-width: 720px;
+            margin: 64px auto 0;
+            padding: 24px var(--side-pad) 48px;
+            border-top: 1px solid var(--white-10);
+        }
+
+        .mca-stair {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            color: var(--white-60);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            max-width: 46%;
+        }
+
+        .mca-stair:hover {
+            color: var(--gold);
+        }
+
+        .mca-stair--next {
+            text-align: right;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <nav class="navbar">
+        <a href="../../index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <div class="nav-links">
+            <a href="../../work.html" class="nav-link" data-index="01">Work</a>
+            <a href="../../me.html" class="nav-link" data-index="02">Me</a>
+            <a href="../../passion.html" class="nav-link" data-index="03">Passion</a>
+            <a href="../../prediction.html" class="nav-link" data-index="04">Becoming</a>
+            <a href="../../offer.html" class="nav-link" data-index="05">Offer</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
+    </nav>
+
+    <div class="mobile-menu">
+        <a href="../../index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="../../work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="../../me.html" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="../../passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="../../prediction.html" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="../../offer.html" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+    </div>
+
+    <div id="main" class="main">
+        <article class="mca-wrap">
+            <a href="index.html" class="mca-crumb">数据结构 · 2F</a>
+            <h1 class="mca-title">链表与数组之争</h1>
+            <p class="mca-meta">2026-07-21 · 约 1 分钟</p>
+            <div class="mca-rule"></div>
+            <div class="mca-body">
+<blockquote>
+<p>这是一篇<strong>示例文章</strong>，展示配图和代码块的写法。可以删掉换成你自己的。</p>
+</blockquote>
+<p>数组和链表是最基础的两种线性结构，它们的区别可以用一张图说清楚：</p>
+<p><img src="../../content/minecraft/数据结构/assets/链表与数组.svg" alt="链表与数组" width="720" height="300" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<h2>数组：住在连续的房间里</h2>
+<p>数组的所有元素在内存里<strong>紧挨着</strong>。好处是定位快——知道第一个房间在哪，第 100 个房间的位置一步就能算出来。代价是插入慢：想在中间插一个人，后面所有人都得搬家。</p>
+<h2>链表：每个人手里有下一个人的地址</h2>
+<p>链表的元素散落在内存各处，靠<strong>指针</strong>串起来。插入的时候只要改两根指针，谁都不用搬家。代价是找人慢：想找第 100 个节点，必须从头一个一个问过去。</p>
+<p>用代码表示一个最简单的链表节点：</p>
+<pre><code class="language-python">class Node:
+    def __init__(self, value):
+        self.value = value
+        self.next = None  # 指向下一个节点
+</code></pre>
+<h2>我的判断</h2>
+<div class="mc-table-wrap"><table>
+<thead>
+<tr>
+<th>操作</th>
+<th>数组</th>
+<th>链表</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>按位置访问</td>
+<td>O(1)</td>
+<td>O(n)</td>
+</tr>
+<tr>
+<td>中间插入/删除</td>
+<td>O(n)</td>
+<td>O(1)*</td>
+</tr>
+<tr>
+<td>内存布局</td>
+<td>连续，缓存友好</td>
+<td>分散</td>
+</tr>
+</tbody></table></div>
+<p>*前提是已经拿到了插入位置的指针。</p>
+<p>实际工程里数组（和它的变体）出场率远高于链表——因为现代 CPU 的缓存机制太偏爱连续内存了。链表的价值更多在于它的<strong>思想</strong>：用指针把分散的东西组织起来，这个思想通向树和图。</p>
+
+            </div>
+        </article>
+
+        <nav class="mca-stairs" aria-label="楼层导航">
+            <a href="为什么需要数据结构.html" class="mca-stair">↓ 1F 为什么需要数据结构</a>
+        </nav>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"一切伟大的建筑，都始于第一个方块"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：iDoWantiDoWill</p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../js/compat.js"></script>
+    <script src="../../js/script.js"></script>
+</body>
+</html>
