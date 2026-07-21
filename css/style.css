@@ -2508,6 +2508,63 @@ img[data-media-fit="contain"] {
   }
 }
 
+/* --- Floating Action Ball (FAB) --- */
+.ow-fab {
+  position: fixed;
+  bottom: clamp(24px, 5vh, 40px);
+  right: clamp(20px, 4vw, 32px);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 900;
+  background: none;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.5);
+  transition: opacity 0.35s ease, transform 0.4s var(--ease-out-expo);
+}
+
+.ow-fab.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.ow-fab:active { transform: scale(0.9); }
+
+.ow-fab-glow {
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.2;
+  filter: blur(14px);
+  pointer-events: none;
+  animation: fab-pulse 3s ease-in-out infinite;
+}
+
+.ow-fab-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, rgba(255,255,255,0.25), var(--gold) 60%);
+  box-shadow: 0 4px 20px -4px var(--gold-dim), 0 0 0 2px rgba(255,255,255,0.12) inset;
+}
+
+@keyframes fab-pulse {
+  0%, 100% { opacity: 0.18; transform: scale(1); }
+  50% { opacity: 0.32; transform: scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ow-fab { transition: none; }
+  .ow-fab-glow { animation: none; opacity: 0.2; }
+}
+
 /* =========================================================
    ME PAGE — Identity Cards
 ========================================================= */

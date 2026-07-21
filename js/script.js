@@ -769,7 +769,24 @@
     ];
 
     var activeIndex = 0;
-    setActiveColors(0, true);
+    var hashRestored = false;
+    var hash = window.location.hash.replace('#', '');
+    if (hash.indexOf('orb-') === 0) {
+      var catId = hash.slice(4);
+      CATS.forEach(function(cat, i) {
+        if (cat.id === catId) activeIndex = i;
+      });
+      hashRestored = true;
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+
+    orbs.forEach(function(o) { o.classList.remove('active'); });
+    orbs[activeIndex].classList.add('active');
+    panels.forEach(function(p) { p.classList.remove('active'); });
+    panels[activeIndex].classList.add('active');
+    if (centerName) centerName.textContent = CATS[activeIndex].label;
+    if (centerSub) centerSub.textContent = CATS[activeIndex].en;
+    setActiveColors(activeIndex, true);
     updateWrapperHeight();
 
     orbs.forEach(function(orb) {
@@ -908,6 +925,13 @@
       }
     }
 
+    if (hashRestored) {
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      setTimeout(function() {
+        wheel.scrollIntoView({ block: 'center' });
+      }, 60);
+    }
+
     offerWheelAPI = {
       CATS: CATS,
       switchTo: switchTo,
@@ -1038,9 +1062,12 @@
       raf = requestAnimationFrame(frame);
     }
 
-    /* ——— 出入场（FLIP：从页面轮盘原位缩放） ——— */
-    function fromTransform() {
-      var r = pageRing.getBoundingClientRect();
+    /* ——— 出入场（FLIP：从来源元素缩放） ——— */
+    var fab = document.getElementById('offerFab');
+    var openedFromFab = false;
+
+    function fromTransform(origin) {
+      var r = (origin || pageRing).getBoundingClientRect();
       var d = dial.getBoundingClientRect();
       var scale = r.width / d.width;
       var dx = (r.left + r.width / 2) - (d.left + d.width / 2);
@@ -1048,25 +1075,26 @@
       return 'translate(' + dx + 'px,' + dy + 'px) scale(' + scale + ')';
     }
 
-    function openDial() {
+    function openDial(fromFab) {
       if (open) return;
       open = true;
+      openedFromFab = !!fromFab;
       previousFocus = document.activeElement;
       var entry = offerWheelAPI.getActive();
       activeIdx = entry;
       renderCenter(entry);
       overlay.hidden = false;
       lockPage();
+      var origin = openedFromFab ? fab : pageRing;
       if (reducedMotion) {
         setWheel(-entry * STEP, true);
         overlay.classList.add('open');
         closeBtn.focus({ preventScroll: true });
         return;
       }
-      // 以零位（与页面五边形方位一致）长出来，再把选中球转上顶部
       setWheel(0, true);
       dial.style.transition = 'none';
-      dial.style.transform = fromTransform();
+      dial.style.transform = fromTransform(origin);
       void dial.offsetWidth;
       dial.style.transition = '';
       dial.style.transform = '';
@@ -1085,26 +1113,35 @@
     function closeDial() {
       if (!open) return;
       open = false;
+      var wasFromFab = openedFromFab;
+      openedFromFab = false;
       cancelAnim();
       offerWheelAPI.switchTo(currentIndex());
       overlay.classList.remove('open');
+      var origin = wasFromFab ? fab : pageRing;
       if (!reducedMotion) {
-        // 缩回原位的同时最短路径转回零位——球各归五边形原座，与静止层无缝交接
         var home = theta + (mod(-theta + 180, 360) - 180);
         snapTo(home, { silent: true, duration: 480 });
-        dial.style.transform = fromTransform();
+        dial.style.transform = fromTransform(origin);
       }
       setTimeout(function () {
         overlay.hidden = true;
         unlockPage();
-        var focusTarget = previousFocus && document.contains(previousFocus) ? previousFocus : trigger;
-        previousFocus = null;
-        focusTarget.focus({ preventScroll: true });
         cancelAnim();
         dial.style.transition = 'none';
         dial.style.transform = '';
         void dial.offsetWidth;
         dial.style.transition = '';
+        if (wasFromFab) {
+          fab.classList.remove('visible');
+          var wheel = document.getElementById('offerWheel');
+          if (wheel) wheel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          previousFocus = null;
+        } else {
+          var focusTarget = previousFocus && document.contains(previousFocus) ? previousFocus : trigger;
+          previousFocus = null;
+          focusTarget.focus({ preventScroll: true });
+        }
       }, reducedMotion ? 0 : 480);
     }
 
@@ -1202,10 +1239,27 @@
       e.stopPropagation();
     }, true);
 
-    trigger.addEventListener('click', openDial);
+    trigger.addEventListener('click', function () { openDial(false); });
     trigger.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDial(); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDial(false); }
     });
+
+    /* ——— FAB: 滚过五球区域后出现的悬浮球 ——— */
+    if (fab) {
+      fab.addEventListener('click', function () { openDial(true); });
+
+      var fabWheel = document.getElementById('offerWheel');
+      var fabVisible = false;
+      function updateFab() {
+        var rect = fabWheel.getBoundingClientRect();
+        var show = rect.bottom < 0 && !open;
+        if (show !== fabVisible) {
+          fabVisible = show;
+          fab.classList.toggle('visible', show);
+        }
+      }
+      window.addEventListener('scroll', updateFab, { passive: true });
+    }
   }
 
   /* -------------------------------------------------------
