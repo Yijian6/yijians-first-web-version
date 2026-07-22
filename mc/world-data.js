@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-07-21",
+  "builtAt": "2026-07-22",
   "domains": [
     {
       "name": "数据结构",
@@ -39,7 +39,7 @@ window.MC_WORLD = {
       ],
       "ghosts": [
         "虚拟内存的原理",
-        ""
+        "这个也能是草稿吗？"
       ],
       "lastDate": "2026-07-21",
       "stale": false
