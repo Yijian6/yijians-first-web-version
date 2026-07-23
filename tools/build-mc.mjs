@@ -88,7 +88,7 @@ function resolveImage(src, mdFile) {
   return null;
 }
 
-function imageHtml(abs, alt) {
+function imageHtml(abs, alt, widthHint) {
   const buf = fs.readFileSync(abs);
   let dims;
   try {
@@ -109,11 +109,120 @@ function imageHtml(abs, alt) {
   // 从 mc/<域slug>/文章.html 指回 content 里的原图
   const srcRel = '../../' + relDisplay(abs);
   const altText = alt && alt.trim() ? alt.trim() : path.basename(abs, path.extname(abs));
-  return `<img src="${esc(srcRel)}" alt="${esc(altText)}" width="${dims.width}" height="${dims.height}" loading="lazy" decoding="async" data-media-fit="natural">`;
+  // Obsidian 的 |300 显示宽度：真实尺寸仍写进 width/height，显示宽度用内联样式控制
+  const sizeStyle = widthHint ? ` style="width:min(${widthHint}px, 100%)"` : '';
+  return `<img src="${esc(srcRel)}" alt="${esc(altText)}" width="${dims.width}" height="${dims.height}" loading="lazy" decoding="async" data-media-fit="natural"${sizeStyle}>`;
 }
+
+// 内链解析：[[文章名]] / [[文章名|显示文字]] → 站内链接
+function resolveWikiLink(targetRaw, label) {
+  const base = targetRaw.split('#')[0].trim();
+  const text = esc(label || base);
+  if (!base) {
+    errors.push(`✗ ${relDisplay(ctx.mdFile)}\n  内链「[[${targetRaw}]]」是空的。`);
+    return text;
+  }
+  const currentSlug = ctx.domain.slug;
+  // 先同领域、后跨领域：按标题 / 文件名（去日期）匹配
+  const pools = [ctx.index.filter((e) => e.domainSlug === currentSlug), ctx.index.filter((e) => e.domainSlug !== currentSlug)];
+  for (const pool of pools) {
+    const hit = pool.find((e) => e.title === base || e.slug === base);
+    if (hit) {
+      const href = hit.domainSlug === currentSlug ? `${hit.slug}.html` : `../${hit.domainSlug}/${hit.slug}.html`;
+      return `<a href="${esc(href)}">${text}</a>`;
+    }
+  }
+  // 匹配领域名 → 领域立面页
+  const domainHit = ctx.domains.find((d) => d.name === base || d.nameEn === base);
+  if (domainHit) {
+    const href = domainHit.slug === currentSlug ? 'index.html' : `../${domainHit.slug}/index.html`;
+    return `<a href="${esc(href)}">${text}</a>`;
+  }
+  errors.push(`✗ ${relDisplay(ctx.mdFile)}\n  内链「[[${targetRaw}]]」找不到目标。检查文字是否和目标文章的标题（或文件名去掉日期的部分）完全一致；如果目标还是草稿，先发布它。`);
+  return text;
+}
+
+// ---------- Obsidian 方言扩展 ----------
+
+// ![[图.png]] / ![[图.png|300]] / ![[图.png|说明文字]] — 图片嵌入（文件名可含空格）
+const wikiEmbedExt = {
+  name: 'wikiEmbed',
+  level: 'inline',
+  start(src) { const i = src.indexOf('![['); return i < 0 ? undefined : i; },
+  tokenizer(src) {
+    const m = /^!\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/.exec(src);
+    if (m) return { type: 'wikiEmbed', raw: m[0], file: m[1].trim(), hint: (m[2] || '').trim() };
+  },
+  renderer(token) {
+    const abs = resolveImage(token.file, ctx.mdFile);
+    if (!abs) return '';
+    let alt = '';
+    let widthHint = null;
+    if (/^\d+(?:x\d+)?$/.test(token.hint)) widthHint = parseInt(token.hint, 10);
+    else alt = token.hint;
+    return imageHtml(abs, alt, widthHint);
+  },
+};
+
+// [[文章名]] / [[文章名|显示文字]] — 站内内链
+const wikiLinkExt = {
+  name: 'wikiLink',
+  level: 'inline',
+  start(src) { const i = src.indexOf('[['); return i < 0 ? undefined : i; },
+  tokenizer(src) {
+    const m = /^\[\[([^\]|]+?)(?:\|([^\]]*))?\]\]/.exec(src);
+    if (m) return { type: 'wikiLink', raw: m[0], target: m[1].trim(), label: (m[2] || '').trim() };
+  },
+  renderer(token) {
+    return resolveWikiLink(token.target, token.label);
+  },
+};
+
+// ==高亮== → <mark>
+const highlightExt = {
+  name: 'obsHighlight',
+  level: 'inline',
+  start(src) { const i = src.indexOf('=='); return i < 0 ? undefined : i; },
+  tokenizer(src) {
+    const m = /^==([^=\n]+?)==/.exec(src);
+    if (m) {
+      const token = { type: 'obsHighlight', raw: m[0], tokens: [] };
+      this.lexer.inline(m[1], token.tokens);
+      return token;
+    }
+  },
+  renderer(token) {
+    return `<mark>${this.parser.parseInline(token.tokens)}</mark>`;
+  },
+};
+
+// 行首 Tab / 4 空格缩进的普通文字：Obsidian 里常用来排版，
+// 标准 Markdown 会当成代码块——这里改为按普通段落渲染（真正的代码请用 ``` 围栏）
+const indentedTextExt = {
+  name: 'indentedText',
+  level: 'block',
+  start(src) {
+    const m = /(^|\n)(?: {4}|\t)/.exec(src);
+    return m ? m.index + m[1].length : undefined;
+  },
+  tokenizer(src) {
+    const m = /^((?: {4}|\t)[^\n]*(?:\n(?: {4}|\t)[^\n]*)*)/.exec(src);
+    if (m) {
+      const text = m[1].replace(/^(?: {4}|\t)+/gm, '');
+      const token = { type: 'indentedText', raw: m[1], tokens: [] };
+      this.lexer.inline(text, token.tokens);
+      return token;
+    }
+  },
+  renderer(token) {
+    return `<p class="mc-indent">${this.parser.parseInline(token.tokens)}</p>\n`;
+  },
+};
 
 marked.use({
   gfm: true,
+  breaks: true, // 和 Obsidian 一致：单次换行就是换行
+  extensions: [wikiEmbedExt, wikiLinkExt, highlightExt, indentedTextExt],
   renderer: {
     image({ href, text }) {
       const abs = resolveImage(href, ctx.mdFile);
@@ -123,17 +232,9 @@ marked.use({
   },
 });
 
-// ![[图.png]] / ![[图.png|说明]] → 标准 Markdown 图片语法
-function convertWikiImages(body) {
-  return body.replace(/!\[\[([^\]|]+?)(?:\|([^\]]+))?\]\]/g, (m, file, alt) => {
-    const altText = (alt || '').trim();
-    return `![${altText}](${file.trim()})`;
-  });
-}
-
-function renderMarkdown(body, mdFile) {
-  ctx = { mdFile };
-  let html = marked.parse(convertWikiImages(body));
+function renderMarkdown(body, mdFile, domain, domains, index) {
+  ctx = { mdFile, domain, domains, index };
+  let html = marked.parse(body);
   ctx = null;
   // 表格包滚动容器，防手机端溢出
   html = html
@@ -221,8 +322,8 @@ function parseDomain(dirName) {
 
 // ---------- 生成页面 ----------
 
-function buildArticlePage(domain, article, floorNum, articleTpl) {
-  const bodyHtml = renderMarkdown(article.body, article.mdFile);
+function buildArticlePage(domain, article, floorNum, articleTpl, domains, linkIndex) {
+  const bodyHtml = renderMarkdown(article.body, article.mdFile, domain, domains, linkIndex);
   const total = domain.articles.length;
 
   const stairs = [];
@@ -301,6 +402,14 @@ function main() {
   const domainTpl = readTemplate('domain.html');
   const today = new Date();
 
+  // 内链索引：渲染前先收齐全部文章（标题 + slug），供 [[内链]] 解析
+  const linkIndex = [];
+  for (const d of domains) {
+    for (const a of d.articles) {
+      linkIndex.push({ domainSlug: d.slug, slug: a.slug, title: a.title });
+    }
+  }
+
   // 先渲染全部（渲染过程会追加校验错误），有错则不写任何文件
   const output = new Map(); // 相对路径 → 内容
   const worldDomains = [];
@@ -316,7 +425,7 @@ function main() {
     domain.articles.forEach((article, idx) => {
       output.set(
         path.join('mc', domain.slug, `${article.slug}.html`),
-        buildArticlePage(domain, article, idx + 1, articleTpl)
+        buildArticlePage(domain, article, idx + 1, articleTpl, domains, linkIndex)
       );
       log.push({
         date: article.date,
