@@ -1036,7 +1036,9 @@
             }
         });
 
-        mainCanvas.addEventListener('pointerleave', function() {
+        // touch lift fires pointerleave — skip; tooltip dismissed via pointerdown on empty space
+        mainCanvas.addEventListener('pointerleave', function(e) {
+            if (e.pointerType === 'touch') return;
             mouseX = mouseY = -1000;
             hoveredStar = null;
             hideTooltip();
