@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="920" viewBox="0 0 1400 920">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#52616b"/>
+    </marker>
+    <style>
+      .title { font: bold 28px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #1f2937; }
+      .subtitle { font: 15px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #52616b; }
+      .node-title { font: bold 18px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #1f2937; }
+      .node-text { font: 14px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #374151; }
+      .small { font: 13px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #4b5563; }
+      .label { font: bold 13px "Microsoft YaHei", "PingFang SC", sans-serif; fill: #52616b; }
+      .line { stroke: #52616b; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #64748b; stroke-width: 1.8; stroke-dasharray: 6 5; fill: none; marker-end: url(#arrow); }
+      .box { stroke-width: 2; rx: 14; ry: 14; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="920" fill="#f8fafc"/>
+  <rect x="24" y="18" width="1352" height="72" rx="16" fill="#e0f2fe"/>
+  <text x="700" y="55" text-anchor="middle" class="title">计算机系统基础：程序、软硬件与操作系统关系图</text>
+  <text x="700" y="79" text-anchor="middle" class="subtitle">核心主线：人类任务 → 程序 → 指令 → 操作系统与硬件协作 → CPU执行</text>
+
+  <!-- Main concept -->
+  <rect x="530" y="116" width="340" height="84" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="700" y="150" text-anchor="middle" class="node-title">计算机</text>
+  <text x="700" y="176" text-anchor="middle" class="node-text">运行程序以处理信息的工具</text>
+
+  <!-- Computer and program -->
+  <rect x="115" y="250" width="325" height="142" class="box" fill="#ecfdf5" stroke="#059669"/>
+  <text x="277" y="285" text-anchor="middle" class="node-title">程序</text>
+  <text x="277" y="312" text-anchor="middle" class="node-text">按照一定顺序完成任务的流程</text>
+  <text x="277" y="337" text-anchor="middle" class="node-text">告诉计算机“先做什么、后做什么”</text>
+  <text x="277" y="367" text-anchor="middle" class="small">例：菜谱、APP、微信发送消息</text>
+
+  <rect x="500" y="250" width="400" height="142" class="box" fill="#fef3c7" stroke="#d97706"/>
+  <text x="700" y="285" text-anchor="middle" class="node-title">程序的三种基本控制结构</text>
+  <text x="700" y="315" text-anchor="middle" class="node-text">顺序　·　判断分支　·　循环</text>
+  <text x="700" y="345" text-anchor="middle" class="small">Böhm-Jacopini 定理：任何程序均可由这三种结构构成</text>
+  <text x="700" y="370" text-anchor="middle" class="small">分支与循环本质上都涉及“判断 + 指令跳转”</text>
+
+  <rect x="960" y="250" width="325" height="142" class="box" fill="#f3e8ff" stroke="#9333ea"/>
+  <text x="1122" y="285" text-anchor="middle" class="node-title">编程</text>
+  <text x="1122" y="312" text-anchor="middle" class="node-text">用编程语言表达任务流程</text>
+  <text x="1122" y="340" text-anchor="middle" class="node-text">如：C、Python 等</text>
+  <text x="1122" y="369" text-anchor="middle" class="small">自然语言任务 → 代码</text>
+
+  <path d="M610,200 L350,250" class="line"/>
+  <path d="M700,200 L700,250" class="line"/>
+  <path d="M790,200 L1050,250" class="line"/>
+  <text x="454" y="220" class="label">运行</text>
+  <text x="930" y="220" class="label">通过</text>
+
+  <!-- Compilation pipeline -->
+  <rect x="90" y="455" width="220" height="92" class="box" fill="#ffffff" stroke="#64748b"/>
+  <text x="200" y="490" text-anchor="middle" class="node-title">自然语言任务</text>
+  <text x="200" y="518" text-anchor="middle" class="node-text">“完成某个流程”</text>
+
+  <rect x="365" y="455" width="220" height="92" class="box" fill="#f3e8ff" stroke="#9333ea"/>
+  <text x="475" y="490" text-anchor="middle" class="node-title">高级语言代码</text>
+  <text x="475" y="518" text-anchor="middle" class="node-text">C / Python 等</text>
+
+  <rect x="640" y="455" width="220" height="92" class="box" fill="#ffedd5" stroke="#ea580c"/>
+  <text x="750" y="490" text-anchor="middle" class="node-title">编译器</text>
+  <text x="750" y="518" text-anchor="middle" class="node-text">翻译、处理代码</text>
+
+  <rect x="915" y="455" width="220" height="92" class="box" fill="#fef3c7" stroke="#d97706"/>
+  <text x="1025" y="490" text-anchor="middle" class="node-title">机器指令</text>
+  <text x="1025" y="518" text-anchor="middle" class="node-text">由 0 和 1 构成</text>
+
+  <rect x="1190" y="455" width="150" height="92" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="1265" y="490" text-anchor="middle" class="node-title">CPU</text>
+  <text x="1265" y="518" text-anchor="middle" class="node-text">直接执行</text>
+
+  <path d="M310,501 L365,501" class="line"/>
+  <path d="M585,501 L640,501" class="line"/>
+  <path d="M860,501 L915,501" class="line"/>
+  <path d="M1135,501 L1190,501" class="line"/>
+
+  <text x="337" y="485" text-anchor="middle" class="label">表达</text>
+  <text x="612" y="485" text-anchor="middle" class="label">交给</text>
+  <text x="887" y="485" text-anchor="middle" class="label">转换为</text>
+  <text x="1162" y="485" text-anchor="middle" class="label">执行</text>
+
+  <text x="1025" y="573" text-anchor="middle" class="small">汇编语言与机器指令一一对应，具有等价性</text>
+  <path d="M1025,547 L1025,560" class="dash"/>
+
+  <!-- Hardware / software / OS layers -->
+  <rect x="75" y="640" width="365" height="205" class="box" fill="#dbeafe" stroke="#2563eb"/>
+  <text x="257" y="677" text-anchor="middle" class="node-title">硬件层</text>
+  <text x="257" y="707" text-anchor="middle" class="node-text">看得见、摸得着的功能部件</text>
+  <line x1="105" y1="725" x2="410" y2="725" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="125" y="755" class="node-text">• CPU：执行机器指令的核心</text>
+  <text x="125" y="782" class="node-text">• 内存、存储设备、输入输出设备等</text>
+  <text x="125" y="815" class="small">CPU通过电路通断表示和处理 0 / 1</text>
+
+  <rect x="525" y="640" width="350" height="205" class="box" fill="#ecfdf5" stroke="#059669"/>
+  <text x="700" y="677" text-anchor="middle" class="node-title">操作系统层</text>
+  <text x="700" y="707" text-anchor="middle" class="node-text">本质仍然是程序</text>
+  <line x1="555" y1="725" x2="845" y2="725" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="575" y="755" class="node-text">• 管理、调控硬件资源</text>
+  <text x="575" y="782" class="node-text">• 为用户程序提供服务</text>
+  <text x="575" y="815" class="small">连接软件与硬件，协调信息交换</text>
+
+  <rect x="960" y="640" width="365" height="205" class="box" fill="#f3e8ff" stroke="#9333ea"/>
+  <text x="1142" y="677" text-anchor="middle" class="node-title">软件层</text>
+  <text x="1142" y="707" text-anchor="middle" class="node-text">核心是程序</text>
+  <line x1="990" y1="725" x2="1295" y2="725" stroke="#d8b4fe" stroke-width="1.5"/>
+  <text x="1010" y="755" class="node-text">• 用户程序：完成用户具体任务</text>
+  <text x="1010" y="782" class="node-text">• 数据：供程序运算</text>
+  <text x="1010" y="809" class="node-text">• 配置：程序运行所需参数</text>
+
+  <!-- Layer relation -->
+  <path d="M960,742 L875,742" class="line"/>
+  <path d="M525,772 L440,772" class="line"/>
+  <text x="914" y="728" text-anchor="middle" class="label">请求服务</text>
+  <text x="484" y="757" text-anchor="middle" class="label">管理与控制</text>
+
+  <!-- CPU connection -->
+  <path d="M1265,547 L1265,610 L300,610 L300,640" class="dash"/>
+  <text x="770" y="602" text-anchor="middle" class="label">机器指令最终由硬件中的 CPU 执行</text>
+</svg>

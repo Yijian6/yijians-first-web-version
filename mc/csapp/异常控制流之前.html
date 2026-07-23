@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>前置基础 — 觉的 Minecraft</title>
+    <meta name="description" content="从前情提要开始，完整">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        :root {
+            --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
+        }
+
+        .mca-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px var(--side-pad) 0;
+        }
+
+        .mca-crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            color: var(--gold);
+            text-decoration: none;
+            margin-bottom: 28px;
+        }
+
+        .mca-crumb:hover {
+            color: var(--gold-bright);
+        }
+
+        .mca-title {
+            font-family: var(--font-display-mc);
+            font-size: clamp(30px, 6vw, 44px);
+            font-weight: 400;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            margin-bottom: 14px;
+        }
+
+        .mca-meta {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: var(--white-30);
+            margin-bottom: 28px;
+        }
+
+        .mca-rule {
+            height: 1px;
+            background: var(--white-10);
+            margin-bottom: 40px;
+        }
+
+        .mca-body {
+            font-size: clamp(15px, 2vw, 16px);
+            font-weight: 300;
+            line-height: 2;
+            color: var(--white-60);
+        }
+
+        .mca-body h2 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(22px, 3.5vw, 28px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 48px 0 16px;
+        }
+
+        .mca-body h3 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(18px, 3vw, 22px);
+            font-weight: 400;
+            color: var(--white-90);
+            margin: 36px 0 12px;
+        }
+
+        .mca-body p {
+            margin-bottom: 20px;
+        }
+
+        .mca-body strong {
+            color: var(--white-90);
+            font-weight: 500;
+        }
+
+        .mca-body em {
+            color: var(--gold);
+            font-style: normal;
+        }
+
+        .mca-body a {
+            color: var(--gold);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .mca-body blockquote {
+            border-left: 3px solid var(--gold-dim);
+            padding: 4px 0 4px 18px;
+            margin: 24px 0;
+            color: var(--white-30);
+        }
+
+        .mca-body blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        .mca-body ul, .mca-body ol {
+            margin: 0 0 20px;
+            padding-left: 24px;
+        }
+
+        .mca-body li {
+            margin-bottom: 8px;
+        }
+
+        .mca-body li::marker {
+            color: var(--gold);
+        }
+
+        .mca-body code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            color: var(--gold-bright);
+            background: var(--bg-surface);
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .mca-body pre {
+            background: var(--bg-surface);
+            border: 1px solid var(--white-10);
+            border-left: 3px solid var(--gold);
+            border-radius: 2px;
+            padding: 18px 20px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+
+        .mca-body pre code {
+            background: none;
+            padding: 0;
+            font-size: 13px;
+            line-height: 1.9;
+            color: var(--white-60);
+        }
+
+        .mca-body img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 28px auto;
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+        }
+
+        .mca-body hr {
+            border: none;
+            height: 1px;
+            background: var(--white-10);
+            margin: 40px 0;
+        }
+
+        .mc-table-wrap {
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        .mca-body table {
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 320px;
+        }
+
+        .mca-body th, .mca-body td {
+            border: 1px solid var(--white-10);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .mca-body th {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: var(--gold);
+            background: var(--bg-surface);
+        }
+
+        .mca-stairs {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            max-width: 720px;
+            margin: 64px auto 0;
+            padding: 24px var(--side-pad) 48px;
+            border-top: 1px solid var(--white-10);
+        }
+
+        .mca-stair {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            color: var(--white-60);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            max-width: 46%;
+        }
+
+        .mca-stair:hover {
+            color: var(--gold);
+        }
+
+        .mca-stair--next {
+            text-align: right;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <nav class="navbar">
+        <a href="../../index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <div class="nav-links">
+            <a href="../../work.html" class="nav-link" data-index="01">Work</a>
+            <a href="../../me.html" class="nav-link" data-index="02">Me</a>
+            <a href="../../passion.html" class="nav-link" data-index="03">Passion</a>
+            <a href="../../prediction.html" class="nav-link" data-index="04">Becoming</a>
+            <a href="../../offer.html" class="nav-link" data-index="05">Offer</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
+    </nav>
+
+    <div class="mobile-menu">
+        <a href="../../index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="../../work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="../../me.html" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="../../passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="../../prediction.html" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="../../offer.html" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+    </div>
+
+    <div id="main" class="main">
+        <article class="mca-wrap">
+            <a href="index.html" class="mca-crumb">计算机系统基础II · 1F</a>
+            <h1 class="mca-title">前置基础</h1>
+            <p class="mca-meta">2026-07-23 · 约 7 分钟</p>
+            <div class="mca-rule"></div>
+            <div class="mca-body">
+<blockquote>
+<p>在进入CSAPP的第八章-异常控制流之前，我们需要温习一下计算机系统基础的那些重要概念，从而对后续的章节理解才能更加深入。我会从最最基础的理解开始，尽力让小白也能对计算机的知识有所收获。</p>
+</blockquote>
+<p>从计算机系统基础II这门课程的纲领开始——</p>
+<h2>计算机与程序</h2>
+<p>我们知道，<strong>计算机</strong>是运行<strong>程序</strong>以处理信息的工具。
+而所谓<strong>程序</strong>，是按照一定顺序完成任务的<strong>流程</strong>，步骤。简言之，就是先做什么，后做什么。
+<strong>编程</strong>就是告诉计算机，先做什么、后做什么。
+生活中处处都是程序，比如说，菜谱就是程序，每一个步骤就是一个<strong>指令</strong>。</p>
+<pre><code class="language-C">###西红柿炒鸡蛋程序
+1、准备食材
+2、炒鸡蛋
+3、盛出鸡蛋
+4、炒西红柿
+5、等待西红柿出汁
+6、倒入鸡蛋
+7、翻炒均匀
+8、装盘
+</code></pre>
+<p>再比如说，我们日常所说的<strong>应用软件(APP)</strong> ，其运作的核心，也是程序。</p>
+<blockquote>
+<p>例子：这是一段“微信发送消息”时候，计算机所运行的程序的自然语言版本。</p>
+</blockquote>
+<p>![300](Pasted image 20260723151611.png)</p>
+<p>你会发现==一切程序或者说流程，有且仅有三个模块构成：<strong>顺序、判断分支、和循环</strong>==(这一定理被称为：Böhm-Jacopini定理，于1966年被计算机科学家Corrado Böhm和Giuseppe Jacopini证明)。</p>
+<ul>
+<li>顺序就是，12345依次执行指令。</li>
+<li>判断分支就是，A情况跳转到去做1指令，B情况跳转到去做2指令。(if...else)</li>
+<li>循环就是，重复做指令，做完一段指令之后跳转回到指令的开头。(while...)(for...)
+所以也可以将流程归纳为，==顺序+判断+跳转==</li>
+</ul>
+<p>那么我们说回，计算机，它只靠通电就能运作，应该只能“感受”到，有电(1)，没电(0)，两种状态，他背后是怎么理解和执行我们复杂的程序的呢？</p>
+<p>我们需要拆开一台计算机来看看，里面有什么……</p>
+<h2>计算机的组成部件</h2>
+<p>计算机构成部分大概可以分为两个层次：硬件和软件。</p>
+<h3>计算机的硬件层次</h3>
+<p>1️⃣硬件层大概由这几类功能部件组成，都是看的见，摸得着的：
+![400](Pasted image 20260723150716.png)
+	其中最为核心的是：CPU，它是执行<strong>程序</strong>的<strong>机器指令</strong>的工具。
+	![](Pasted image 20260723160804.png)
+	(如图是一块CPU，金色的点是“引脚”或者触点)</p>
+<p><strong>机器指令</strong>你还记得吗？就是机器(CPU)能直接理解的理解、执行的指令。又由于，我们说，机器能做到的，不过是，感知电路通断的0和1。所以机器指令实际上，就是一串由0和1构成的数字。</p>
+<p>在《hello.c的一生》中，我们知道了，我们用C语言或者Python语言写成的代码指令，借助<strong>编译器</strong>一系列复杂的处理之下，就可以转化为机器指令，从而，我们实现了自然语言-代码语言-机器指令的转化过程，也成功将我们的任务交给了计算机来处理。</p>
+<blockquote>
+<p>我们可以用一个简单的例子，回顾熟悉这个过程。</p>
+</blockquote>
+<p>首先，这是用自然语言告诉机器执行的流程步骤。
+![300](Pasted image 20260723162118.png)
+用C语言表达出来同样的意思大概是这样：
+![300](Pasted image 20260723162214.png)
+经过编译器自动处理，会变成：
+左侧就是机器指令(十六进制的表示，因为二进制位数太长了不方便)
+右侧<strong>汇编语言</strong>。(汇编语言和机器指令具有一一对应的关系)
+(由于这种一一对应关系，汇编语言和机器指令具有等价性)
+![300](Pasted image 20260723162320.png)
+你还记得十六进制怎么对应二进制的吗？展开就是这样
+![300](Pasted image 20260723162517.png)
+这下，CPU看到这段代码之后，控制计算机内部电路的通(1)，断(0)。
+就把你的代码中的任务，完成了。</p>
+<p>说到这，你大概理解了计算机硬件中最重要的部分，比较具体，对吧？接下来进入一个看不见摸不着的、抽象一点的层次——软件</p>
+<h3>计算机的软件层次</h3>
+<p>同样的，我们用一幅图，来表示软件的组成部件。包括数据&amp;配置和程序两个部分
+![](Pasted image 20260723163934.png)
+数据呢，是程序要用来做运算的数据。
+配置呢，是程序运行要用的参数
+所以他们都服务与同一个核心——程序
+所以软件层次的介绍，就一句话：
+<strong>==软件的核心是程序==</strong></p>
+<p>那这软件和硬件，总不能独立工作啊？软件的每一条指令都需要CPU、等等的硬件来执行。
+所以还需要有一个能连接、交换这两个层次、以及硬件与之间的信息的东西啊？
+那硬件是死的，不可能长出触手。软件是活的啊，软件的本质就是程序，多写几条程序，让CPU通过这些程序来调控、管理硬件吧——这就是操作系统。</p>
+<h3>操作系统的本质还是程序</h3>
+<p>这么多程序，那我们把程序分分类吧。
+一部分是负责完成用户的具体任务的，叫做<strong>用户程序</strong>
+另一部分是负责管理硬件，服务于用户程序的，叫做<strong>操作系统程序</strong>![](Pasted image 20260723170649.png)</p>
+<p>有时候，我们也把操作系统归为硬件和软件之间的层次，“操作系统层次”，因为它连接了软件和硬件。</p>
+<h2>总结</h2>
+<p>我们用一张图来总结和回顾一下今天的所有知识把
+好的，那么，有了这些前置的基础知识，我们就可以进一步深入计算机系统基础II的学习了
+<img src="../../content/minecraft/计算机系统基础2/assets/download.svg" alt="download" width="1400" height="920" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<h2>引子</h2>
+<p>我们知道了程序的本质是流程，它在CPU眼里就是一条一条机器指令的序列。
+我们会在<strong>用户程序</strong>中告诉CPU，请你按照……这个步骤做事情。
+这些指令执行的顺序被称为CPU的“控制流(Control Flow)”。
+就像流水一样。“控制流”有一个自然下落的方向——顺序执行
+1️⃣在没有遇到<strong>跳转</strong>操作的时候，CPU会按照编号12345顺序的方向的执行指令。
+“控制流”自然流畅。
+2️⃣当遇到需要<strong>跳转</strong>的操作时，控制流这种自然、顺序的状态就被改变了，比方说：
+正常情况下，我们通过两种方式来改变控制流：
+	❶通过判断分支(if……else)、循环(while/for)，以让CPU实现指令的跳转，从而改变控制流。
+	❷通过调用函数，让CPU实现将指令跳转到被调用的那个函数，完整运行完该函数之后再跳转回来，从而改变控制流。
+在我们眼里，这两种情况的控制流改变的机制，是“正常的控制流(改变)”。除此之外，不管有意或者无意，其实还会发生一些的“异常控制流(改变)”，我们需要一些应对他们的改变。接下来的一个章节，我们就会来介绍，什么是“异常控制流”(Exceptional Control Flow)。</p>
+<blockquote>
+<p>说实话，“异常控制流(改变)”这个名字真的起的不好，让人觉得，是不是发生了什么异常的情况，才需要这些机制，来改变控制流。可实际上，“异常控制流”研究的不过是很多很常见、很正常的“控制流改变”的情况而已。</p>
+</blockquote>
+<p>绕晕了吧……哈哈</p>
+
+            </div>
+        </article>
+
+        <nav class="mca-stairs" aria-label="楼层导航">
+            <a href="index.html" class="mca-stair">↓ 回到立面</a>
+        </nav>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"一切伟大的建筑，都始于第一个方块"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：iDoWantiDoWill</p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../js/compat.js"></script>
+    <script src="../../js/script.js"></script>
+</body>
+</html>
