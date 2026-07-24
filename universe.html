@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
     <title>小宇宙 — 觉</title>
+    <link rel="preload" href="fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <style>
         @font-face {
             font-family: 'DM Sans';
@@ -80,7 +81,7 @@
         /* Nebula background */
         body::before {
             content: '';
-            position: fixed; inset: 0;
+            position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
             background:
                 radial-gradient(ellipse 80% 60% at 20% 30%, var(--nebula-1), transparent),
                 radial-gradient(ellipse 60% 80% at 75% 70%, var(--nebula-2), transparent),
@@ -92,7 +93,7 @@
         /* Grain texture */
         body::after {
             content: '';
-            position: fixed; inset: 0;
+            position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
             opacity: 0.03;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
             pointer-events: none;
@@ -159,7 +160,7 @@
 
         /* UI Layer */
         .ui-layer {
-            position: fixed; inset: 0;
+            position: fixed; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
             pointer-events: none;
             z-index: 50;
         }
@@ -280,7 +281,7 @@
         }
         .post-btn::before {
             content: '';
-            position: absolute; inset: 0;
+            position: absolute; top: 0; right: 0; bottom: 0; left: 0; inset: 0;
             border-radius: 50%;
             background: radial-gradient(circle, var(--gold), transparent 70%);
             opacity: 0;
@@ -439,7 +440,7 @@
         .delete-zone {
             position: fixed;
             z-index: 80;
-            pointer-events: auto;
+            pointer-events: none;
             width: 24px; height: 24px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -454,9 +455,10 @@
         .delete-zone::before {
             content: '';
             position: absolute;
+            top: -10px; right: -10px; bottom: -10px; left: -10px;
             inset: -10px;
         }
-        .delete-zone.visible { opacity: 1; }
+        .delete-zone.visible { opacity: 1; pointer-events: auto; }
         .delete-zone:hover {
             background: rgba(231, 76, 60, 0.3);
             color: white;
@@ -469,6 +471,7 @@
             .ui-layer::before {
                 content: '';
                 position: absolute;
+                top: 12px; right: 12px; bottom: 12px; left: 12px;
                 inset: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)) 12px;
                 border: 1px solid rgba(200, 212, 224, 0.18);
                 border-radius: 8px;
@@ -533,6 +536,11 @@
             .post-btn:hover::before { opacity: 0; }
             .post-btn:hover svg { color: var(--white-60); }
             .post-btn:active { transform: scale(0.96); opacity: 0.82; }
+        }
+
+        @supports not (backdrop-filter: blur(1px)) {
+            .tooltip-inner { background: #080e18; }
+            .modal-overlay { background: rgba(4, 6, 12, 0.97); }
         }
 
         @media (prefers-reduced-transparency: reduce) {

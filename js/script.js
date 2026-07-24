@@ -7,7 +7,7 @@
   'use strict';
 
   var $ = function (sel, ctx) { return (ctx || document).querySelector(sel); };
-  var $$ = function (sel, ctx) { return Array.from((ctx || document).querySelectorAll(sel)); };
+  var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); };
   var compat = window.JueCompat || null;
 
   function storageGet(key, fallback) {
@@ -174,7 +174,7 @@
         var parent = el.closest(staggerSelectors);
         if (parent && !parent.dataset.staggerStarted) {
           parent.dataset.staggerStarted = 'true';
-          var children = Array.from(parent.querySelectorAll('.reveal, .reveal-left, .reveal-scale'));
+          var children = Array.prototype.slice.call(parent.querySelectorAll('.reveal, .reveal-left, .reveal-scale'));
           children.forEach(function (child, i) {
             child.style.transitionDelay = (i * 0.08) + 's';
             requestAnimationFrame(function () {
@@ -662,7 +662,7 @@
     if (!track) return;
 
     // Clone children for seamless loop
-    var children = Array.from(track.children);
+    var children = Array.prototype.slice.call(track.children);
     children.forEach(function (child) {
       track.appendChild(child.cloneNode(true));
     });
@@ -2888,39 +2888,30 @@
   /* -------------------------------------------------------
      BOOT
   ------------------------------------------------------- */
+  var initErrors = [];
+  window.__jueInitErrors = initErrors;
+  function safeInit(fn) {
+    try { fn(); } catch (e) {
+      var name = fn.name || 'anonymous';
+      console.error('[init] ' + name + ':', e);
+      initErrors.push(name + ': ' + (e.message || String(e)));
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
-    initCursor();
-    initKineticText();
-    initReveal();
-    initMagnetic();
-    initIntro();
-    initProgress();
-    initHamburger();
-    initMenuHint();
-    initActiveNav();
-    initOfferWheel();
-    initOfferDial();
-    initOpenerCopy();
-    initPassionWheel();
-    initTabs();
-    initPageTransition();
-    initFullscreenUniverseLink();
-    initLightbox();
-    initProjectLightbox();
-    initProductTheater();
-    initGrowthRings();
-    initWorkStatus();
-    initBecomingStatus();
-    initMarquee();
-    initTypewriter();
-    initParallax();
-    initPortraitParallax();
-    initDecompose();
-    initCompound();
-    initShell();
-    initQuietWhisper();
-    initINFP();
-    initBlackhole();
+    var inits = [
+      initCursor, initKineticText, initReveal, initMagnetic,
+      initIntro, initProgress, initHamburger, initMenuHint,
+      initActiveNav, initOfferWheel, initOfferDial, initOpenerCopy,
+      initPassionWheel, initTabs, initPageTransition,
+      initFullscreenUniverseLink, initLightbox, initProjectLightbox,
+      initProductTheater, initGrowthRings, initWorkStatus,
+      initBecomingStatus, initMarquee, initTypewriter,
+      initParallax, initPortraitParallax, initDecompose,
+      initCompound, initShell, initQuietWhisper, initINFP,
+      initBlackhole
+    ];
+    for (var i = 0; i < inits.length; i++) { safeInit(inits[i]); }
   });
 
   window.addEventListener('pageshow', function (e) {

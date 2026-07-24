@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-07-23",
+  "builtAt": "2026-07-24",
   "domains": [
     {
       "name": "计算机系统基础II",

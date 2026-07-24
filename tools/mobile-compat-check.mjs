@@ -93,6 +93,31 @@ function checkCss(owner, css) {
         warnings.push(`${owner}: image sizing rule should use an explicit data-media-fit selector (${selector})`);
       }
     }
+    if (/\binset\s*:/.test(body) && !/\btop\s*:/.test(body) && !/@supports/.test(selector)) {
+      errors.push(`${owner}: inset: without top/right/bottom/left longhand fallback (${selector.slice(0, 60)})`);
+    }
+  }
+
+  if (/\bbackdrop-filter\s*:/.test(css) && !/@supports\s+not\s*\(\s*backdrop-filter/.test(css)) {
+    errors.push(`${owner}: uses backdrop-filter but missing @supports not (backdrop-filter:…) fallback block`);
+  }
+}
+
+const ES5_VIOLATIONS = [
+  [/\bArray\.from\s*\(/, 'Array.from() — use Array.prototype.slice.call()'],
+  [/\.finally\s*\(/, '.finally() — use .then(fn, fn) pattern'],
+  [/(?:^|[{;,\s])(?:const|let)\s+/m, 'const/let — use var'],
+  [/=>\s*[{(]/, 'arrow function — use function()'],
+  [/\?\.\s*[[(.]/, 'optional chaining (?.) — not ES5'],
+  [/\?\?/, 'nullish coalescing (??) — not ES5'],
+];
+
+function checkJsCompat(owner) {
+  const js = read(owner);
+  for (const [pattern, message] of ES5_VIOLATIONS) {
+    if (pattern.test(js)) {
+      errors.push(`${owner}: ES5 violation — ${message}`);
+    }
   }
 }
 
@@ -170,6 +195,25 @@ checkCss('css/style.css', read('css/style.css'));
 for (const file of ['js/script.js', 'universe.html']) {
   if (/\blocalStorage\s*\./.test(read(file))) {
     errors.push(`${file}: business code accesses localStorage directly`);
+  }
+}
+
+for (const jsFile of ['js/script.js', 'js/compat.js']) {
+  if (fs.existsSync(path.join(root, jsFile))) checkJsCompat(jsFile);
+}
+for (const jsFile of fs.readdirSync(path.join(root, 'js')).filter((f) => f.endsWith('.js'))) {
+  const full = `js/${jsFile}`;
+  if (!['js/script.js', 'js/compat.js'].includes(full) && fs.existsSync(path.join(root, full))) {
+    checkJsCompat(full);
+  }
+}
+
+for (const page of pages) {
+  if (page.startsWith('mc/')) continue;
+  const html = read(page);
+  if (!/<link[^>]+rel=["']preload["'][^>]+noto-serif-sc/i.test(html)
+    && !/<link[^>]+noto-serif-sc[^>]+rel=["']preload["']/i.test(html)) {
+    errors.push(`${page}: missing CJK font preload (noto-serif-sc)`);
   }
 }
 

@@ -201,7 +201,30 @@ def run(engine_names, quick):
                                 "() => document.documentElement.scrollWidth "
                                 "> document.documentElement.clientWidth + 1"
                             )
-                            if overflow or page_errors or bad_responses or broken_images:
+
+                            wechat_issues = []
+                            if mode_name == "wechat":
+                                wechat_ctx = page.evaluate(
+                                    "() => document.documentElement.dataset.browserContext"
+                                )
+                                if wechat_ctx != "wechat":
+                                    wechat_issues.append(
+                                        f"data-browser-context should be 'wechat', got '{wechat_ctx}'"
+                                    )
+                                compat_loaded = page.evaluate(
+                                    "() => typeof window.JueCompat === 'object' && window.JueCompat !== null"
+                                )
+                                if not compat_loaded:
+                                    wechat_issues.append("JueCompat not loaded")
+                                init_errors = page.evaluate(
+                                    "() => typeof window.__jueInitErrors !== 'undefined' ? window.__jueInitErrors : []"
+                                )
+                                if init_errors:
+                                    wechat_issues.append(
+                                        f"init errors: {init_errors}"
+                                    )
+
+                            if overflow or page_errors or bad_responses or broken_images or wechat_issues:
                                 issues.append(
                                     {
                                         "engine": engine_name,
@@ -209,7 +232,7 @@ def run(engine_names, quick):
                                         "viewport": f"{width}x{height}",
                                         "page": page_name,
                                         "overflow": overflow,
-                                        "errors": page_errors,
+                                        "errors": page_errors + wechat_issues,
                                         "responses": bad_responses,
                                         "images": broken_images,
                                     }

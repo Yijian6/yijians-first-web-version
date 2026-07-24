@@ -2,6 +2,15 @@
 (function (window, document) {
   'use strict';
 
+  window.onerror = function (msg, src, line, col, err) {
+    console.error('[global]', msg, src + ':' + line + ':' + col, err);
+  };
+  try {
+    window.addEventListener('unhandledrejection', function (e) {
+      console.error('[promise]', e.reason);
+    });
+  } catch (ignore) {}
+
   var root = document.documentElement;
   var storage = {
     get: function (key, fallback) {
@@ -149,10 +158,14 @@
     }
     opts.signal = controller.signal;
     var timer = window.setTimeout(function () { controller.abort(); }, timeout);
-    return window.fetch(input, opts).finally(function () {
+    function cleanup() {
       window.clearTimeout(timer);
       if (upstreamSignal) upstreamSignal.removeEventListener('abort', abortFromUpstream);
-    });
+    }
+    return window.fetch(input, opts).then(
+      function (res) { cleanup(); return res; },
+      function (err) { cleanup(); throw err; }
+    );
   }
 
   function collectImageDiagnostics() {
