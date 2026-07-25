@@ -1,12 +1,21 @@
+# 缓存策略取决于文件名会不会随内容变化。
+# 字体文件名带内容哈希（dm-sans-latin-300-8ca1b7.woff2），换内容就换 URL，
+# 所以可以 immutable 缓存一年。
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
+# style.css 和 script.js 是固定文件名，没有版本指纹。长 max-age 会让每次改动
+# 对老访客静默一周（2026-07-25 就踩过：中文斜体修复上线了但没人看得到）。
+# max-age=60 + must-revalidate 让浏览器带 ETag 发条件请求，命中就是 304，
+# 代价几百字节，改动立刻生效。
 /css/*
-  Cache-Control: public, max-age=604800
+  Cache-Control: public, max-age=60, must-revalidate
 
 /js/*
-  Cache-Control: public, max-age=604800
+  Cache-Control: public, max-age=60, must-revalidate
 
+# 图片同样是固定文件名，但照片基本不会原地替换，30 天的收益大于风险。
+# 真要换图，改文件名比改这里更稳妥。
 /*.png
   Cache-Control: public, max-age=2592000
 
