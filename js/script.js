@@ -623,7 +623,7 @@
 
     document.addEventListener('click', function (e) {
       var el = e.target && e.target.closest
-        ? e.target.closest('.timeline-screenshot, .stage-thumb')
+        ? e.target.closest('.timeline-screenshot, .stage-thumb, .case-stack-image')
         : null;
       if (!el) return;
       var img = el.querySelector('img');
@@ -2365,11 +2365,84 @@
       return d < 1 ? 1 : d;
     }
 
-    // friends' birthdays — placeholder names for now, month/day only (this is public source)
+    // friends' birthdays — month/day only, never the year (this is public source)
     var FRIENDS = {
-      '占位名一': '5月20日',
-      '占位名二': '11月3日'
+      '蒋睿': '12月31日',
+      '刘鑫媞': '4月24日',
+      '范家睿': '11月24日',
+      '杨瀚森': '1月27日'
     };
+
+    // One virtual tree drives both ls and cat. The root listing used to be a
+    // hand-written string, so it advertised values/ and passions/ that nothing
+    // could open. Deriving everything from FS makes that drift impossible.
+    var FS = {
+      'dreams.txt': [
+        '我在成为:',
+        '  01 清晰思考者： 把混乱问题整理成清晰结构',
+        '  02 问题定义者：先定义问题,再寻找答案',
+        '  03 英语信息输入者：把英语当作信息接口',
+        '  04 AI 协作者：用 AI 放大判断力,而不是替代思考',
+        '  05 工具创造者：把真实痛点做成可用工具',
+        '  06 清晰表达者：用写作整理思考',
+        '  07 长期学习者：让知识在多年里持续复利',
+        '  08 叙事一致者：让行动逐渐匹配所说的方向'
+      ],
+      'values/believe.txt': [
+        '我相信的事:',
+        '  01 做出来，比说出来更重要。“听懂了”只是开始，做到了才是真的知道。',
+        '  02 帮助别人就是帮助自己。分享所学，既能巩固知识，也能建立连接。',
+        '  03 工具为人服务。AI、代码、框架都是手段，解决问题才是目的。'
+      ],
+      'passions/passions.txt': [
+        '让我觉得活着很好的事:',
+        '  运动 — 从放学一直跑到自习课，躺在草坪上感受晚风',
+        '  数学 — 用简洁的符号描述广阔的世界',
+        '  阅读 — 书架上一半都是李笑来',
+        '  朋友 — 无朋友，不游戏',
+        '  自然 — 喜欢看着天空发呆，取之无尽',
+        '  完整的都在 Passion 那一页。'
+      ],
+      'friends/surprise.txt': [
+        ['你可以在输入框里直接输入你的名字试试,如果我记得你的话,这里会显示你的生日哦~', 't-accent']
+      ]
+    };
+
+    var FS_ROOT = ['values/', 'dreams.txt', 'passions/', 'friends/'];
+
+    function listDir(dir) {
+      var names = [];
+      for (var path in FS) {
+        if (!FS.hasOwnProperty(path)) continue;
+        var slash = path.indexOf('/');
+        if (slash > 0 && path.slice(0, slash) === dir) names.push(path.slice(slash + 1));
+      }
+      return names;
+    }
+
+    function isDir(name) { return listDir(name).length > 0; }
+
+    // Both `cat surprise.txt` and `cat friends/surprise.txt` should open, and
+    // `cat dreams` should still work without the extension.
+    function findFile(name) {
+      if (FS[name]) return name;
+      if (FS[name + '.txt']) return name + '.txt';
+      for (var path in FS) {
+        if (!FS.hasOwnProperty(path)) continue;
+        var slash = path.indexOf('/');
+        if (slash < 0) continue;
+        var base = path.slice(slash + 1);
+        if (base === name || base === name + '.txt') return path;
+      }
+      return '';
+    }
+
+    function catFile(path) {
+      FS[path].forEach(function (line) {
+        if (typeof line === 'string') echo(line);
+        else echo(line[0], line[1]);
+      });
+    }
 
     function run(raw) {
       var cmd = raw.trim();
@@ -2392,32 +2465,27 @@
       } else if (head === 'uptime') {
         echo('已持续构建 ' + uptimeDays() + ' 天（自 2026-05-08，仍在运行）');
       } else if (head === 'ls') {
-        var dir = (parts[1] || '').replace(/\/$/, '');
-        if (dir === 'friends') {
-          echo('surprise.txt');
-        } else if (!dir) {
-          echo('values/   dreams.txt   passions/   friends/');
+        var target = (parts[1] || '').replace(/\/$/, '');
+        if (!target) {
+          echo(FS_ROOT.join('   '));
+        } else if (isDir(target)) {
+          echo(listDir(target).join('   '));
+        } else if (findFile(target)) {
+          echo(target);
         } else {
-          echo('ls: ' + dir + ': 没有这个目录');
+          echo('ls: ' + target + ': 没有这个目录');
         }
       } else if (head === 'cat') {
-        var file = parts[1] || '';
-        if (file === 'dreams.txt' || file === 'dreams') {
-          echo('我在成为:');
-          echo('  01 清晰思考者： 把混乱问题整理成清晰结构');
-          echo('  02 问题定义者：先定义问题,再寻找答案');
-          echo('  03 英语信息输入者：把英语当作信息接口');
-          echo('  04 AI 协作者：用 AI 放大判断力,而不是替代思考');
-          echo('  05 工具创造者：把真实痛点做成可用工具');
-          echo('  06 清晰表达者：用写作整理思考');
-          echo('  07 长期学习者：让知识在多年里持续复利');
-          echo('  08 叙事一致者：让行动逐渐匹配所说的方向');
-        } else if (file === 'friends/surprise.txt' || file === 'surprise.txt') {
-          echo('你可以在输入框里直接输入你的名字试试,如果我记得你的话,这里会显示你的生日哦~', 't-accent');
-        } else if (!file) {
+        var file = (parts[1] || '').replace(/\/$/, '');
+        var found = file ? findFile(file) : '';
+        if (!file) {
           echo('cat: 想读哪个文件？试试 cat dreams.txt');
+        } else if (found) {
+          catFile(found);
+        } else if (isDir(file)) {
+          echo('cat: ' + file + ': 这是一个目录。试试 ls ' + file);
         } else {
-          echo('cat: ' + file + ': 没有这个文件。试试 cat dreams.txt');
+          echo('cat: ' + file + ': 没有这个文件。输入 ls 看看有什么。');
         }
       } else if (head === 'sudo') {
         echo('权限不需要~我们已经是朋友啦。', 't-accent');
