@@ -4331,6 +4331,15 @@ img[data-media-fit="contain"] {
    PASSION PAGE — Editorial Magazine Flow
 ========================================================= */
 
+/* One shared measure for every media block on this page.
+   Before this existed each section hard-coded its own max-width
+   (280/370/380/480/520/576/800px), so nothing lined up on desktop. */
+.pe-page {
+  --pe-media-max: 640px;                  /* single-image blocks */
+  --pe-grid-max: 1040px;                  /* 3-up gallery row */
+  --pe-cell-h: clamp(300px, 38vh, 420px); /* gallery cell height */
+}
+
 /* --- Hero --- */
 .pe-hero {
   min-height: 42vh;
@@ -4410,126 +4419,6 @@ img[data-media-fit="contain"] {
   object-position: center 30%;
 }
 
-.pe-bleed--dim {
-  min-height: 50vh;
-  min-height: 50dvh;
-  align-items: center;
-  justify-content: center;
-}
-
-.pe-bleed--dim > img {
-  filter: brightness(0.3);
-}
-
-.pe-bleed-color {
-  position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
-  inset: 0;
-}
-
-.pe-bleed-overlay {
-  position: relative;
-  z-index: 1;
-  padding: clamp(32px, 6vw, 80px);
-  background: linear-gradient(to top, rgba(12,14,11,0.85) 0%, rgba(12,14,11,0.4) 60%, transparent 100%);
-  width: 100%;
-}
-
-.pe-bleed-overlay--center {
-  background: none;
-  text-align: center;
-  padding: clamp(40px, 8vw, 100px);
-}
-
-.pe-bleed-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gold);
-  display: block;
-  margin-bottom: 16px;
-}
-
-.pe-bleed-overlay h2 {
-  font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 48px);
-  font-weight: 400;
-  line-height: 1.4;
-  color: var(--white);
-  max-width: 600px;
-}
-
-.pe-bleed-overlay--center h2 {
-  margin: 0 auto 20px;
-}
-
-.pe-bleed-sub {
-  font-size: clamp(14px, 1.6vw, 17px);
-  color: var(--white-60);
-  line-height: 1.8;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-/* --- Narrative text sections --- */
-.pe-narrative {
-  padding: clamp(60px, 10vh, 120px) var(--side-pad);
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.pe-narrative-inner {
-  max-width: 560px;
-}
-
-.pe-narrative--offset-right .pe-narrative-inner {
-  margin-left: auto;
-}
-
-.pe-narrative--offset-left .pe-narrative-inner {
-  margin-right: auto;
-}
-
-.pe-narrative--center .pe-narrative-inner {
-  margin: 0 auto;
-  text-align: center;
-}
-
-.pe-tag {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--gold);
-  display: block;
-  margin-bottom: 16px;
-}
-
-.pe-narrative h3 {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 4vw, 44px);
-  font-weight: 400;
-  line-height: 1.2;
-  color: var(--white);
-  margin-bottom: 20px;
-}
-
-.pe-narrative p {
-  font-size: clamp(15px, 1.6vw, 17px);
-  color: var(--white-60);
-  line-height: 1.9;
-}
-
-.pe-narrative-note {
-  font-size: clamp(14px, 1.4vw, 16px);
-  color: var(--white-30);
-  line-height: 1.9;
-  font-style: italic;
-}
-
 /* --- Moment blocks (centered content) --- */
 .pe-moment {
   max-width: 720px;
@@ -4558,14 +4447,22 @@ img[data-media-fit="contain"] {
   margin-bottom: 0;
 }
 
+/* Display line under a figure — used where a quote used to sit on top of a
+   cropped photo. Written after .pe-moment p so it wins on colour/size. */
+.pe-moment p.pe-quote-line {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.2vw, 36px);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--white);
+  margin-top: clamp(24px, 4vh, 40px);
+  margin-bottom: 0;
+}
+
 /* --- Great Wall memory (portrait archive image) --- */
 .pe-great-wall {
   padding-top: clamp(64px, 10vh, 120px);
   padding-bottom: clamp(64px, 10vh, 120px);
-}
-
-.pe-great-wall .pe-tag {
-  margin-bottom: 18px;
 }
 
 .pe-great-wall h3 {
@@ -4580,16 +4477,19 @@ img[data-media-fit="contain"] {
   margin-right: auto;
 }
 
-.pe-great-wall-figure {
-  width: min(100%, 480px);
-  margin: clamp(32px, 5vh, 56px) auto 0;
+/* Shared frame for every single-image block on this page.
+   One measure, one border, one shadow — so the vertical narrative
+   reads as a single column instead of eight unrelated widths. */
+.pe-figure {
+  width: min(100%, var(--pe-media-max));
+  margin: clamp(28px, 5vh, 52px) auto 0;
   border: 1px solid var(--white-10);
   background: var(--bg-surface);
   box-shadow: 0 18px 56px rgba(0, 0, 0, 0.32);
   overflow: hidden;
 }
 
-.pe-great-wall-figure img {
+.pe-figure img {
   display: block;
   width: 100%;
   height: auto;
@@ -4599,10 +4499,6 @@ img[data-media-fit="contain"] {
 .pe-library {
   padding-top: clamp(64px, 10vh, 120px);
   padding-bottom: clamp(40px, 6vh, 72px);
-}
-
-.pe-library .pe-tag {
-  margin-bottom: 18px;
 }
 
 .pe-library h3 {
@@ -4617,29 +4513,10 @@ img[data-media-fit="contain"] {
   margin-right: auto;
 }
 
-.pe-library-figure {
-  width: min(100%, 520px);
-  margin: clamp(28px, 4vh, 44px) auto 0;
-  border: 1px solid var(--white-10);
-  background: var(--bg-surface);
-  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.32);
-  overflow: hidden;
-}
-
-.pe-library-figure img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
 /* --- Mathematics archive note --- */
 .pe-math {
   padding-top: clamp(64px, 10vh, 120px);
   padding-bottom: clamp(64px, 10vh, 120px);
-}
-
-.pe-math .pe-tag {
-  margin-bottom: 18px;
 }
 
 .pe-math h3 {
@@ -4651,28 +4528,6 @@ img[data-media-fit="contain"] {
 .pe-math > p {
   max-width: 560px;
   margin: 0 auto;
-}
-
-.pe-math-figure {
-  width: min(100%, 720px);
-  margin: clamp(28px, 5vh, 52px) auto 0;
-  border: 1px solid var(--white-10);
-  background: var(--bg-surface);
-  box-shadow: 0 18px 56px rgba(0, 0, 0, 0.32);
-  overflow: hidden;
-}
-
-.pe-math-figure img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.pe-moment-badge {
-  display: block;
-  margin: 0 auto 32px;
-  width: clamp(140px, 25vw, 200px);
-  filter: drop-shadow(0 0 24px rgba(168, 204, 136, 0.15));
 }
 
 .pe-moment-cover {
@@ -4708,6 +4563,9 @@ img[data-media-fit="contain"] {
   .pe-moment-images {
     flex-direction: row;
     align-items: flex-start;
+    max-width: var(--pe-media-max);
+    margin-left: auto;
+    margin-right: auto;
   }
   .pe-moment-images img {
     flex: 1 1 0;
@@ -4720,41 +4578,34 @@ img[data-media-fit="contain"] {
   padding-bottom: 0;
 }
 
-/* --- Banner (full-width image with text overlay) --- */
+/* --- Banner (badge shown whole, never cropped) ---
+   The source is only 390px wide, so 360px is the largest size that
+   still reads sharp on a 2x screen. box-sizing is border-box globally,
+   hence the padding is added into max-width to keep the image net 360px. */
 .pe-banner {
-  position: relative;
   width: 100%;
-  max-width: 800px;
+  max-width: calc(360px + 2 * var(--side-pad));
   margin: 0 auto;
-  aspect-ratio: 2 / 1;
-  overflow: hidden;
+  padding: 0 var(--side-pad);
 }
-.pe-banner > img[data-media-fit="cover"] {
-  position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
-  inset: 0;
+.pe-banner > img[data-media-fit="natural"] {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center center;
+  height: auto;
 }
-.pe-banner-text {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  text-align: center;
-  padding: 48px var(--side-pad) clamp(16px, 3vh, 28px);
-  background: linear-gradient(to top, rgba(12,14,11,0.85) 0%, transparent 100%);
-  font-size: clamp(14px, 1.5vw, 16px);
-  color: var(--white-60);
-  line-height: 1.6;
-}
-
 /* --- Compact bleed variant --- */
 .pe-bleed--compact {
   min-height: 40vh;
   min-height: 40dvh;
+}
+
+/* It is a wide crop of a landscape photo — give it room on a large screen.
+   60vh matches what .pe-bleed already gets at <=1024px, so widening the
+   window past that breakpoint does not make the band suddenly shrink. */
+@media (min-width: 1025px) {
+  .pe-bleed--compact {
+    min-height: 60vh;
+    min-height: 60dvh;
+  }
 }
 
 /* --- Horizontal scroll gallery --- */
@@ -4784,147 +4635,54 @@ img[data-media-fit="contain"] {
   margin: 0;
 }
 
+/* No border here on purpose: 跑步2 is a black-background badge screenshot,
+   and a hairline around it reads as an empty box on a dark page. */
 .pe-gallery-item img[data-media-fit="natural"] {
   width: 100%;
   height: auto;
   aspect-ratio: auto;
   object-fit: contain;
-  border: 1px solid var(--white-10);
   transition: transform 0.6s var(--ease-out-expo);
-}
-
-@media (min-width: 769px) {
-  .pe-gallery-item {
-    width: clamp(280px, 30vw, 380px);
-  }
 }
 
 .pe-gallery-item:hover img {
   transform: scale(1.02);
 }
 
-/* --- Split image + text --- */
-.pe-split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: clamp(40px, 6vh, 80px) var(--side-pad);
-  gap: clamp(24px, 4vw, 60px);
-  align-items: center;
-}
-
-.pe-split-image {
-  overflow: hidden;
-}
-
-.pe-split-image img[data-media-fit="cover"] {
-  width: 100%;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border: 1px solid var(--white-10);
-  transition: transform 0.6s var(--ease-out-expo);
-}
-
-.pe-split:hover .pe-split-image img {
-  transform: scale(1.02);
-}
-
-.pe-split-text .pe-tag {
-  margin-bottom: 12px;
-}
-
-.pe-split-text h3 {
-  font-family: var(--font-display);
-  font-size: clamp(24px, 3vw, 36px);
-  font-weight: 400;
-  color: var(--white);
-  margin-bottom: 16px;
-}
-
-.pe-split-text p {
-  font-size: clamp(14px, 1.4vw, 16px);
-  color: var(--white-60);
-  line-height: 1.9;
-}
-
-/* --- Breathing space --- */
-.pe-breath {
-  padding: clamp(80px, 14vh, 160px) var(--side-pad);
-  text-align: center;
-}
-
-.pe-breath p {
-  font-family: var(--font-display);
-  font-size: clamp(22px, 3.5vw, 38px);
-  font-weight: 400;
-  font-style: italic;
-  line-height: 1.5;
-  color: var(--white-60);
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.pe-breath--small {
-  padding: clamp(40px, 8vh, 80px) var(--side-pad);
-}
-
-.pe-breath--small p {
-  font-size: clamp(15px, 2vw, 20px);
-  color: var(--white-30);
-}
-
-/* --- Books editorial --- */
-.pe-books {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 var(--side-pad) clamp(40px, 6vh, 80px);
-}
-
-.pe-book-item {
-  padding: clamp(28px, 4vw, 44px) 0;
-  border-bottom: 1px solid var(--white-10);
-}
-
-.pe-book-item:first-child {
-  border-top: 1px solid var(--white-10);
-}
-
-.pe-book-meta {
-  display: flex;
-  align-items: baseline;
-  gap: 16px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-}
-
-.pe-book-num {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--gold);
-}
-
-.pe-book-meta h4 {
-  font-family: var(--font-display);
-  font-size: clamp(18px, 2.2vw, 24px);
-  font-weight: 400;
-  color: var(--white);
-}
-
-.pe-book-author {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  color: var(--white-30);
-}
-
-.pe-book-item > p {
-  font-size: clamp(14px, 1.4vw, 16px);
-  color: var(--white-60);
-  line-height: 1.9;
-  max-width: 640px;
+/* Desktop: a centred 3-up grid, not a left-aligned scroll track.
+   The cell is uniform; the image is mounted inside it at its true ratio
+   (same technique as .stage-thumb, line ~1435). That is the only way to get
+   an aligned row here — these are badges/screenshots/photos, which
+   media-policy forbids cropping, and the smoke test enforces the real ratio.
+   Must stay after the :hover rule above so the centring transform wins. */
+@media (min-width: 769px) {
+  .pe-gallery-track {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(16px, 2vw, 28px);
+    max-width: calc(var(--pe-grid-max) + 2 * var(--side-pad));
+    margin: 0 auto;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .pe-gallery-item {
+    width: auto;
+    height: var(--pe-cell-h);
+    position: relative;
+  }
+  .pe-gallery-item img[data-media-fit="natural"] {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+  }
+  .pe-gallery-item:hover img[data-media-fit="natural"] {
+    transform: translate(-50%, -50%) scale(1.02);
+  }
 }
 
 /* --- Book covers pair --- */
@@ -4945,59 +4703,6 @@ img[data-media-fit="contain"] {
 }
 .pe-book-covers img:hover {
   transform: translateY(-4px);
-}
-
-/* --- Wide gallery variant (landscape images) --- */
-.pe-gallery-item--wide {
-  width: clamp(300px, 55vw, 520px);
-}
-.pe-gallery-item--wide img[data-media-fit="cover"] {
-  aspect-ratio: 16 / 9;
-}
-
-/* --- Evidence / Learning cards --- */
-.pe-evidence {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 var(--side-pad) clamp(40px, 6vh, 80px);
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  gap: 1px;
-  background: var(--white-10);
-  border: 1px solid var(--white-10);
-}
-
-.pe-evidence-item {
-  background: var(--bg);
-  padding: clamp(24px, 3vw, 36px);
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  transition: background 0.4s ease;
-}
-
-.pe-evidence-item:hover {
-  background: var(--bg-surface);
-}
-
-.pe-evidence-icon {
-  font-size: 24px;
-  flex-shrink: 0;
-  line-height: 1;
-}
-
-.pe-evidence-item h4 {
-  font-family: var(--font-display);
-  font-size: clamp(16px, 1.8vw, 20px);
-  font-weight: 400;
-  color: var(--white);
-  margin-bottom: 8px;
-}
-
-.pe-evidence-item p {
-  font-size: clamp(13px, 1.3vw, 14px);
-  color: var(--white-60);
-  line-height: 1.8;
 }
 
 /* --- Thematic divider between section groups --- */
@@ -5050,7 +4755,6 @@ img[data-media-fit="contain"] {
 /* --- Responsive: Tablet (≤1024px) --- */
 @media (max-width: 1024px) {
   .pe-bleed { min-height: 60vh; }
-  .pe-gallery-item { width: clamp(220px, 50vw, 360px); }
 }
 
 /* --- Responsive: Mobile (≤768px) --- */
@@ -5060,24 +4764,7 @@ img[data-media-fit="contain"] {
   .pe-watermark { font-size: clamp(120px, 35vw, 200px); }
 
   .pe-bleed { min-height: 50vh; min-height: 50dvh; }
-  .pe-bleed--dim { min-height: 40vh; }
   .pe-bleed--compact { min-height: 35vh; min-height: 35dvh; }
-
-  .pe-narrative { padding: clamp(40px, 8vh, 80px) var(--side-pad); }
-  .pe-narrative--offset-right .pe-narrative-inner,
-  .pe-narrative--offset-left .pe-narrative-inner {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  .pe-split {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .pe-split-image img[data-media-fit="cover"] {
-    aspect-ratio: 16 / 10;
-  }
 
   .pe-gallery-track {
     display: grid;
@@ -5093,7 +4780,6 @@ img[data-media-fit="contain"] {
   }
 
   .pe-moment { padding: clamp(36px, 7vh, 64px) var(--side-pad); }
-  .pe-moment-badge { width: 50vw; max-width: 220px; }
 
   .pe-moment-images {
     margin-left: calc(-1 * var(--side-pad));
@@ -5102,18 +4788,6 @@ img[data-media-fit="contain"] {
   .pe-moment-images img { border-radius: 0; }
 
   .pe-book-covers img { width: clamp(110px, 32vw, 160px); }
-
-  .pe-breath { padding: clamp(48px, 10vh, 80px) var(--side-pad); }
-  .pe-breath p { font-size: clamp(20px, 5vw, 28px); }
-
-  .pe-evidence {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* --- Responsive: Small phone (≤480px) --- */
-@media (max-width: 480px) {
-  .pe-bleed-overlay h2 { font-size: clamp(20px, 5.5vw, 28px); }
 }
 
 /* =========================================================
@@ -6102,8 +5776,7 @@ img[data-media-fit="contain"] {
   .offer-card:hover,
   .me-card:hover,
   .info-card:hover,
-  .sport-card:hover,
-  .pe-evidence-item:hover {
+  .sport-card:hover {
     background: var(--bg);
   }
   .offer-card:hover::after,
@@ -6131,11 +5804,12 @@ img[data-media-fit="contain"] {
   .sport-card:hover .sport-gallery img,
   .sport-featured:hover .sport-hero img,
   .sport-featured:hover .sport-gallery-grid img,
-  .pe-gallery-item:hover img,
-  .pe-split:hover .pe-split-image img,
   .pe-book-covers img:hover {
     transform: none;
   }
+  /* Gallery images are absolutely centred on desktop — zeroing the transform
+     would drop them to the corner, so the desktop case is handled separately. */
+  .pe-gallery-item:hover img { transform: none; }
   .me-card-decompose:not(.is-decomposed):hover::before { opacity: 0; }
   .me-card-decompose:not(.is-decomposed):hover .dc-char,
   .me-card-decompose:not(.is-decomposed):hover .dc-chai .chai-a,
@@ -6154,6 +5828,14 @@ img[data-media-fit="contain"] {
   button:active,
   [role="button"]:active {
     opacity: 0.78;
+  }
+}
+
+/* Desktop gallery images are absolutely centred, so the reduced-motion
+   reset above has to keep the centring translate and drop only the scale. */
+@media (prefers-reduced-motion: reduce) and (min-width: 769px) {
+  .pe-gallery-item:hover img[data-media-fit="natural"] {
+    transform: translate(-50%, -50%);
   }
 }
 
@@ -6183,8 +5865,6 @@ img[data-media-fit="contain"] {
   .sport-image img { position: absolute; top: 0; left: 0; }
   .pe-bleed { padding-top: 62.5%; position: relative; }
   .pe-bleed > img { position: absolute; top: 0; left: 0; }
-  .pe-banner { padding-top: 50%; }
-  .pe-gallery-item img[data-media-fit="cover"] { height: 280px; }
 }
 
 @supports not (backdrop-filter: blur(1px)) {
