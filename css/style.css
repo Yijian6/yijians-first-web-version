@@ -3637,7 +3637,27 @@ img[data-media-fit="contain"] {
   color: var(--gold);
 }
 
-/* — 触屏设备：可点击暗示常驻（hover 在手机上不存在）—— */
+/* 入场教学动画（全端）：滚入视口时箭头闪橙滑入、左侧色条生长再收回 */
+.home-nav-item.revealed::after {
+  animation: navArrowTeach 1.3s var(--ease-out-expo) backwards;
+}
+
+.home-nav-item.revealed::before {
+  animation: navBarTeach 1.3s var(--ease-out-expo) backwards;
+}
+
+.home-nav-item.delay-1.revealed::after,
+.home-nav-item.delay-1.revealed::before { animation-delay: 0.10s; }
+.home-nav-item.delay-2.revealed::after,
+.home-nav-item.delay-2.revealed::before { animation-delay: 0.24s; }
+.home-nav-item.delay-3.revealed::after,
+.home-nav-item.delay-3.revealed::before { animation-delay: 0.38s; }
+.home-nav-item.delay-4.revealed::after,
+.home-nav-item.delay-4.revealed::before { animation-delay: 0.52s; }
+.home-nav-item.delay-5.revealed::after,
+.home-nav-item.delay-5.revealed::before { animation-delay: 0.66s; }
+
+/* — 触屏设备：箭头常驻可见（hover 在手机上不存在）—— */
 @media (hover: none) {
   .home-nav-item::after {
     opacity: 1;
@@ -3654,27 +3674,6 @@ img[data-media-fit="contain"] {
   .home-nav-item:active::before {
     transform: scaleY(1);
   }
-
-  /* 入场教学动画：滚入视口时箭头闪橙滑入、左侧色条生长再收回，
-     一次性示范「这些行可以点」 */
-  .home-nav-item.revealed::after {
-    animation: navArrowTeach 1.3s var(--ease-out-expo) backwards;
-  }
-
-  .home-nav-item.revealed::before {
-    animation: navBarTeach 1.3s var(--ease-out-expo) backwards;
-  }
-
-  .home-nav-item.delay-1.revealed::after,
-  .home-nav-item.delay-1.revealed::before { animation-delay: 0.10s; }
-  .home-nav-item.delay-2.revealed::after,
-  .home-nav-item.delay-2.revealed::before { animation-delay: 0.24s; }
-  .home-nav-item.delay-3.revealed::after,
-  .home-nav-item.delay-3.revealed::before { animation-delay: 0.38s; }
-  .home-nav-item.delay-4.revealed::after,
-  .home-nav-item.delay-4.revealed::before { animation-delay: 0.52s; }
-  .home-nav-item.delay-5.revealed::after,
-  .home-nav-item.delay-5.revealed::before { animation-delay: 0.66s; }
 }
 
 @keyframes navArrowTeach {
@@ -4705,6 +4704,17 @@ img[data-media-fit="contain"] {
   border: 1px solid var(--white-10);
 }
 
+@media (min-width: 769px) {
+  .pe-moment-images {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .pe-moment-images img {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
 /* --- Moment slim variant (section intro, reduced bottom padding) --- */
 .pe-moment--slim {
   padding-bottom: 0;
@@ -4781,6 +4791,12 @@ img[data-media-fit="contain"] {
   object-fit: contain;
   border: 1px solid var(--white-10);
   transition: transform 0.6s var(--ease-out-expo);
+}
+
+@media (min-width: 769px) {
+  .pe-gallery-item {
+    width: clamp(280px, 30vw, 380px);
+  }
 }
 
 .pe-gallery-item:hover img {
@@ -5340,41 +5356,46 @@ img[data-media-fit="contain"] {
   }
 }
 
-/* ============ FOOTER NEXT-PAGE HINT (mobile only) ============ */
+/* ============ FOOTER NEXT-PAGE HINT ============ */
 .footer-next {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 40px var(--side-pad) 48px;
+    text-decoration: none;
+    border-top: 1px solid var(--white-05);
 }
 
-@media (max-width: 768px) {
-    .footer-next {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-        padding: 40px var(--side-pad) 48px;
-        text-decoration: none;
-        border-top: 1px solid var(--white-05);
-    }
+.footer-next-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--white-60);
+    text-transform: uppercase;
+}
 
-    .footer-next-label {
-        font-family: var(--font-mono);
-        font-size: 10px;
-        letter-spacing: 0.2em;
-        color: var(--white-30);
-        text-transform: uppercase;
-    }
+.footer-next-target {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: var(--white);
+    transition: color 0.3s ease;
+}
 
-    .footer-next-target {
-        font-family: var(--font-mono);
-        font-size: 14px;
-        letter-spacing: 0.08em;
-        color: var(--white-60);
-        transition: color 0.3s ease;
-    }
+.footer-next-target::after {
+    content: ' →';
+    display: inline-block;
+    transition: transform 0.3s var(--ease-out-expo);
+}
 
-    .footer-next:active .footer-next-target {
-        color: var(--gold);
-    }
+.footer-next:hover .footer-next-target,
+.footer-next:active .footer-next-target {
+    color: var(--gold);
+}
+
+.footer-next:hover .footer-next-target::after {
+    transform: translateX(4px);
 }
 
 /* Ghost variant — hidden page entry, visible on ALL viewports */
