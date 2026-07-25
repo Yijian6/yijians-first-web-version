@@ -119,6 +119,47 @@
             line-height: 1.7;
         }
 
+        /* 宽幅案例：图在上、文字在下。
+           表格截图原生 967px 宽，让它接近原生尺寸显示才读得清，
+           所以不套用左右分栏——分栏会把图压到一半宽度。 */
+        .case-stack {
+            margin-top: 40px;
+        }
+
+        .case-stack-image {
+            /* 截图原生 967px 宽。上限就卡在原生宽度：放大会让密集的表格文字发虚。 */
+            max-width: 967px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--white-10);
+            cursor: zoom-in;
+        }
+
+        .case-stack-image img[data-media-fit="natural"] {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .case-stack-info {
+            max-width: 680px;
+            margin: 32px auto 0;
+        }
+
+        .case-stack-info h3 {
+            font-family: var(--font-display);
+            font-size: clamp(20px, 2.5vw, 24px);
+            color: var(--white);
+            margin-bottom: 12px;
+        }
+
+        .case-stack-info p {
+            font-size: 15px;
+            color: var(--white-60);
+            line-height: 1.8;
+        }
+
         @media (max-width: 768px) {
             .phone-grid {
                 grid-template-columns: 1fr;
@@ -127,6 +168,10 @@
 
             .phone-card-image {
                 max-width: 300px;
+            }
+
+            .case-stack-info {
+                margin-top: 24px;
             }
         }
     </style>
@@ -159,7 +204,7 @@
         <div class="detail-hero">
             <div>
                 <h1>举个栗子</h1>
-                <p>飞书机器人，实际跑起来长这样。</p>
+                <p>重复的活儿交出去之后，实际长这样。</p>
             </div>
         </div>
 
@@ -172,7 +217,7 @@
             </a>
 
             <h2>飞书 × AI 自动化</h2>
-            <p>这是我用 AI 接入飞书搭的两个机器人，都在实际运行中。</p>
+            <p>这是我用 AI 接入飞书搭的两个机器人，都常驻跑着，不用管。</p>
 
             <div class="phone-grid">
                 <div class="phone-card reveal">
@@ -193,6 +238,21 @@
                         <h3>群聊机器人</h3>
                         <p>在群里 @它就能对话，可以记住群成员、回复消息。接入大模型，24 小时在线。</p>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h2>只跑一次的脚本，也值得写</h2>
+            <p>自动化不一定是天天跑的流程。有些事只做一次，但自己动手要熬掉一整晚。</p>
+
+            <div class="case-stack reveal">
+                <div class="case-stack-image">
+                    <img src="offer-detail/train-transfer-plans.webp" alt="脚本算出的天津到乌鲁木齐火车中转方案对比表，按价格从 202 元排到 941 元" width="967" height="983" loading="lazy" decoding="async" data-media-fit="natural">
+                </div>
+                <div class="case-stack-info">
+                    <h3>一趟跨省火车怎么转，交给脚本去算</h3>
+                    <p>暑假从天津回乌鲁木齐，直达没票，只能中转。我让 Codex 帮我写了个脚本，去 12306 抓这几天几个可能中转城市的余票和票价，再把卧铺有没有、按学生票折算下来多少钱、总共要坐多久、换乘站留多少接续时间，放进同一张表里排序。跑完列出十二套方案，最便宜的 ¥202，最快的 28 小时半。这种活儿自己在 12306 上翻，一晚上都未必翻全。</p>
                 </div>
             </div>
         </div>
