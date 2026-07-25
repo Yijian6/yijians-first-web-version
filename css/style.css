@@ -282,6 +282,12 @@ a { color: var(--gold); text-decoration: none; cursor: pointer; }
 button { cursor: pointer; }
 img { max-width: 100%; display: block; }
 
+/* font-synthesis:none on :root keeps rendering deterministic, but it also kills
+   faux-italic — and Noto Serif SC ships no italic face, so every CJK <em> in a
+   headline rendered upright (Latin was fine, Lora has real italics). Re-enable
+   style synthesis only, so CJK emphasis slants again while faux-bold stays off. */
+em, i { font-synthesis: style; }
+
 img[data-media-fit="natural"],
 img[data-media-fit="contain"] {
   height: auto;
@@ -3812,27 +3818,6 @@ img[data-media-fit="contain"] {
   text-align: center;
 }
 
-/* --- Full-bleed image section --- */
-.pe-bleed {
-  position: relative;
-  width: 100%;
-  min-height: 80vh;
-  min-height: 80dvh;
-  overflow: hidden;
-  display: flex;
-  align-items: flex-end;
-}
-
-.pe-bleed > img[data-media-fit="cover"] {
-  position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 30%;
-}
-
 /* --- Moment blocks (centered content) --- */
 .pe-moment {
   max-width: 720px;
@@ -4006,22 +3991,6 @@ img[data-media-fit="contain"] {
   width: 100%;
   height: auto;
 }
-/* --- Compact bleed variant --- */
-.pe-bleed--compact {
-  min-height: 40vh;
-  min-height: 40dvh;
-}
-
-/* It is a wide crop of a landscape photo — give it room on a large screen.
-   60vh matches what .pe-bleed already gets at <=1024px, so widening the
-   window past that breakpoint does not make the band suddenly shrink. */
-@media (min-width: 1025px) {
-  .pe-bleed--compact {
-    min-height: 60vh;
-    min-height: 60dvh;
-  }
-}
-
 /* --- Horizontal scroll gallery --- */
 .pe-gallery {
   padding: clamp(20px, 3vh, 40px) 0;
@@ -4138,6 +4107,21 @@ img[data-media-fit="contain"] {
   max-width: 900px;
 }
 
+/* --- Showcase: one landscape photo at the emphasis measure ---
+   Same block machinery as any other .pe-moment; only the media cap widens,
+   so the photo lines up with the 3-up gallery grid instead of breaking out
+   of the page's column system. A 4:3 photo cannot be both full-bleed and
+   uncropped on a wide screen, and this page never crops. */
+.pe-moment--showcase {
+  max-width: calc(var(--pe-grid-max) + 2 * var(--side-pad));
+}
+
+/* .pe-figure is width: min(100%, var(--pe-media-max)) — repointing the
+   variable on the element is enough, no second width declaration. */
+.pe-figure--wide {
+  --pe-media-max: var(--pe-grid-max);
+}
+
 /* --- Closing section --- */
 .pe-close {
   padding: clamp(80px, 14vh, 160px) var(--side-pad);
@@ -4166,19 +4150,11 @@ img[data-media-fit="contain"] {
   display: block;
 }
 
-/* --- Responsive: Tablet (≤1024px) --- */
-@media (max-width: 1024px) {
-  .pe-bleed { min-height: 60vh; }
-}
-
 /* --- Responsive: Mobile (≤768px) --- */
 @media (max-width: 768px) {
   .pe-hero { min-height: 32vh; }
   .pe-hero h1 { font-size: clamp(36px, 10vw, 56px); }
   .pe-watermark { font-size: clamp(120px, 35vw, 200px); }
-
-  .pe-bleed { min-height: 50vh; min-height: 50dvh; }
-  .pe-bleed--compact { min-height: 35vh; min-height: 35dvh; }
 
   .pe-gallery-track {
     display: grid;
@@ -4200,6 +4176,16 @@ img[data-media-fit="contain"] {
     margin-right: calc(-1 * var(--side-pad));
   }
   .pe-moment-images img { border-radius: 0; }
+
+  /* Showcase photo stays edge to edge on a phone, same technique as
+     .pe-moment-images above. width:auto lets the negative margins expand it. */
+  .pe-figure--wide {
+    width: auto;
+    margin-left: calc(-1 * var(--side-pad));
+    margin-right: calc(-1 * var(--side-pad));
+    border-left: 0;
+    border-right: 0;
+  }
 
   .pe-book-covers img { width: clamp(110px, 32vw, 160px); }
 }
@@ -5230,11 +5216,6 @@ img[data-media-fit="contain"] {
   }
   .navbar,
   .mobile-menu { background: var(--bg); }
-}
-
-@supports not (aspect-ratio: 1 / 1) {
-  .pe-bleed { padding-top: 62.5%; position: relative; }
-  .pe-bleed > img { position: absolute; top: 0; left: 0; }
 }
 
 @supports not (backdrop-filter: blur(1px)) {
