@@ -10,6 +10,34 @@
   var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); };
   var compat = window.JueCompat || null;
 
+  /* 这次导航是不是后退/前进（含历史条目被重新加载的情况）。
+     这类导航浏览器会自己恢复滚动位置，所以必须跳过入场动画：否则
+     内容先空白、再从下方滑入，看起来就是页面「跳到开头又定位回来」。
+     bfcache 命中时不走这里，走文件末尾的 pageshow(persisted)。 */
+  var historyNavCache = null;
+  function isHistoryNav() {
+    if (historyNavCache !== null) return historyNavCache;
+    historyNavCache = false;
+    try {
+      var entries = performance.getEntriesByType && performance.getEntriesByType('navigation');
+      if (entries && entries.length && entries[0].type) {
+        historyNavCache = entries[0].type === 'back_forward';
+      } else if (performance.navigation) {
+        historyNavCache = performance.navigation.type === 2;   // 老浏览器：TYPE_BACK_FORWARD
+      }
+    } catch (e) {}
+    return historyNavCache;
+  }
+
+  /* 两帧后摘掉 no-entrance，之后正常滚动触发的动画照旧。 */
+  function releaseEntranceLock() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        $$('.no-entrance').forEach(function (el) { el.classList.remove('no-entrance'); });
+      });
+    });
+  }
+
   function storageGet(key, fallback) {
     return compat ? compat.storage.get(key, fallback) : fallback;
   }
@@ -190,7 +218,19 @@
       rootMargin: '0px 0px -60px 0px'
     });
 
+    // 后退/前进恢复时，已经落在视口里的元素直接置为终态、不过渡，
+    // 否则浏览器恢复好滚动位置后这些元素还要再滑入一次。
+    var histNav = isHistoryNav();
+    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+
     $$('.reveal, .reveal-left, .reveal-scale, .reveal-clip, .kinetic-text').forEach(function (el) {
+      if (histNav) {
+        var r = el.getBoundingClientRect();
+        if (r.bottom > 0 && r.top < vh) {
+          el.classList.add('no-entrance');
+          el.classList.add('revealed');
+        }
+      }
       observer.observe(el);
     });
 
@@ -266,6 +306,15 @@
   function initIntro() {
     var intro = $('#intro');
     var main = $('#main');
+
+    // 后退/前进：滚动位置已由浏览器恢复，直接呈现终态，不重播入场动画。
+    if (isHistoryNav() && main) {
+      if (intro) intro.style.display = 'none';
+      main.classList.add('no-entrance');
+      main.classList.remove('hidden');
+      main.classList.add('visible');
+      return;
+    }
 
     if (intro && main) {
       setTimeout(function () {
@@ -2408,7 +2457,16 @@
       ]
     };
 
-    var FS_ROOT = ['values/', 'dreams.txt', 'passions/', 'friends/'];
+    // 根目录列表从 FS 派生。上面那条注释本意就是「杜绝手写清单与真实文件漂移」，
+    // 但 FS_ROOT 当时仍是手写的数组，漂移照样可能发生 —— 现在真的派生了。
+    // 列出 文件夹/文件 的完整路径，访客一眼看到所有可读内容，不必逐个 ls 进去猜。
+    function rootPaths() {
+      var paths = [];
+      for (var path in FS) {
+        if (FS.hasOwnProperty(path)) paths.push(path);
+      }
+      return paths;
+    }
 
     function listDir(dir) {
       var names = [];
@@ -2467,7 +2525,8 @@
       } else if (head === 'ls') {
         var target = (parts[1] || '').replace(/\/$/, '');
         if (!target) {
-          echo(FS_ROOT.join('   '));
+          // 一行一条：终端在手机上很窄，拼成一行会在文件名中间折断。
+          rootPaths().forEach(function (path) { echo(path); });
         } else if (isDir(target)) {
           echo(listDir(target).join('   '));
         } else if (findFile(target)) {
@@ -2980,6 +3039,7 @@
       initBlackhole
     ];
     for (var i = 0; i < inits.length; i++) { safeInit(inits[i]); }
+    if (isHistoryNav()) releaseEntranceLock();
   });
 
   window.addEventListener('pageshow', function (e) {

@@ -752,6 +752,14 @@ img[data-media-fit="contain"] {
 .main.visible { opacity: 1; transform: translateY(0); }
 .main.hidden { display: none; }
 
+/* 后退/前进恢复时的逃生门（配合 js/script.js 的 isHistoryNav）。
+   浏览器已经把滚动位置恢复好了，此时再重播一次入场动画，用户会先看到
+   整页空白、再从下方 20px 滑回来 —— 观感就是「跳到开头又定位回来」。
+   带上这个类直接落到终态、不过渡；JS 两帧后摘掉它，之后正常滚动
+   触发的 reveal 动画照旧。放在 .main 和 .reveal* 之后，靠顺序取胜，
+   不需要 !important。 */
+.no-entrance { transition: none; }
+
 /* =========================================================
    SECTION: EPIC HERO (Home)
 ========================================================= */
@@ -3379,6 +3387,10 @@ img[data-media-fit="contain"] {
   overflow: hidden;
   border-top: 1px solid var(--white-10);
   border-bottom: 1px solid var(--white-10);
+  /* 暖调强度：0 = 中性黑白，1 = 强胶片暖褐。只调这一个数字。
+     0.28 极克制 / 0.38 克制 / 0.48 中等（当前）。再高脸会开始发红。
+     配套的 saturate 和 brightness 刻意压在中性附近——抬高它们会让脸「发热」。 */
+  --portrait-warmth: 0.48;
 }
 
 .home-portrait-wrapper {
@@ -3408,12 +3420,22 @@ img[data-media-fit="contain"] {
   object-fit: cover;
   object-position: center 50%;
   display: block;
-  filter: grayscale(30%) contrast(1.08) brightness(0.92);
+  filter:
+    sepia(var(--portrait-warmth))
+    saturate(1.28)
+    hue-rotate(-12deg)
+    brightness(1)
+    contrast(1.03);
   transition: filter 0.8s var(--ease-out-expo);
 }
 
 .home-portrait:hover .home-portrait-img {
-  filter: grayscale(0%) contrast(1.02) brightness(1);
+  filter:
+    sepia(var(--portrait-warmth))
+    saturate(1.4)
+    hue-rotate(-12deg)
+    brightness(1.04)
+    contrast(1.03);
 }
 
 .home-portrait-overlay {
@@ -3422,16 +3444,16 @@ img[data-media-fit="contain"] {
   inset: 0;
   background:
     linear-gradient(to bottom,
-      rgba(12, 14, 11, 0.9) 0%,
-      rgba(12, 14, 11, 0.3) 20%,
-      transparent 40%,
-      transparent 55%,
-      rgba(12, 14, 11, 0.5) 100%),
+      rgba(12, 14, 11, 0.45) 0%,
+      rgba(12, 14, 11, 0.14) 18%,
+      transparent 34%,
+      transparent 58%,
+      rgba(12, 14, 11, 0.45) 100%),
     linear-gradient(to right,
-      rgba(12, 14, 11, 0.3) 0%,
+      rgba(12, 14, 11, 0.22) 0%,
       transparent 20%,
       transparent 80%,
-      rgba(12, 14, 11, 0.3) 100%);
+      rgba(12, 14, 11, 0.22) 100%);
   pointer-events: none;
 }
 
@@ -5137,7 +5159,12 @@ img[data-media-fit="contain"] {
     filter: grayscale(20%) contrast(1.05);
   }
   .home-portrait:hover .home-portrait-img {
-    filter: grayscale(30%) contrast(1.08) brightness(0.92);
+    filter:
+      sepia(var(--portrait-warmth))
+      saturate(1.28)
+      hue-rotate(-12deg)
+      brightness(1)
+      contrast(1.03);
   }
   .offer-card:hover,
   .me-card:hover {
