@@ -367,7 +367,235 @@
   }
 
   /* -------------------------------------------------------
-     6. SCROLL PROGRESS BAR
+     6. BOOT — 田字格 · 一粒觉
+
+     开屏动画。只在 index.html 的 <head> 内联脚本判定「该播」时运行，
+     其余页面这个函数第一行就返回。
+
+     分工：遮罩是内联 CSS 的 html.boot-armed::before（必须随首绘存在），
+     舞台由这里注入，编排全在 css/style.css 的关键帧里。这里只做三件
+     离散的事，外加全部的自保。时间轴见 style.css 的 BOOT 段注释。
+  ------------------------------------------------------- */
+
+  /* 眼点位置是量出来的：把「觉」渲进 canvas，对「见」框内的非墨像素做
+     距离变换取最大内切圆。这几个常数是 Noto Serif SC 的度量指纹，
+     对不上就说明拿到的是回退字形 —— 那就不放这一粒，宁可少一笔，
+     也不要把它糊在错的地方。 */
+  var BOOT_FONT_FINGERPRINT = {
+    advance: 1.0,      // em，全角字宽
+    inkHeight: 0.9375, // em，墨迹高度（ascent + descent）
+    fontBox: 1.437     // em，fontBoundingBox ascent + descent
+  };
+
+  function bootNow() {
+    return (window.performance && performance.now) ? performance.now() : +new Date();
+  }
+
+  /* 度量闸门。返回眼点元素，或者 null（字体没到位 / 老内核没有
+     actualBoundingBox —— 恰好是最需要它准的那批平台）。 */
+  function bootEyeElement() {
+    try {
+      var cv = document.createElement('canvas');
+      var ctx = cv.getContext && cv.getContext('2d');
+      if (!ctx) return null;
+      ctx.font = '400 1000px "Noto Serif SC"';
+      var m = ctx.measureText('觉');
+      if (typeof m.actualBoundingBoxAscent !== 'number') return null;
+      if (typeof m.fontBoundingBoxAscent !== 'number') return null;
+
+      /* 刻意不看横向墨迹宽度：WebKit 的 actualBoundingBoxLeft/Right 返回的是
+         字宽而不是真实墨迹边界（「觉」实测 1.0em，Chromium/Firefox 是 0.9375/
+         0.925），拿它当指纹会在 iOS 上误判、把眼点静默去掉 —— 而 iOS 恰好是
+         手机端主战场。纵向度量和 fontBoundingBox 三引擎一致，够用了。
+         眼点位置本身是 CSS 里的静态 em 值，不依赖这里的任何数字。 */
+      var fp = BOOT_FONT_FINGERPRINT;
+      var inkH = (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) / 1000;
+      var fontBox = (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent) / 1000;
+      if (Math.abs(m.width / 1000 - fp.advance) > 0.02) return null;
+      if (Math.abs(inkH - fp.inkHeight) > 0.05) return null;
+      if (Math.abs(fontBox - fp.fontBox) > 0.06) return null;
+
+      var eye = document.createElement('span');
+      eye.className = 'boot-eye';
+      return eye;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function initBoot() {
+    var root = document.documentElement;
+    if (!root.classList.contains('boot-armed')) return;
+
+    var timers = [];
+    var finished = false;
+    var t0 = bootNow();
+
+    var SKIP_EVENTS = ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll'];
+
+    function stageEl() { return document.getElementById('bootStage'); }
+
+    function clearTimers() {
+      for (var i = 0; i < timers.length; i++) clearTimeout(timers[i]);
+      timers.length = 0;
+    }
+
+    function detachSkip() {
+      for (var i = 0; i < SKIP_EVENTS.length; i++) {
+        window.removeEventListener(SKIP_EVENTS[i], onSkip, true);
+      }
+    }
+
+    function cleanup() {
+      if (finished) return;
+      finished = true;
+      clearTimers();
+      detachSkip();
+      root.classList.remove('boot-armed');
+      root.classList.remove('boot-hold');
+      root.classList.remove('boot-out');
+      root.classList.remove('boot-out-fast');
+      var stage = stageEl();
+      if (stage && stage.parentNode) stage.parentNode.removeChild(stage);
+      markAwake();
+    }
+
+    /* 看门狗排在任何可能抛的代码之前。即使下面整段炸了，页面也会亮 ——
+       而 CSS 那条 6s 兜底负责连这个 setTimeout 都不存在的情况。 */
+    timers.push(setTimeout(cleanup, 4000));
+
+    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+
+    /* 跳过：不冻结子元素（animation:none 会让它们瞬间弹回基态），
+       而是整个舞台一起 320ms 淡出，下面照旧跑完。 */
+    function skip() {
+      if (finished) return;
+      detachSkip();
+      clearTimers();
+      timers.push(setTimeout(cleanup, 4000));
+      root.classList.remove('boot-hold');
+      root.classList.add('boot-out-fast');
+      var stage = stageEl();
+      if (stage) stage.classList.add('is-out');
+      markAwake();
+      later(cleanup, 320);
+    }
+
+    function onSkip() { skip(); }
+
+    function attachSkip() {
+      for (var i = 0; i < SKIP_EVENTS.length; i++) {
+        try {
+          window.addEventListener(SKIP_EVENTS[i], onSkip, { passive: true, capture: true });
+        } catch (e) {
+          window.addEventListener(SKIP_EVENTS[i], onSkip, true);
+        }
+      }
+    }
+
+    /* 眼点 1060ms 才出场，所以字体可以慢慢等，但最迟 900ms 必须定下来。
+       晚到就按已经流逝的时间把 animation-delay 补回去，保证它仍然
+       精确落在 1060ms —— 元素插入时刻才是它自己动画的零点。 */
+    var eyeSettled = false;
+
+    function settleEye(force) {
+      if (eyeSettled || finished) return;
+      var glyph = document.querySelector('.boot-glyph');
+      if (!glyph) return;
+      var eye = bootEyeElement();
+      if (!eye) {
+        if (force) eyeSettled = true;
+        return;
+      }
+      eyeSettled = true;
+      eye.style.animationDelay = Math.max(0, 1060 - (bootNow() - t0)) + 'ms';
+      glyph.appendChild(eye);
+    }
+
+    function buildStage() {
+      var vw = window.innerWidth || root.clientWidth || 360;
+      var vh = window.innerHeight || root.clientHeight || 640;
+      // 不用 CSS min()，规避老 X5 内核。
+      var box = vw >= 769
+        ? Math.min(vw * 0.46, vh * 0.52)
+        : Math.min(vw * 0.74, vh * 0.40);
+
+      var stage = document.createElement('div');
+      stage.id = 'bootStage';
+      stage.className = 'boot-stage';
+      stage.setAttribute('aria-hidden', 'true');
+      /* 必须设在 stage 自己身上，不能设在 :root —— .boot-stage 规则里那条
+         --boot-box 兜底声明会遮蔽继承值，字框就永远是兜底的 240px。
+         内联样式压过规则声明，这样兜底仍然有效、JS 又能真的改。 */
+      stage.style.setProperty('--boot-box', Math.round(box) + 'px');
+
+      var bloom = document.createElement('div');
+      bloom.className = 'boot-bloom';
+      stage.appendChild(bloom);
+
+      var frame = document.createElement('div');
+      frame.className = 'boot-frame';
+      var parts = [
+        'boot-edge boot-edge-t', 'boot-edge boot-edge-b',
+        'boot-edge boot-edge-l', 'boot-edge boot-edge-r',
+        'boot-rule boot-rule-h', 'boot-rule boot-rule-v'
+      ];
+      for (var i = 0; i < parts.length; i++) {
+        var part = document.createElement('div');
+        part.className = parts[i];
+        frame.appendChild(part);
+      }
+      stage.appendChild(frame);
+
+      var wrap = document.createElement('div');
+      wrap.className = 'boot-glyph-wrap';
+      var glyph = document.createElement('div');
+      glyph.className = 'boot-glyph';
+      glyph.textContent = '觉';
+      wrap.appendChild(glyph);
+      stage.appendChild(wrap);
+
+      document.body.appendChild(stage);
+    }
+
+    try {
+      buildStage();
+    } catch (e) {
+      console.error('[boot]', e);
+      cleanup();
+      return;
+    }
+
+    settleEye(false);
+    try {
+      if (document.fonts && document.fonts.load) {
+        // 不用 .finally（ES5 检查拦），也不用 .ready
+        // （reject 会被 compat.js 的全局 unhandledrejection 转成 console.error）。
+        document.fonts.load('400 1em "Noto Serif SC"', '觉').then(
+          function () { settleEye(false); },
+          function () { settleEye(false); }
+        );
+      }
+    } catch (e) {}
+    later(function () { settleEye(true); }, 900);
+
+    attachSkip();
+
+    // 800ms：页面在遮罩背后开始进场，同时放开 reveal 观察器和打字机。
+    // 到 1420ms 揭幕时它已经基本落定，不会让人看着半透明的标题往上滑。
+    later(function () {
+      root.classList.remove('boot-hold');
+      markAwake();
+    }, 800);
+
+    // 1420ms：遮罩开始散。字和暖芒由自己的关键帧同步淡出（87.3% → 100%）。
+    later(function () { root.classList.add('boot-out'); }, 1420);
+
+    later(cleanup, 1560);
+  }
+
+  /* -------------------------------------------------------
+     6b. SCROLL PROGRESS BAR
   ------------------------------------------------------- */
   function initProgress() {
     var bar = $('.progress-bar');
@@ -3059,7 +3287,8 @@
   document.addEventListener('DOMContentLoaded', function () {
     var inits = [
       // initPageEnter 必须最先跑：它是唯一让 #main 可见的地方。
-      initPageEnter,
+      // initBoot 紧随其后：它要在别人开始动之前接管进场时机。
+      initPageEnter, initBoot,
       initCursor, initKineticText, initReveal, initMagnetic,
       initProgress, initHamburger, initMenuHint,
       initActiveNav, initOfferWheel, initOfferDial, initOpenerCopy,
@@ -3077,6 +3306,17 @@
 
   window.addEventListener('pageshow', function (e) {
     if (e.persisted) {
+      /* 开屏播到一半时导航走，bfcache 恢复后 initBoot 不会再跑一次 ——
+         它的 setTimeout 也随页面冻结了。不清掉就是一块冻住的遮罩。
+         这里不依赖 initBoot 的闭包，自己收拾干净。 */
+      var root = document.documentElement;
+      root.classList.remove('boot-armed');
+      root.classList.remove('boot-hold');
+      root.classList.remove('boot-out');
+      root.classList.remove('boot-out-fast');
+      var bootStage = document.getElementById('bootStage');
+      if (bootStage && bootStage.parentNode) bootStage.parentNode.removeChild(bootStage);
+
       var main = $('#main');
       if (main) {
         main.style.opacity = '';

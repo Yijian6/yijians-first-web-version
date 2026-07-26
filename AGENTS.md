@@ -20,6 +20,22 @@
 
 完整规则见 `docs/compatibility/media-policy.md`。
 
+## 开屏动画（index.html）
+
+首页首屏有一段开屏动画，只在「每个新会话第一次直接打开首页」时播放，约 1.5 秒。
+
+- 遮罩样式和判定脚本内联在 `index.html` 的 `<head>`：遮罩必须随第一次样式应用就存在，JS 注入的元素可能晚于首绘。
+- 舞台样式在 `css/style.css` 的 BOOT 段，编排全在关键帧里；`js/script.js` 的 `initBoot()` 只做三件离散的事和自保。
+- 调试用 `?boot=1` 强制播放，它会绕过全部门控。
+- 眼点位置（`.boot-eye` 的 `left` / `top`）是量出来的：把「觉」渲进 canvas，对「见」框内非墨像素做距离变换取最大内切圆。改字号策略或换字体后必须重新量，不要手调。
+
+两条已知的检查盲区，改动这块时要自己把关：
+
+1. `index.html` 的 `<head>` 内联 `<script>` **不受 ES5 检查**（`tools/mobile-compat-check.mjs` 只遍历 `js/` 目录）。这段必须手写 ES5。暂时无法扩大覆盖：`universe.html` 的内联脚本有 `const/let`，而规范禁止用排除页面的方式让检查通过。
+2. 该内联脚本**直读 `sessionStorage`**，是全站唯一豁免点 —— 它跑在 `js/compat.js` 之前，用不上 `JueCompat.session`。其他任何地方都必须走 `JueCompat.storage` / `JueCompat.session`。
+
+另外：`.main` 的初始态是 `opacity: 0`，全站唯一点亮它的地方是 `js/script.js` 的 `initPageEnter()`。删改它会让所有页面变空白，而这种故障不横向溢出、不报错、图片照常解码 —— smoke test 里那条 `#main` opacity 断言就是为它加的，不要删。
+
 ## 自动验证
 
 修改 HTML、CSS、JS 或图片后运行：

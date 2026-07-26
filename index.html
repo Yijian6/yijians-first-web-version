@@ -8,13 +8,120 @@
     <style>html { background: #0c0e0b; }</style>
     <link rel="preload" href="fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="css/style.css">
-    <!-- .main 的初始态是 opacity:0，靠 js/script.js 的 initPageEnter 点亮。
-         JS 被禁用时没人点它，页面就是一片空白 —— 这里兜住。 -->
+    <!-- JS 被禁用时的兜底。不只是 .main —— 首页几乎每一块内容本身都是
+         .reveal（opacity:0），等 IntersectionObserver 加 .revealed 才显形，
+         只放开 .main 会得到一个「可见但全空」的页面。
+         这几条和 css/style.css 的 prefers-reduced-motion 块保持一致。 -->
     <noscript>
         <style>
             .main { opacity: 1 !important; transform: none !important; }
+            .reveal, .reveal-left, .reveal-scale {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+            .reveal-clip { clip-path: none !important; }
+            .kinetic-text .char { opacity: 1 !important; transform: none !important; }
+            /* 打字机的文案只存在 data-text 里，没有 JS 一个字都不会出现。
+               连光标竖线一起收掉 —— 没有在打字的东西，不该留个光标。 */
+            .typewriter::after { content: attr(data-text); }
+            .typewriter { border-right: 0; padding-right: 0; }
         </style>
     </noscript>
+
+    <!-- 开屏遮罩。放在这里而不是 css/style.css：它必须随第一次样式应用就存在，
+         JS 注入的元素理论上可能晚于首绘，会闪一眼 hero。
+         默认完全不生效 —— 只有下面那段脚本判定「该播」时才挂上 .boot-armed，
+         也就是说失败方向是「开」不是「关」：JS 没跑，页面照常秒开。 -->
+    <style>
+        html.boot-armed::before {
+            content: '';
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            inset: 0;
+            background: #0c0e0b;
+            z-index: 100000;
+            pointer-events: auto;
+            animation: bootVeilFailsafe 6s linear forwards;
+        }
+        /* 纯 CSS 兜底，不可省：_headers 给 /js/* 的是 max-age=60,
+           must-revalidate，每次访问都发条件请求。弱网卡住、4xx、或者在
+           看门狗注册之前抛错，页面就是一块永远的黑 —— 而 setTimeout
+           看门狗在 script.js 根本没到货的时候是不存在的。 */
+        @keyframes bootVeilFailsafe {
+            0%, 96% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+        html.boot-hold .main {
+            opacity: 0;
+            animation: bootMainFailsafe 6s linear forwards;
+        }
+        @keyframes bootMainFailsafe {
+            0%, 95% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        /* 摘掉 boot-hold 后走这条过渡。只淡入、不再从下方滑上来 ——
+           揭幕的时候它应该已经在原位了。 */
+        html.boot-armed .main {
+            transform: none;
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0s;
+        }
+        html.boot-armed.boot-out::before { animation: bootVeilOut 140ms linear both; }
+        html.boot-armed.boot-out-fast::before { animation: bootVeilOut 320ms linear both; }
+        @keyframes bootVeilOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
+        /* 开屏期间这两样必须让位：进度条那条 2px 发丝会横在「什么都没有」的
+           第一帧顶部（initProgress 在 DOMContentLoaded 就 update 一次）；
+           自定义光标的 mix-blend-mode: difference 会在暗遮罩上反出抢戏的亮点。 */
+        html.boot-armed .progress-track,
+        html.boot-armed .cursor-dot,
+        html.boot-armed .cursor-ring { opacity: 0; }
+        /* 三重保险的第二重。第一重是下面脚本不 arm；第三重是 .main 的
+           opacity 中和 —— 防缓存里的旧脚本把类留下。都需要 !important，
+           因为 css/style.css 有全局 *{animation-duration:.01ms!important}。 */
+        @media (prefers-reduced-motion: reduce) {
+            html.boot-armed::before { display: none !important; }
+            html.boot-armed .main,
+            html.boot-hold .main {
+                opacity: 1 !important;
+                transform: none !important;
+                animation: none !important;
+            }
+        }
+    </style>
+    <script>
+    /* 开屏判定。必须同步跑完，遮罩要在首绘那一刻就在。
+       手写 ES5：tools/mobile-compat-check.mjs 的 ES5 检查只扫 js/ 目录，
+       内联脚本目前没有人替你把关（见 AGENTS.md）。
+       直读 sessionStorage 也是全站唯一豁免点 —— 这段跑在 js/compat.js
+       之前，用不上 JueCompat.session。 */
+    (function () {
+        try {
+            var r = document.documentElement;
+            var q = window.location.search || '';
+            var arm = ' boot-armed boot-hold';
+            if (q.indexOf('boot=1') > -1) { r.className += arm; return; }   // 调试用：强制播放
+            if (q.indexOf('imageDiag=1') > -1) return;
+            if (window.matchMedia
+                && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            if (document.visibilityState === 'hidden') return;   // 后台标签页不播，也不记账
+            var nav = window.performance && performance.getEntriesByType
+                ? performance.getEntriesByType('navigation') : null;
+            if (nav && nav.length && nav[0].type) {
+                if (nav[0].type === 'back_forward') return;
+            } else if (window.performance && performance.navigation) {
+                if (performance.navigation.type === 2) return;
+            }
+            // 每个新会话只播一次，而且只在「一进来就是首页」时播：
+            // jue.visited 由 initPageEnter 在每个页面写，所以先落在 work.html
+            // 再点进首页的人不会被拦。
+            if (window.sessionStorage
+                && window.sessionStorage.getItem('jue.visited')) return;
+            r.className += arm;
+        } catch (e) {}
+    })();
+    </script>
 </head>
 <body>
 

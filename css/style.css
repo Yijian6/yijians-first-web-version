@@ -601,6 +601,250 @@ img[data-media-fit="contain"] {
 }
 
 /* =========================================================
+   BOOT — 田字格 · 一粒觉
+
+   先把格子画出来，再把字放进去，最后在「见」的框里点亮一粒灼橙。
+   然后光灭、遮幕散去，首页已经在那儿了。
+
+   田字格是小孩写第一个字的地方，也正好是字体引擎分配给每个 glyph 的
+   em-box —— 同一个几何体，中文读者和工程师读到两件不同的事，零文案。
+
+   遮罩本身不在这里，在 index.html 的 <head> 内联样式里：它必须随第一次
+   样式应用就存在，JS 注入的元素理论上可能晚于首绘、会闪一眼 hero。
+   这一段只管遮罩之上的舞台。
+
+   编排全部交给 CSS：每个元素一条 animation，用关键帧百分比对齐同一条
+   1560ms 时间轴，每一段自己带缓动（关键帧内的 animation-timing-function）。
+   JS 只做三件离散的事 —— 800ms 摘 boot-hold、1420ms 起淡出、1560ms 清场。
+   全程只动 transform 和 opacity：零 filter、零 blur、零 clip-path、零 rAF。
+========================================================= */
+.boot-stage {
+  --boot-box: 240px;
+  --boot-line: rgba(168, 204, 136, 0.22);
+  position: fixed;
+  top: 0; right: 0; bottom: 0; left: 0;
+  inset: 0;
+  z-index: 100001;         /* 遮罩 100000 之上；光标 99999、灯箱 99990 之上 */
+  pointer-events: none;
+  overflow: hidden;        /* 连同 fixed 一起保证它不参与 scrollWidth */
+  transition: opacity 320ms linear;
+}
+
+/* 跳过手势：整个舞台一起淡出，子元素照旧在下面跑完 ——
+   比 animation:none 好，后者会把元素瞬间弹回基态。 */
+.boot-stage.is-out { opacity: 0; }
+
+@media (min-width: 769px) {
+  .boot-stage { --boot-line: rgba(168, 204, 136, 0.18); }
+}
+
+.boot-bloom {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: calc(var(--boot-box) * 2.1);
+  height: calc(var(--boot-box) * 2.1);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(168, 204, 136, 0.10) 0%,
+    rgba(168, 204, 136, 0.035) 38%,
+    transparent 68%
+  );
+  opacity: 0;
+  animation: bootBloom 1100ms 460ms both;
+}
+
+/* 字心比几何中心略高，下方留白，同时避开底部手势区。 */
+.boot-frame {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  width: var(--boot-box);
+  height: var(--boot-box);
+  transform: translate(-50%, -50%);
+}
+
+/* 线宽固定 1px：低 DPR 下 0.5px 的亚像素线会直接消失。 */
+.boot-edge {
+  position: absolute;
+  background: var(--boot-line);
+}
+
+.boot-edge-t,
+.boot-edge-b {
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: scaleX(0);
+  animation: bootEdgeH 860ms 80ms both;
+}
+
+.boot-edge-t { top: 0; }
+.boot-edge-b { bottom: 0; }
+
+.boot-edge-l,
+.boot-edge-r {
+  top: 0;
+  height: 100%;
+  width: 1px;
+  transform: scaleY(0);
+  animation: bootEdgeV 820ms 120ms both;
+}
+
+.boot-edge-l { left: 0; }
+.boot-edge-r { right: 0; }
+
+/* 内十字用虚线，和实线外框区分开 —— 田字格就是这么印的。
+   写成逐段 color stop 而不是 CSS Images 4 的双位置简写，老 X5 内核认这个。 */
+.boot-rule {
+  position: absolute;
+}
+
+.boot-rule-h {
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 1px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--boot-line) 0,
+    var(--boot-line) 3px,
+    transparent 3px,
+    transparent 7px
+  );
+  transform: scaleX(0);
+  animation: bootRuleH 700ms 240ms both;
+}
+
+.boot-rule-v {
+  top: 0;
+  left: 50%;
+  height: 100%;
+  width: 1px;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--boot-line) 0,
+    var(--boot-line) 3px,
+    transparent 3px,
+    transparent 7px
+  );
+  transform: scaleY(0);
+  animation: bootRuleV 700ms 240ms both;
+}
+
+/* 居中靠 wrap 的静态 transform，动画只动 .boot-glyph 自己 ——
+   两者分开，动画就不必每帧重写居中位移。 */
+.boot-glyph-wrap {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+}
+
+/* width:1em + line-height:1 + text-align:left 是 .boot-eye 定位的坐标系前提：
+   文本原点 = 内容盒左边缘，baseline = 内容盒上边 + 0.9325em。
+   Noto Serif SC 必须排在 Lora 之前 —— 眼点偏移是按它的度量算的。 */
+.boot-glyph {
+  display: block;
+  position: relative;
+  width: 1em;
+  font-family: 'Noto Serif SC', Georgia, serif;
+  font-size: var(--boot-box);
+  font-weight: 400;
+  line-height: 1;
+  text-align: left;
+  color: var(--white);
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: bootGlyph 1100ms 460ms both;
+}
+
+/* 那一粒灼橙落在「见」框内的空口袋里 —— 全站第一次出现 --accent2，
+   几秒后它在 hero 标题的「觉醒」上第二次出现，是同一个色彩事件。
+
+   位置是量出来的，不是估的：把「觉」渲进 canvas，对「见」框内的非墨像素
+   做距离变换，取最大内切圆。Noto Serif SC 下圆心相对墨盒 (0.6263, 0.5534)、
+   最大半径 0.0883em，换算到本元素坐标系就是下面这两个常数。
+   直径取 0.062em，框内放得下 0.1766em，余量足够，字体渲染有偏差也不碰笔画。
+   （简体「觉」里没有封闭的「目」—— 这不是点睛，是框里点亮一点。） */
+.boot-eye {
+  position: absolute;
+  left: 0.6184em;
+  top: 0.6076em;
+  width: 0.062em;
+  height: 0.062em;
+  margin: -0.031em 0 0 -0.031em;
+  border-radius: 50%;
+  background: var(--accent2);
+  opacity: 0;
+  animation: bootEye 360ms 1060ms both;
+}
+
+/* 时间轴（关键帧百分比 → 绝对毫秒）
+   边框横  860ms +80   : 0%=80   14%=200  84%=802  100%=940
+   边框竖  820ms +120  : 0%=120  15%=243  83%=800  100%=940
+   内十字  700ms +240  : 0%=240  20%=380  80%=800  100%=940
+   字     1100ms +460  : 0%=460  30.9%=800  54.5%=1060  65.5%=1180  87.3%=1420  100%=1560
+   暖芒   1100ms +460  : 0%=460  62.7%=1150 87.3%=1420  100%=1560
+   眼点    360ms +1060 : 0%=1060 33.3%=1180 66.7%=1300  100%=1420
+   1560ms 里有 200ms 完全静止：380–460 的空格 + 940–1060 的静场。 */
+@keyframes bootEdgeH {
+  0%   { transform: scaleX(0); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  14%  { transform: scaleX(1); animation-timing-function: linear; }
+  84%  { transform: scaleX(1); animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1); }
+  100% { transform: scaleX(0); }
+}
+
+@keyframes bootEdgeV {
+  0%   { transform: scaleY(0); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  15%  { transform: scaleY(1); animation-timing-function: linear; }
+  83%  { transform: scaleY(1); animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1); }
+  100% { transform: scaleY(0); }
+}
+
+@keyframes bootRuleH {
+  0%   { transform: scaleX(0); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  20%  { transform: scaleX(1); animation-timing-function: linear; }
+  80%  { transform: scaleX(1); animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1); }
+  100% { transform: scaleX(0); }
+}
+
+@keyframes bootRuleV {
+  0%   { transform: scaleY(0); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  20%  { transform: scaleY(1); animation-timing-function: linear; }
+  80%  { transform: scaleY(1); animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1); }
+  100% { transform: scaleY(0); }
+}
+
+/* 落字不是淡入，是被格子接住：从上方 8% 落下来，停在 0.55。
+   等格子撤走、静场过去，它才补到 1 —— 亮起来的是字，不是动画。 */
+@keyframes bootGlyph {
+  0%     { opacity: 0;    transform: translateY(-8%); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  30.9%  { opacity: 0.55; transform: translateY(0);   animation-timing-function: linear; }
+  54.5%  { opacity: 0.55; transform: translateY(0);   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  65.5%  { opacity: 1;    transform: translateY(0);   animation-timing-function: linear; }
+  87.3%  { opacity: 1;    transform: translateY(0); }
+  100%   { opacity: 0;    transform: translateY(0); }
+}
+
+@keyframes bootBloom {
+  0%     { opacity: 0; }
+  62.7%  { opacity: 1; }
+  87.3%  { opacity: 1; }
+  100%   { opacity: 0; }
+}
+
+@keyframes bootEye {
+  0%     { opacity: 0;    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  33.3%  { opacity: 0.95; animation-timing-function: linear; }
+  66.7%  { opacity: 0.95; animation-timing-function: linear; }
+  100%   { opacity: 0; }
+}
+
+/* =========================================================
    REVEAL ANIMATIONS
 ========================================================= */
 .reveal {
