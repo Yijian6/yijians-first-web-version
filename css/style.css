@@ -601,81 +601,6 @@ img[data-media-fit="contain"] {
 }
 
 /* =========================================================
-   INTRO / BOOT SEQUENCE
-========================================================= */
-.intro {
-  position: fixed;
-  top: 0; right: 0; bottom: 0; left: 0;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: var(--bg);
-  z-index: 9999;
-  transition: opacity 1s var(--ease-out-expo), visibility 1s;
-}
-
-.intro.fade-out {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.intro-content { text-align: center; position: relative; }
-
-.intro-name {
-  font-family: var(--font-display);
-  font-size: clamp(80px, 18vw, 200px);
-  font-weight: 400;
-  color: var(--gold);
-  line-height: 0.85;
-  letter-spacing: -0.04em;
-  opacity: 0;
-  filter: blur(30px);
-  transform: scale(1.15);
-  animation: introCharReveal 2s var(--ease-out-expo) 0.2s forwards;
-}
-
-.intro-subtitle {
-  font-family: var(--font-mono);
-  font-size: clamp(10px, 1.4vw, 13px);
-  letter-spacing: 0.6em;
-  text-transform: uppercase;
-  color: var(--white-30);
-  margin-top: 24px;
-  opacity: 0;
-  animation: introSubReveal 1.2s var(--ease-out-expo) 1.4s forwards;
-}
-
-.intro-line {
-  position: absolute;
-  bottom: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 1px;
-  background: var(--gold-dim);
-  animation: introLineExpand 1.5s var(--ease-out-expo) 1.8s forwards;
-}
-
-@keyframes introCharReveal {
-  0% { opacity: 0; filter: blur(30px); transform: scale(1.15); }
-  60% { opacity: 1; filter: blur(0); transform: scale(0.98); }
-  100% { opacity: 1; filter: blur(0); transform: scale(1); }
-}
-
-@keyframes introSubReveal {
-  0% { opacity: 0; letter-spacing: 1.2em; }
-  100% { opacity: 1; letter-spacing: 0.6em; }
-}
-
-@keyframes introLineExpand {
-  0% { width: 0; }
-  100% { width: 120px; }
-}
-
-/* =========================================================
    REVEAL ANIMATIONS
 ========================================================= */
 .reveal {
@@ -5043,16 +4968,6 @@ img[data-media-fit="contain"] {
 
   /* Growth Rings — stack vertically: rings on top, stage below.
      Everything is trimmed so the whole page holds one screen. */
-  .intro-name {
-    animation-name: introCharRevealMobile;
-  }
-
-  @keyframes introCharRevealMobile {
-    0% { opacity: 0; filter: blur(12px); transform: scale(1.15); }
-    60% { opacity: 1; filter: blur(0); transform: scale(0.98); }
-    100% { opacity: 1; filter: blur(0); transform: scale(1); }
-  }
-
   .rings-page { padding-top: 10px; padding-bottom: 10px; }
   .rings-head { margin-bottom: 8px; }
   .rings-title { font-size: clamp(36px, 10.5vw, 44px); }

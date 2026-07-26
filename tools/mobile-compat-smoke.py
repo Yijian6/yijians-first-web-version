@@ -202,6 +202,30 @@ def run(engine_names, quick):
                                 "> document.documentElement.clientWidth + 1"
                             )
 
+                            # .main 的初始态是 opacity:0，只有 initPageEnter 会点亮它。
+                            # 这条断言存在的唯一理由：那种故障其它检查全抓不到 ——
+                            # opacity:0 的页面不横向溢出、不报 console 错误、图片照常
+                            # 解码、比例断言照常通过，只是用户什么都看不见。
+                            # 超时给到 8s，比开屏动画的 6s CSS 兜底还长，所以「JS 挂了
+                            # 但兜底救回来」算通过，「永远不可见」才算失败。
+                            visibility_issues = []
+                            visible_probe = (
+                                "() => { var el = document.getElementById('main');"
+                                " return !el || parseFloat("
+                                "getComputedStyle(el).opacity) > 0.99; }"
+                            )
+                            try:
+                                page.wait_for_function(visible_probe, timeout=8_000)
+                            except Exception:
+                                visibility_issues.append(
+                                    page.evaluate(
+                                        "() => { var el = document.getElementById('main');"
+                                        " return el ? '#main stuck at opacity '"
+                                        " + getComputedStyle(el).opacity"
+                                        " : 'no #main element'; }"
+                                    )
+                                )
+
                             wechat_issues = []
                             if mode_name == "wechat":
                                 wechat_ctx = page.evaluate(
@@ -224,7 +248,9 @@ def run(engine_names, quick):
                                         f"init errors: {init_errors}"
                                     )
 
-                            if overflow or page_errors or bad_responses or broken_images or wechat_issues:
+                            if (overflow or page_errors or bad_responses
+                                    or broken_images or wechat_issues
+                                    or visibility_issues):
                                 issues.append(
                                     {
                                         "engine": engine_name,
@@ -232,7 +258,7 @@ def run(engine_names, quick):
                                         "viewport": f"{width}x{height}",
                                         "page": page_name,
                                         "overflow": overflow,
-                                        "errors": page_errors + wechat_issues,
+                                        "errors": page_errors + wechat_issues + visibility_issues,
                                         "responses": bad_responses,
                                         "images": broken_images,
                                     }

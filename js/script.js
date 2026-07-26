@@ -38,12 +38,40 @@
     });
   }
 
+  /* 「醒」闸门。开屏动画（initBoot）会把页面进场推迟到揭幕那一刻，
+     而滚动 reveal 观察器和 hero 打字机必须等页面真的可见了才开工，
+     否则它们在遮罩背后白跑一轮、用户揭幕后看到的是已经播完的动画。
+
+     没有开屏时 markAwake() 由 initPageEnter 同步调用，队列同步排空，
+     行为和以前逐字一致。这个模块不依赖任何东西，也不允许失败 ——
+     闸门卡住的代价是整页不动，所以 initBoot 的看门狗也会调 markAwake。 */
+  var awake = false;
+  var awakeQueue = [];
+
+  function whenAwake(fn) {
+    if (awake) { fn(); return; }
+    awakeQueue.push(fn);
+  }
+
+  function markAwake() {
+    if (awake) return;
+    awake = true;
+    while (awakeQueue.length) {
+      var fn = awakeQueue.shift();
+      try { fn(); } catch (e) { console.error('[awake]', e); }
+    }
+  }
+
   function storageGet(key, fallback) {
     return compat ? compat.storage.get(key, fallback) : fallback;
   }
 
   function storageSet(key, value) {
     return compat ? compat.storage.set(key, value) : false;
+  }
+
+  function sessionSet(key, value) {
+    return compat && compat.session ? compat.session.set(key, value) : false;
   }
 
   function lockPage() {
@@ -218,22 +246,6 @@
       rootMargin: '0px 0px -60px 0px'
     });
 
-    // 后退/前进恢复时，已经落在视口里的元素直接置为终态、不过渡，
-    // 否则浏览器恢复好滚动位置后这些元素还要再滑入一次。
-    var histNav = isHistoryNav();
-    var vh = window.innerHeight || document.documentElement.clientHeight || 0;
-
-    $$('.reveal, .reveal-left, .reveal-scale, .reveal-clip, .kinetic-text').forEach(function (el) {
-      if (histNav) {
-        var r = el.getBoundingClientRect();
-        if (r.bottom > 0 && r.top < vh) {
-          el.classList.add('no-entrance');
-          el.classList.add('revealed');
-        }
-      }
-      observer.observe(el);
-    });
-
     var statementMargin = window.innerWidth >= 769 ? '0px 0px -100px 0px' : '0px 0px -60px 0px';
     var statementObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
@@ -249,8 +261,28 @@
       rootMargin: statementMargin
     });
 
-    $$('.statement-section').forEach(function (el) {
-      statementObserver.observe(el);
+    /* 开屏 armed 时页面在遮罩背后，这里必须等揭幕才挂观察器 ——
+       否则首屏那几个 .reveal 会在没人看得见的时候播完。 */
+    whenAwake(function () {
+      // 后退/前进恢复时，已经落在视口里的元素直接置为终态、不过渡，
+      // 否则浏览器恢复好滚动位置后这些元素还要再滑入一次。
+      var histNav = isHistoryNav();
+      var vh = window.innerHeight || document.documentElement.clientHeight || 0;
+
+      $$('.reveal, .reveal-left, .reveal-scale, .reveal-clip, .kinetic-text').forEach(function (el) {
+        if (histNav) {
+          var r = el.getBoundingClientRect();
+          if (r.bottom > 0 && r.top < vh) {
+            el.classList.add('no-entrance');
+            el.classList.add('revealed');
+          }
+        }
+        observer.observe(el);
+      });
+
+      $$('.statement-section').forEach(function (el) {
+        statementObserver.observe(el);
+      });
     });
   }
 
@@ -301,37 +333,37 @@
   }
 
   /* -------------------------------------------------------
-     5. INTRO ANIMATION
+     5. PAGE ENTER
+
+     全站每个页面唯一给 #main 加 .visible 的地方 —— css 里是
+     .main { opacity: 0 }，各页 HTML 都不带 .visible，所以没有这一步
+     整个网站就是一片空白。注意 npm run verify 抓不到那种故障：
+     opacity:0 不产生横向溢出、不报 console 错误、图片照常解码、
+     比例断言照常通过。smoke test 里那条 #main opacity 断言就是为它加的。
+
+     开屏动画 armed 时，进场时机交给 initBoot：这里照常把 #main 置为
+     visible，但它被 html.boot-hold 的 opacity:0 压住，等揭幕才亮。
   ------------------------------------------------------- */
-  function initIntro() {
-    var intro = $('#intro');
+  function initPageEnter() {
     var main = $('#main');
+    if (!main) return;
 
     // 后退/前进：滚动位置已由浏览器恢复，直接呈现终态，不重播入场动画。
-    if (isHistoryNav() && main) {
-      if (intro) intro.style.display = 'none';
+    if (isHistoryNav()) {
       main.classList.add('no-entrance');
       main.classList.remove('hidden');
       main.classList.add('visible');
-      return;
-    }
-
-    if (intro && main) {
-      setTimeout(function () {
-        intro.classList.add('fade-out');
-      }, 2800);
-
-      setTimeout(function () {
-        intro.style.display = 'none';
-        main.classList.remove('hidden');
-        void main.offsetWidth;
-        main.classList.add('visible');
-      }, 3400);
-    } else if (main) {
+    } else {
       main.classList.remove('hidden');
       void main.offsetWidth;
       main.classList.add('visible');
     }
+
+    // 本次会话已经来过。开屏每个新会话只播一次，而且只在「一进来就是
+    // 首页」时播 —— 先落在 work.html 再点进首页的人不该被拦。
+    sessionSet('jue.visited', '1');
+
+    if (!document.documentElement.classList.contains('boot-armed')) markAwake();
   }
 
   /* -------------------------------------------------------
@@ -760,10 +792,9 @@
       }, 45);
     }
 
-    // Start after intro animation + reveal transition
-    var intro = $('#intro');
-    var delay = intro ? 4200 : 800;
-    setTimeout(startTyping, delay);
+    // 页面进场之后再打字。开屏 armed 时 markAwake 落在揭幕那一刻，
+    // 这 800ms 从那时才起算。
+    whenAwake(function () { setTimeout(startTyping, 800); });
   }
 
   /* -------------------------------------------------------
@@ -3027,8 +3058,10 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     var inits = [
+      // initPageEnter 必须最先跑：它是唯一让 #main 可见的地方。
+      initPageEnter,
       initCursor, initKineticText, initReveal, initMagnetic,
-      initIntro, initProgress, initHamburger, initMenuHint,
+      initProgress, initHamburger, initMenuHint,
       initActiveNav, initOfferWheel, initOfferDial, initOpenerCopy,
       initPassionWheel, initTabs, initPageTransition,
       initFullscreenUniverseLink, initLightbox, initProjectLightbox,

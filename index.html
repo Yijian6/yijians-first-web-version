@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
     <title>觉 | Yijian — The Awakening</title>
+    <!-- 冷启动时 css/style.css 还没到，浏览器会先画一帧白。内联这一行挡住它。 -->
+    <style>html { background: #0c0e0b; }</style>
     <link rel="preload" href="fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="css/style.css">
+    <!-- .main 的初始态是 opacity:0，靠 js/script.js 的 initPageEnter 点亮。
+         JS 被禁用时没人点它，页面就是一片空白 —— 这里兜住。 -->
+    <noscript>
+        <style>
+            .main { opacity: 1 !important; transform: none !important; }
+        </style>
+    </noscript>
 </head>
 <body>
 

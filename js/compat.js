@@ -39,6 +39,35 @@
     }
   };
 
+  /* 会话级存储。和 storage 同一套 try/catch 结构 —— Safari 无痕、
+     微信禁 cookie 下 sessionStorage 也会抛，读不到就当没有。 */
+  var session = {
+    get: function (key, fallback) {
+      try {
+        var value = window.sessionStorage.getItem(key);
+        return value === null ? (fallback === undefined ? null : fallback) : value;
+      } catch (err) {
+        return fallback === undefined ? null : fallback;
+      }
+    },
+    set: function (key, value) {
+      try {
+        window.sessionStorage.setItem(key, String(value));
+        return true;
+      } catch (err) {
+        return false;
+      }
+    },
+    remove: function (key) {
+      try {
+        window.sessionStorage.removeItem(key);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+  };
+
   function isWeChat() {
     return /MicroMessenger/i.test(window.navigator.userAgent || '');
   }
@@ -272,6 +301,7 @@
 
   var api = {
     storage: storage,
+    session: session,
     isWeChat: isWeChat,
     getInputCapabilities: getInputCapabilities,
     onInputCapabilitiesChange: onInputCapabilitiesChange,
