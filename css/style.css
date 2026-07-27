@@ -621,6 +621,12 @@ img[data-media-fit="contain"] {
 .boot-stage {
   --boot-box: 240px;
   --boot-line: rgba(168, 204, 136, 0.22);
+  /* 这两条只在开屏用，所以定义在这里而不是全局 token。
+     --ease-drop：落字。略微加速后长距减速 —— 站内的 --ease-out-expo 前 20%
+       就走完 70% 距离，680ms 的下落配它会读成「砸到位」而不是「落下来」。
+     --ease-fly：起飞。起步轻推、后段长滑，位移放大之后中段不发冲。 */
+  --ease-drop: cubic-bezier(0.34, 0.02, 0.24, 1);
+  --ease-fly: cubic-bezier(0.42, 0, 0.22, 1);
   position: fixed;
   top: 0; right: 0; bottom: 0; left: 0;
   inset: 0;
@@ -652,7 +658,7 @@ img[data-media-fit="contain"] {
     transparent 68%
   );
   opacity: 0;
-  animation: bootBloom 2380ms 920ms both;
+  animation: bootBloom 2580ms 920ms both;
 }
 
 /* 字心比几何中心略高，下方留白，同时避开底部手势区。 */
@@ -665,10 +671,13 @@ img[data-media-fit="contain"] {
   transform: translate(-50%, -50%);
 }
 
-/* 线宽固定 1px：低 DPR 下 0.5px 的亚像素线会直接消失。 */
+/* 线宽固定 1px：低 DPR 下 0.5px 的亚像素线会直接消失。
+   will-change 让这六条线在建格/撤格期间走合成层 —— 中低端安卓上这是
+   全片元素最多的一段，不提层会逐帧重绘。舞台 1.9 秒后整个移除，不留残留。 */
 .boot-edge {
   position: absolute;
   background: var(--boot-line);
+  will-change: transform;
 }
 
 .boot-edge-t,
@@ -699,6 +708,7 @@ img[data-media-fit="contain"] {
    写成逐段 color stop 而不是 CSS Images 4 的双位置简写，老 X5 内核认这个。 */
 .boot-rule {
   position: absolute;
+  will-change: transform;
 }
 
 .boot-rule-h {
@@ -759,7 +769,7 @@ img[data-media-fit="contain"] {
   -webkit-user-select: none;
   opacity: 0;
   will-change: transform, opacity;
-  animation: bootGlyph 2380ms 920ms both;
+  animation: bootGlyph 2580ms 920ms both;
 }
 
 /* 那一粒灼橙落在「见」框内的空口袋里 —— 全站第一次出现 --accent2，
@@ -783,7 +793,7 @@ img[data-media-fit="contain"] {
   background: var(--accent2);
   opacity: 0;
   will-change: transform, opacity;
-  animation: bootEye 1180ms 2120ms both;
+  animation: bootEye 1380ms 2120ms both;
 }
 
 /* 时间轴（关键帧百分比 → 绝对毫秒）。必须和 js/script.js 的 BOOT 常量对齐。
@@ -791,12 +801,16 @@ img[data-media-fit="contain"] {
    边框横  1720ms +160  : 0%=160  13.95%=400  83.72%=1600  100%=1880
    边框竖  1640ms +240  : 0%=240  14.63%=480  82.93%=1600  100%=1880
    内十字  1400ms +480  : 0%=480  20%=760     80%=1600     100%=1880
-   字      2380ms +920  : 0%=920  28.57%=1600 50.42%=2120 60.50%=2360 70.59%=2600 89.50%=3050 100%=3300
-   暖芒    2380ms +920  : 0%=920  57.98%=2300 70.59%=2600  100%=3300
-   橙点    1180ms +2120 : 0%=2120 20.34%=2360 40.68%=2600 81.36%=3080 100%=3300
+   字      2580ms +920  : 0%=920  26.36%=1600 46.51%=2120 55.81%=2360
+                          67.44%=2660〔起飞〕76.74%=2900 85.27%=3120 92.25%=3300 96.90%=3420 100%=3500
+   暖芒    2580ms +920  : 0%=920  53.49%=2300 67.44%=2660 100%=3500
+   橙点    1380ms +2120 : 0%=2120 17.39%=2360 43.48%=2720〔起飞〕74.64%=3150 91.30%=3380 100%=3500
 
-   3300ms 里有 640ms 完全静止：760–920 的空格 + 1880–2120 的静场 + 2360–2600 的保持。
-   外框和内十字的百分比和 v1 完全一样 —— 时长延迟同比翻倍，相对位置不变。 */
+   3500ms 里有 640ms 完全静止：760–920 的空格 + 1880–2120 的静场 + 2360–2600 的保持。
+   外框和内十字的百分比和 v1 完全一样 —— 时长延迟同比翻倍，相对位置不变。
+
+   收尾三件事**错开**起步，不是同时发生：2600 遮罩开始散 → 2660 字起飞 →
+   2720 橙点起飞。60ms 的间隔人读不出是「延迟」，但读得出是「有先后」。 */
 @keyframes bootEdgeH {
   0%   { transform: scaleX(0); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
   14%  { transform: scaleX(1); animation-timing-function: linear; }
@@ -836,12 +850,24 @@ img[data-media-fit="contain"] {
    89.5% 那一帧只写 opacity：transform 只在 70.59% 和 100% 定义，
    所以它整段用 70.59% 上挂的那条缓动一次插值，不会被中间帧切断。 */
 @keyframes bootGlyph {
-  0%     { opacity: 0;    transform: translate(0, -8%) scale(1); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
-  28.57% { opacity: 0.55; transform: translate(0, 0) scale(1);   animation-timing-function: linear; }
-  50.42% { opacity: 0.55; transform: translate(0, 0) scale(1);   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
-  60.50% { opacity: 1;    transform: translate(0, 0) scale(1);   animation-timing-function: linear; }
-  70.59% { opacity: 1;    transform: translate(0, 0) scale(1);   animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1); }
-  89.50% { opacity: 0.62; }
+  /* 落下用 --ease-drop 而不是 ease-out-expo：expo 前 20% 的时间就走完 70% 的
+     距离，680ms 配上去读起来是「啪一下砸到位、然后干等」。这条曲线略微加速、
+     长距减速，才是「落下来被格子接住」。 */
+  0%     { opacity: 0;    transform: translate(0, -8%) scale(1); animation-timing-function: var(--ease-drop); }
+  26.36% { opacity: 0.55; transform: translate(0, 0) scale(1);   animation-timing-function: linear; }
+  46.51% { opacity: 0.55; transform: translate(0, 0) scale(1);   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  55.81% { opacity: 1;    transform: translate(0, 0) scale(1);   animation-timing-function: linear; }
+  /* 起飞。--ease-fly 起步略推、后段长长地滑进去，位移放大之后中段不会发冲 ——
+     ease-in-out-circ 在这个距离上会甩得像被弹出去。 */
+  67.44% { opacity: 1;    transform: translate(0, 0) scale(1);   animation-timing-function: var(--ease-fly); }
+  /* 逐渐变暗，慢慢消失：不是飞到一半突然没了，而是一路减亮、最后 80ms
+     已经淡到几乎看不见，所以 3500ms 移除舞台那一下完全无感。
+     这几帧只写 opacity —— transform 只在 67.44% 和 100% 定义，
+     整段用起飞那条曲线一次插值，不会被中间帧切断。 */
+  76.74% { opacity: 0.88; }
+  85.27% { opacity: 0.62; }
+  92.25% { opacity: 0.32; }
+  96.90% { opacity: 0.10; }
   100%   { opacity: 0;
            transform: translate(var(--boot-fly-x, 0px), var(--boot-fly-y, 0px))
                       scale(var(--boot-fly-s, 1)); }
@@ -849,18 +875,19 @@ img[data-media-fit="contain"] {
 
 @keyframes bootBloom {
   0%     { opacity: 0; }
-  57.98% { opacity: 1; }
-  70.59% { opacity: 1; }
+  53.49% { opacity: 1; }
+  67.44% { opacity: 1; }
   100%   { opacity: 0; }
 }
 
-/* 橙点同理：保持结束后飞向 hero 标题的「觉醒」，一边缩小一边淡出，
-   读起来像汇进那两个字里。亮度撑到 81% 才开始掉，否则半路就看不见了。 */
+/* 橙点：保持结束后飞向 hero 标题的「觉醒」，一边缩小一边淡出，
+   读起来像汇进那两个字里。比字晚 60ms 起飞。 */
 @keyframes bootEye {
   0%     { opacity: 0;    transform: translate(0, 0) scale(1); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
-  20.34% { opacity: 0.95; transform: translate(0, 0) scale(1); animation-timing-function: linear; }
-  40.68% { opacity: 0.95; transform: translate(0, 0) scale(1); animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1); }
-  81.36% { opacity: 0.9; }
+  17.39% { opacity: 0.95; transform: translate(0, 0) scale(1); animation-timing-function: linear; }
+  43.48% { opacity: 0.95; transform: translate(0, 0) scale(1); animation-timing-function: var(--ease-fly); }
+  74.64% { opacity: 0.70; }
+  91.30% { opacity: 0.22; }
   100%   { opacity: 0;
            transform: translate(var(--boot-eye-fly-x, 0px), var(--boot-eye-fly-y, 0px))
                       scale(0.5); }

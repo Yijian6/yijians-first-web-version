@@ -403,13 +403,18 @@
     pageEnter: 1200,    // 摘 boot-hold + markAwake：页面在遮罩后进场
     eyeIn: 2120,        // 橙点出场（= CSS .boot-eye 的 animation-delay）
     unveil: 2600,       // 遮罩开始散，同时开始飞行
-    end: 3300,          // 清场
+    end: 3500,          // 清场。飞行 900ms —— 位移放大后要更多时间才不显得赶
     grace: 600,         // 跳过手势宽限期，挡掉余触/地址栏/滚动恢复
     skipOut: 400,       // 跳过时的压缩收尾
     watchdog: 7000,     // 兜底看门狗，必须晚于 end
     visibleWait: 5000,  // 一直不可见就放弃（必须早于 <head> 那条 6s CSS 兜底）
     scrollSlop: 8,      // 滚动要真的移动超过这么多像素才算「用户想跳过」
-    noFlyScroll: 0.15   // 页面已滚过视口高的这个比例，就不飞了（落点已在屏外）
+    noFlyScroll: 0.15,  // 页面已滚过视口高的这个比例，就不飞了（落点已在屏外）
+    /* 幽灵「觉」的真实位置离字心很近（375 宽的屏上只有 98px），照实飞
+       几乎读不出「飞过去」这个动作。放大位移并额外上抬一点，让它更像
+       「飞向右上角」——落点准确度让位于可读性，反正要求是大致方向。 */
+    flyGain: 1.6,
+    flyRise: 0.05       // 额外上抬，视口高的比例
   };
 
   /* 度量闸门。返回眼点元素，或者 null（字体没到位 / 老内核没有
@@ -582,8 +587,16 @@
         var ghostF = Math.min(Math.max(200, vw * 0.35), 500);
         var ghostCx = r.right + r.width * 0.02 - ghostF / 2;
         var ghostCy = r.top + navH + r.height * 0.05 + ghostF * 0.4;
-        stage.style.setProperty('--boot-fly-x', Math.round(ghostCx - cx) + 'px');
-        stage.style.setProperty('--boot-fly-y', Math.round(ghostCy - cy) + 'px');
+
+        /* 放大位移 + 上抬。终点夹回视口内 —— 桌面端幽灵本来就离字心很远
+           （1366 宽上有 471px），再放大 1.6 倍会整个飞出画外。 */
+        var endX = cx + (ghostCx - cx) * BOOT.flyGain;
+        var endY = cy + (ghostCy - cy) * BOOT.flyGain - vh * BOOT.flyRise;
+        endX = Math.max(vw * 0.05, Math.min(vw * 0.98, endX));
+        endY = Math.max(vh * 0.10, Math.min(vh * 0.92, endY));
+
+        stage.style.setProperty('--boot-fly-x', Math.round(endX - cx) + 'px');
+        stage.style.setProperty('--boot-fly-y', Math.round(endY - cy) + 'px');
         stage.style.setProperty('--boot-fly-s', (ghostF / box).toFixed(3));
       }
 
