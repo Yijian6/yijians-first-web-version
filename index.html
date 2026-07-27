@@ -63,10 +63,10 @@
            揭幕的时候它应该已经在原位了。 */
         html.boot-armed .main {
             transform: none;
-            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0s;
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0s;
         }
-        html.boot-armed.boot-out::before { animation: bootVeilOut 140ms linear both; }
-        html.boot-armed.boot-out-fast::before { animation: bootVeilOut 320ms linear both; }
+        html.boot-armed.boot-out::before { animation: bootVeilOut 280ms linear both; }
+        html.boot-armed.boot-out-fast::before { animation: bootVeilOut 400ms linear both; }
         @keyframes bootVeilOut {
             from { opacity: 1; }
             to { opacity: 0; visibility: hidden; }
@@ -105,7 +105,6 @@
             if (q.indexOf('imageDiag=1') > -1) return;
             if (window.matchMedia
                 && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            if (document.visibilityState === 'hidden') return;   // 后台标签页不播，也不记账
             var nav = window.performance && performance.getEntriesByType
                 ? performance.getEntriesByType('navigation') : null;
             if (nav && nav.length && nav[0].type) {
@@ -113,11 +112,16 @@
             } else if (window.performance && performance.navigation) {
                 if (performance.navigation.type === 2) return;
             }
-            // 每个新会话只播一次，而且只在「一进来就是首页」时播：
-            // jue.visited 由 initPageEnter 在每个页面写，所以先落在 work.html
-            // 再点进首页的人不会被拦。
-            if (window.sessionStorage
-                && window.sessionStorage.getItem('jue.visited')) return;
+            /* 每次直接打开首页都播（刷新也播）；只有从站内其他页点进来才不播 ——
+               点导航回首页不该被拦三秒。jue.lastPage 由 initPageEnter 在每个
+               页面写，只记录「你刚才在哪一页」，没有「已经看过了」的语义。 */
+            var last = window.sessionStorage
+                ? window.sessionStorage.getItem('jue.lastPage') : null;
+            if (last && last !== '/' && last !== '/index.html') return;
+            /* 这里刻意不看 visibilityState。隐藏时照常 arm，遮罩立刻盖上，
+               由 js/script.js 的 initBoot 把时间轴推迟到真正可见那一刻 ——
+               Chrome 地址栏预渲染和微信 WebView 都是「加载时还看不见」，
+               v1 在这里直接 return，等于永远错过。 */
             r.className += arm;
         } catch (e) {}
     })();

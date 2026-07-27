@@ -359,9 +359,14 @@
       main.classList.add('visible');
     }
 
-    // 本次会话已经来过。开屏每个新会话只播一次，而且只在「一进来就是
-    // 首页」时播 —— 先落在 work.html 再点进首页的人不该被拦。
-    sessionSet('jue.visited', '1');
+    /* 记录「你刚才在站内哪一页」，仅此而已 —— 没有「已经看过了」的语义。
+       开屏靠它判断这次是不是从站内其他页点进来的：是就不播（点导航回首页
+       不该被拦 3 秒），不是就播。
+
+       v1 这里写的是 jue.visited（「看过了」），那是开屏经常不出现的头号原因：
+       后台标签页、Chrome 地址栏预渲染这些根本没播成的加载照样会写它，
+       一次污染就锁死整个会话。 */
+    sessionSet('jue.lastPage', location.pathname || '/');
 
     if (!document.documentElement.classList.contains('boot-armed')) markAwake();
   }
@@ -390,6 +395,22 @@
   function bootNow() {
     return (window.performance && performance.now) ? performance.now() : +new Date();
   }
+
+  /* 时间轴，单位 ms，全部相对「建舞台」那一刻（不是 DOMContentLoaded）。
+     css/style.css 的 BOOT 段必须和这张表对齐 —— 那边的关键帧百分比就是
+     按这些数算出来的，改一处必须两处一起改。 */
+  var BOOT = {
+    pageEnter: 1200,    // 摘 boot-hold + markAwake：页面在遮罩后进场
+    eyeIn: 2120,        // 橙点出场（= CSS .boot-eye 的 animation-delay）
+    unveil: 2600,       // 遮罩开始散，同时开始飞行
+    end: 3300,          // 清场
+    grace: 600,         // 跳过手势宽限期，挡掉余触/地址栏/滚动恢复
+    skipOut: 400,       // 跳过时的压缩收尾
+    watchdog: 7000,     // 兜底看门狗，必须晚于 end
+    visibleWait: 5000,  // 一直不可见就放弃（必须早于 <head> 那条 6s CSS 兜底）
+    scrollSlop: 8,      // 滚动要真的移动超过这么多像素才算「用户想跳过」
+    noFlyScroll: 0.15   // 页面已滚过视口高的这个比例，就不飞了（落点已在屏外）
+  };
 
   /* 度量闸门。返回眼点元素，或者 null（字体没到位 / 老内核没有
      actualBoundingBox —— 恰好是最需要它准的那批平台）。 */
@@ -429,9 +450,12 @@
 
     var timers = [];
     var finished = false;
-    var t0 = bootNow();
+    var started = false;
+    var t0 = 0;          // 时间轴零点 = 建舞台那一刻
+    var scroll0 = 0;     // 零点时的滚动位置，用来分辨「恢复的位置」和「用户真的滚了」
 
-    var SKIP_EVENTS = ['pointerdown', 'touchstart', 'keydown', 'wheel', 'scroll'];
+    // 立即跳过的手势。touchstart 和 pointerdown 都留着：老 X5 / 老 iOS 不一定发 pointer 事件。
+    var SKIP_NOW = ['pointerdown', 'touchstart', 'keydown', 'wheel'];
 
     function stageEl() { return document.getElementById('bootStage'); }
 
@@ -440,10 +464,20 @@
       timers.length = 0;
     }
 
+    function scrollY() {
+      return window.pageYOffset || root.scrollTop || 0;
+    }
+
     function detachSkip() {
-      for (var i = 0; i < SKIP_EVENTS.length; i++) {
-        window.removeEventListener(SKIP_EVENTS[i], onSkip, true);
+      for (var i = 0; i < SKIP_NOW.length; i++) {
+        window.removeEventListener(SKIP_NOW[i], onSkipNow, true);
       }
+      window.removeEventListener('scroll', onSkipScroll, true);
+    }
+
+    function detachVisible() {
+      document.removeEventListener('visibilitychange', onVisible);
+      try { document.removeEventListener('prerenderingchange', onVisible); } catch (e) {}
     }
 
     function cleanup() {
@@ -451,6 +485,7 @@
       finished = true;
       clearTimers();
       detachSkip();
+      detachVisible();
       root.classList.remove('boot-armed');
       root.classList.remove('boot-hold');
       root.classList.remove('boot-out');
@@ -460,65 +495,133 @@
       markAwake();
     }
 
-    /* 看门狗排在任何可能抛的代码之前。即使下面整段炸了，页面也会亮 ——
-       而 CSS 那条 6s 兜底负责连这个 setTimeout 都不存在的情况。 */
-    timers.push(setTimeout(cleanup, 4000));
-
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
 
     /* 跳过：不冻结子元素（animation:none 会让它们瞬间弹回基态），
-       而是整个舞台一起 320ms 淡出，下面照旧跑完。 */
+       而是整个舞台一起淡出，下面照旧跑完。 */
     function skip() {
-      if (finished) return;
+      if (finished || !started) return;
       detachSkip();
       clearTimers();
-      timers.push(setTimeout(cleanup, 4000));
+      timers.push(setTimeout(cleanup, BOOT.watchdog));
       root.classList.remove('boot-hold');
       root.classList.add('boot-out-fast');
       var stage = stageEl();
       if (stage) stage.classList.add('is-out');
       markAwake();
-      later(cleanup, 320);
+      later(cleanup, BOOT.skipOut);
     }
 
-    function onSkip() { skip(); }
+    /* 宽限期挡掉的是「不是用户意图」的那些事件：微信里点开链接后还没抬起的
+       手指、地址栏收起、刷新时浏览器恢复滚动位置。过了宽限期才当真。 */
+    function pastGrace() { return bootNow() - t0 >= BOOT.grace; }
+
+    function onSkipNow() { if (pastGrace()) skip(); }
+
+    /* 滚动单独处理：首页的 history.scrollRestoration 是浏览器默认的 auto
+       （manual 只在 initOfferWheel 里设、offer 页专用），所以刷新时浏览器会
+       把位置恢复回去并派发 scroll。宽限期内把恢复到的位置吸收进基线，
+       之后只有真的移动超过 scrollSlop 才算用户想跳过。 */
+    function onSkipScroll() {
+      var y = scrollY();
+      if (!pastGrace()) { scroll0 = y; return; }
+      if (Math.abs(y - scroll0) > BOOT.scrollSlop) skip();
+    }
 
     function attachSkip() {
-      for (var i = 0; i < SKIP_EVENTS.length; i++) {
+      for (var i = 0; i < SKIP_NOW.length; i++) {
         try {
-          window.addEventListener(SKIP_EVENTS[i], onSkip, { passive: true, capture: true });
+          window.addEventListener(SKIP_NOW[i], onSkipNow, { passive: true, capture: true });
         } catch (e) {
-          window.addEventListener(SKIP_EVENTS[i], onSkip, true);
+          window.addEventListener(SKIP_NOW[i], onSkipNow, true);
         }
+      }
+      try {
+        window.addEventListener('scroll', onSkipScroll, { passive: true, capture: true });
+      } catch (e) {
+        window.addEventListener('scroll', onSkipScroll, true);
       }
     }
 
-    /* 眼点 1060ms 才出场，所以字体可以慢慢等，但最迟 900ms 必须定下来。
-       晚到就按已经流逝的时间把 animation-delay 补回去，保证它仍然
-       精确落在 1060ms —— 元素插入时刻才是它自己动画的零点。 */
+    /* 橙点 BOOT.eyeIn 才出场，所以字体可以慢慢等，但最迟 eyeIn-320 必须定下来。
+       晚到就按已经流逝的时间把 animation-delay 补回去 —— 元素插入时刻才是
+       它自己动画的零点，不补就会整体后移。 */
     var eyeSettled = false;
 
     function settleEye(force) {
       if (eyeSettled || finished) return;
-      var glyph = document.querySelector('.boot-glyph');
-      if (!glyph) return;
+      var stage = stageEl();
+      if (!stage) return;
       var eye = bootEyeElement();
       if (!eye) {
         if (force) eyeSettled = true;
         return;
       }
       eyeSettled = true;
-      eye.style.animationDelay = Math.max(0, 1060 - (bootNow() - t0)) + 'ms';
-      glyph.appendChild(eye);
+      eye.style.animationDelay = Math.max(0, BOOT.eyeIn - (bootNow() - t0)) + 'ms';
+      stage.appendChild(eye);
+    }
+
+    /* 落点。要求只是「大致方向正确」，所以全部按几何算，不做任何断言、
+       不测量后校正、没有 abort 分支 —— v1 里最容易翻车的那套机械不要。 */
+    function setFlightTargets(stage, vw, vh, box) {
+      var cx = vw * 0.5;
+      var cy = vh * 0.42;
+
+      // 页面已经滚下去了的话，右上角那个幽灵「觉」根本不在屏幕上，飞过去等于飞出画外。
+      if (scrollY() > vh * BOOT.noFlyScroll) return;
+
+      var hero = document.querySelector('.home-hero');
+      if (hero) {
+        /* .home-hero::after 是伪元素，测不了 —— 只能照 css/style.css 里
+           那几个数算：top: calc(var(--nav-h) + 5%)，right: -2%，
+           font-size: clamp(200px, 35vw, 500px)，line-height: .8。 */
+        var r = hero.getBoundingClientRect();
+        var navH = parseFloat(getComputedStyle(root).getPropertyValue('--nav-h'));
+        if (!navH) navH = 72;
+        var ghostF = Math.min(Math.max(200, vw * 0.35), 500);
+        var ghostCx = r.right + r.width * 0.02 - ghostF / 2;
+        var ghostCy = r.top + navH + r.height * 0.05 + ghostF * 0.4;
+        stage.style.setProperty('--boot-fly-x', Math.round(ghostCx - cx) + 'px');
+        stage.style.setProperty('--boot-fly-y', Math.round(ghostCy - cy) + 'px');
+        stage.style.setProperty('--boot-fly-s', (ghostF / box).toFixed(3));
+      }
+
+      // 橙点飞向 hero 标题里的「觉醒」—— 它是真实元素，可以测。
+      var warm = document.querySelector('.home-hero-title em.warm');
+      if (warm) {
+        /* 但它在 .home-hero-title.reveal 里，此刻还带着 .reveal 的
+           translateY(60px)，要把这段位移减掉才是它最终会在的位置。 */
+        var ty = 0;
+        var revealed = warm.parentNode;
+        while (revealed && revealed !== document.body) {
+          if (revealed.className && String(revealed.className).indexOf('reveal') > -1) break;
+          revealed = revealed.parentNode;
+        }
+        if (revealed && revealed !== document.body) {
+          var m = String(getComputedStyle(revealed).transform || '');
+          if (m.indexOf('matrix(') === 0) {
+            var parts = m.slice(7, -1).split(',');
+            if (parts.length === 6) ty = parseFloat(parts[5]) || 0;
+          }
+        }
+        var wr = warm.getBoundingClientRect();
+        var eyeCx = vw * 0.5 - box / 2 + 0.6184 * box;
+        var eyeCy = vh * 0.42 - box / 2 + 0.6076 * box;
+        stage.style.setProperty('--boot-eye-fly-x',
+          Math.round(wr.left + wr.width / 2 - eyeCx) + 'px');
+        stage.style.setProperty('--boot-eye-fly-y',
+          Math.round(wr.top + wr.height / 2 - ty - eyeCy) + 'px');
+      }
     }
 
     function buildStage() {
       var vw = window.innerWidth || root.clientWidth || 360;
       var vh = window.innerHeight || root.clientHeight || 640;
       // 不用 CSS min()，规避老 X5 内核。
-      var box = vw >= 769
+      var box = Math.round(vw >= 769
         ? Math.min(vw * 0.46, vh * 0.52)
-        : Math.min(vw * 0.74, vh * 0.40);
+        : Math.min(vw * 0.74, vh * 0.40));
 
       var stage = document.createElement('div');
       stage.id = 'bootStage';
@@ -527,7 +630,19 @@
       /* 必须设在 stage 自己身上，不能设在 :root —— .boot-stage 规则里那条
          --boot-box 兜底声明会遮蔽继承值，字框就永远是兜底的 240px。
          内联样式压过规则声明，这样兜底仍然有效、JS 又能真的改。 */
-      stage.style.setProperty('--boot-box', Math.round(box) + 'px');
+      stage.style.setProperty('--boot-box', box + 'px');
+
+      /* 橙点必须是 stage 的直接子元素，不能挂在 .boot-glyph 下面 ——
+         挂在字里面会继承字的 transform，字一飞点跟着飞，两条飞行线塌成一条。
+         所以它的位置在这里算成绝对像素：字框左上角 + v1 量出来的口袋圆心。 */
+      var eyeD = Math.max(6, Math.round(0.062 * box));
+      stage.style.setProperty('--boot-eye-d', eyeD + 'px');
+      stage.style.setProperty('--boot-eye-x',
+        Math.round(vw * 0.5 - box / 2 + 0.6184 * box - eyeD / 2) + 'px');
+      stage.style.setProperty('--boot-eye-y',
+        Math.round(vh * 0.42 - box / 2 + 0.6076 * box - eyeD / 2) + 'px');
+
+      setFlightTargets(stage, vw, vh, box);
 
       var bloom = document.createElement('div');
       bloom.className = 'boot-bloom';
@@ -558,40 +673,73 @@
       document.body.appendChild(stage);
     }
 
-    try {
-      buildStage();
-    } catch (e) {
-      console.error('[boot]', e);
-      cleanup();
-      return;
+    function start() {
+      if (started || finished) return;
+      started = true;
+      t0 = bootNow();
+      scroll0 = scrollY();
+
+      // 看门狗从时间轴零点起算，必须晚于 BOOT.end。
+      timers.push(setTimeout(cleanup, BOOT.watchdog));
+
+      try {
+        buildStage();
+      } catch (e) {
+        console.error('[boot]', e);
+        cleanup();
+        return;
+      }
+
+      settleEye(false);
+      try {
+        if (document.fonts && document.fonts.load) {
+          // 不用 .finally（ES5 检查拦），也不用 .ready
+          // （reject 会被 compat.js 的全局 unhandledrejection 转成 console.error）。
+          document.fonts.load('400 1em "Noto Serif SC"', '觉').then(
+            function () { settleEye(false); },
+            function () { settleEye(false); }
+          );
+        }
+      } catch (e) {}
+      later(function () { settleEye(true); }, BOOT.eyeIn - 320);
+
+      attachSkip();
+
+      // 页面在遮罩背后进场，同时放开 reveal 观察器和打字机。
+      // 到 unveil 揭幕时它已经落定，不会让人看着半透明的标题往上滑。
+      later(function () {
+        root.classList.remove('boot-hold');
+        markAwake();
+      }, BOOT.pageEnter);
+
+      // 揭幕排在飞行之前：飞行必须发生在已经可见的页面上，
+      // 否则「飞过去找它」这件事根本看不到。
+      later(function () { root.classList.add('boot-out'); }, BOOT.unveil);
+
+      later(cleanup, BOOT.end);
     }
 
-    settleEye(false);
-    try {
-      if (document.fonts && document.fonts.load) {
-        // 不用 .finally（ES5 检查拦），也不用 .ready
-        // （reject 会被 compat.js 的全局 unhandledrejection 转成 console.error）。
-        document.fonts.load('400 1em "Noto Serif SC"', '觉').then(
-          function () { settleEye(false); },
-          function () { settleEye(false); }
-        );
-      }
-    } catch (e) {}
-    later(function () { settleEye(true); }, 900);
+    function onVisible() {
+      if (started || finished) return;
+      if (document.visibilityState !== 'visible') return;
+      detachVisible();
+      start();
+    }
 
-    attachSkip();
-
-    // 800ms：页面在遮罩背后开始进场，同时放开 reveal 观察器和打字机。
-    // 到 1420ms 揭幕时它已经基本落定，不会让人看着半透明的标题往上滑。
-    later(function () {
-      root.classList.remove('boot-hold');
-      markAwake();
-    }, 800);
-
-    // 1420ms：遮罩开始散。字和暖芒由自己的关键帧同步淡出（87.3% → 100%）。
-    later(function () { root.classList.add('boot-out'); }, 1420);
-
-    later(cleanup, 1560);
+    /* 隐藏状态下加载不能当成「这次不播」——Chrome 从地址栏预渲染、后台标签页、
+       微信 WebView 在显示之前就开始加载，都会命中。遮罩已经盖上了，把整条
+       时间轴推迟到真正可见的那一刻再开始，用户激活时才从头播。
+       一直不可见就在 visibleWait 放弃（必须早于 <head> 那条 6s CSS 兜底，
+       否则会出现「遮罩已被 CSS 散掉、舞台又建起来盖住可见页面」）。 */
+    if (document.visibilityState === 'visible') {
+      start();
+    } else {
+      document.addEventListener('visibilitychange', onVisible);
+      try { document.addEventListener('prerenderingchange', onVisible); } catch (e) {}
+      timers.push(setTimeout(function () {
+        if (!started) cleanup();
+      }, BOOT.visibleWait));
+    }
   }
 
   /* -------------------------------------------------------

@@ -652,7 +652,7 @@ img[data-media-fit="contain"] {
     transparent 68%
   );
   opacity: 0;
-  animation: bootBloom 1100ms 460ms both;
+  animation: bootBloom 2380ms 920ms both;
 }
 
 /* 字心比几何中心略高，下方留白，同时避开底部手势区。 */
@@ -677,7 +677,7 @@ img[data-media-fit="contain"] {
   width: 100%;
   height: 1px;
   transform: scaleX(0);
-  animation: bootEdgeH 860ms 80ms both;
+  animation: bootEdgeH 1720ms 160ms both;
 }
 
 .boot-edge-t { top: 0; }
@@ -689,7 +689,7 @@ img[data-media-fit="contain"] {
   height: 100%;
   width: 1px;
   transform: scaleY(0);
-  animation: bootEdgeV 820ms 120ms both;
+  animation: bootEdgeV 1640ms 240ms both;
 }
 
 .boot-edge-l { left: 0; }
@@ -714,7 +714,7 @@ img[data-media-fit="contain"] {
     transparent 7px
   );
   transform: scaleX(0);
-  animation: bootRuleH 700ms 240ms both;
+  animation: bootRuleH 1400ms 480ms both;
 }
 
 .boot-rule-v {
@@ -730,7 +730,7 @@ img[data-media-fit="contain"] {
     transparent 7px
   );
   transform: scaleY(0);
-  animation: bootRuleV 700ms 240ms both;
+  animation: bootRuleV 1400ms 480ms both;
 }
 
 /* 居中靠 wrap 的静态 transform，动画只动 .boot-glyph 自己 ——
@@ -759,38 +759,44 @@ img[data-media-fit="contain"] {
   -webkit-user-select: none;
   opacity: 0;
   will-change: transform, opacity;
-  animation: bootGlyph 1100ms 460ms both;
+  animation: bootGlyph 2380ms 920ms both;
 }
 
 /* 那一粒灼橙落在「见」框内的空口袋里 —— 全站第一次出现 --accent2，
-   几秒后它在 hero 标题的「觉醒」上第二次出现，是同一个色彩事件。
+   收尾时它飞向 hero 标题的「觉醒」，那两个字正是同一个颜色。
 
    位置是量出来的，不是估的：把「觉」渲进 canvas，对「见」框内的非墨像素
    做距离变换，取最大内切圆。Noto Serif SC 下圆心相对墨盒 (0.6263, 0.5534)、
-   最大半径 0.0883em，换算到本元素坐标系就是下面这两个常数。
-   直径取 0.062em，框内放得下 0.1766em，余量足够，字体渲染有偏差也不碰笔画。
-   （简体「觉」里没有封闭的「目」—— 这不是点睛，是框里点亮一点。） */
+   最大半径 0.0883em，直径取 0.062em，框内放得下 0.1766em，余量足够。
+   （简体「觉」里没有封闭的「目」—— 这不是点睛，是框里点亮一点。）
+
+   它是 .boot-stage 的直接子元素、位置由 JS 算成绝对像素，**不能**挂在
+   .boot-glyph 下面：挂在字里会继承字的 transform，字飞向右上角时点会跟着走，
+   两条飞行线塌成一条。 */
 .boot-eye {
   position: absolute;
-  left: 0.6184em;
-  top: 0.6076em;
-  width: 0.062em;
-  height: 0.062em;
-  margin: -0.031em 0 0 -0.031em;
+  left: var(--boot-eye-x, 50%);
+  top: var(--boot-eye-y, 50%);
+  width: var(--boot-eye-d, 16px);
+  height: var(--boot-eye-d, 16px);
   border-radius: 50%;
   background: var(--accent2);
   opacity: 0;
-  animation: bootEye 360ms 1060ms both;
+  will-change: transform, opacity;
+  animation: bootEye 1180ms 2120ms both;
 }
 
-/* 时间轴（关键帧百分比 → 绝对毫秒）
-   边框横  860ms +80   : 0%=80   14%=200  84%=802  100%=940
-   边框竖  820ms +120  : 0%=120  15%=243  83%=800  100%=940
-   内十字  700ms +240  : 0%=240  20%=380  80%=800  100%=940
-   字     1100ms +460  : 0%=460  30.9%=800  54.5%=1060  65.5%=1180  87.3%=1420  100%=1560
-   暖芒   1100ms +460  : 0%=460  62.7%=1150 87.3%=1420  100%=1560
-   眼点    360ms +1060 : 0%=1060 33.3%=1180 66.7%=1300  100%=1420
-   1560ms 里有 200ms 完全静止：380–460 的空格 + 940–1060 的静场。 */
+/* 时间轴（关键帧百分比 → 绝对毫秒）。必须和 js/script.js 的 BOOT 常量对齐。
+
+   边框横  1720ms +160  : 0%=160  13.95%=400  83.72%=1600  100%=1880
+   边框竖  1640ms +240  : 0%=240  14.63%=480  82.93%=1600  100%=1880
+   内十字  1400ms +480  : 0%=480  20%=760     80%=1600     100%=1880
+   字      2380ms +920  : 0%=920  28.57%=1600 50.42%=2120 60.50%=2360 70.59%=2600 89.50%=3050 100%=3300
+   暖芒    2380ms +920  : 0%=920  57.98%=2300 70.59%=2600  100%=3300
+   橙点    1180ms +2120 : 0%=2120 20.34%=2360 40.68%=2600 81.36%=3080 100%=3300
+
+   3300ms 里有 640ms 完全静止：760–920 的空格 + 1880–2120 的静场 + 2360–2600 的保持。
+   外框和内十字的百分比和 v1 完全一样 —— 时长延迟同比翻倍，相对位置不变。 */
 @keyframes bootEdgeH {
   0%   { transform: scaleX(0); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
   14%  { transform: scaleX(1); animation-timing-function: linear; }
@@ -820,28 +826,44 @@ img[data-media-fit="contain"] {
 }
 
 /* 落字不是淡入，是被格子接住：从上方 8% 落下来，停在 0.55。
-   等格子撤走、静场过去，它才补到 1 —— 亮起来的是字，不是动画。 */
+   等格子撤走、静场过去，它才补到 1 —— 亮起来的是字，不是动画。
+
+   最后一段（70.59% → 100%）是飞行：缩小着飞向右上角那个 7% 的幽灵「觉」。
+   落点由 JS 写进 --boot-fly-*，取不到就退化成原地淡出（默认值 0/0/1）。
+   飞行写在关键帧里而不是「冻结当前值再切 transition」——后者要读 computed、
+   写内联、animation:none、强制 reflow，还会让两个动画抢同一个 transform。
+
+   89.5% 那一帧只写 opacity：transform 只在 70.59% 和 100% 定义，
+   所以它整段用 70.59% 上挂的那条缓动一次插值，不会被中间帧切断。 */
 @keyframes bootGlyph {
-  0%     { opacity: 0;    transform: translateY(-8%); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
-  30.9%  { opacity: 0.55; transform: translateY(0);   animation-timing-function: linear; }
-  54.5%  { opacity: 0.55; transform: translateY(0);   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
-  65.5%  { opacity: 1;    transform: translateY(0);   animation-timing-function: linear; }
-  87.3%  { opacity: 1;    transform: translateY(0); }
-  100%   { opacity: 0;    transform: translateY(0); }
+  0%     { opacity: 0;    transform: translate(0, -8%) scale(1); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  28.57% { opacity: 0.55; transform: translate(0, 0) scale(1);   animation-timing-function: linear; }
+  50.42% { opacity: 0.55; transform: translate(0, 0) scale(1);   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  60.50% { opacity: 1;    transform: translate(0, 0) scale(1);   animation-timing-function: linear; }
+  70.59% { opacity: 1;    transform: translate(0, 0) scale(1);   animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1); }
+  89.50% { opacity: 0.62; }
+  100%   { opacity: 0;
+           transform: translate(var(--boot-fly-x, 0px), var(--boot-fly-y, 0px))
+                      scale(var(--boot-fly-s, 1)); }
 }
 
 @keyframes bootBloom {
   0%     { opacity: 0; }
-  62.7%  { opacity: 1; }
-  87.3%  { opacity: 1; }
+  57.98% { opacity: 1; }
+  70.59% { opacity: 1; }
   100%   { opacity: 0; }
 }
 
+/* 橙点同理：保持结束后飞向 hero 标题的「觉醒」，一边缩小一边淡出，
+   读起来像汇进那两个字里。亮度撑到 81% 才开始掉，否则半路就看不见了。 */
 @keyframes bootEye {
-  0%     { opacity: 0;    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
-  33.3%  { opacity: 0.95; animation-timing-function: linear; }
-  66.7%  { opacity: 0.95; animation-timing-function: linear; }
-  100%   { opacity: 0; }
+  0%     { opacity: 0;    transform: translate(0, 0) scale(1); animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+  20.34% { opacity: 0.95; transform: translate(0, 0) scale(1); animation-timing-function: linear; }
+  40.68% { opacity: 0.95; transform: translate(0, 0) scale(1); animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1); }
+  81.36% { opacity: 0.9; }
+  100%   { opacity: 0;
+           transform: translate(var(--boot-eye-fly-x, 0px), var(--boot-eye-fly-y, 0px))
+                      scale(0.5); }
 }
 
 /* =========================================================
