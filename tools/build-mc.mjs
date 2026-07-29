@@ -15,6 +15,7 @@ const CONTENT_DIR = path.join(ROOT, 'content', 'minecraft');
 const OUT_DIR = path.join(ROOT, 'mc');
 const TPL_DIR = path.join(ROOT, 'tools', 'mc-templates');
 
+const SITE_ORIGIN = 'yijian6.com';
 const STALE_DAYS = 60;
 const IMG_WARN_BYTES = 500 * 1024;
 const IMG_ERROR_BYTES = 1200 * 1024;
@@ -43,11 +44,26 @@ function normalizeDate(value, file) {
   return null;
 }
 
+function baseName(filename) {
+  return filename.replace(/\.md$/i, '').trim();
+}
+
 function slugFromFilename(filename) {
   return filename
     .replace(/\.md$/i, '')
     .replace(/^\d{4}-\d{2}-\d{2}[-_\s]*/, '')
     .trim();
+}
+
+// 网址：优先用 frontmatter 的「网址」字段（英文短链接），否则回退到日期
+function articleSlug(fm, date, file) {
+  const custom = (fm['网址'] || '').toString().trim();
+  if (!custom) return date;
+  if (!/^[a-z0-9-]+$/.test(custom)) {
+    errors.push(`✗ ${file}\n  「网址」只能用小写英文字母、数字和连字符，例如 exceptional-control-flow。当前填的是「${custom}」。`);
+    return date;
+  }
+  return custom;
 }
 
 function domainSlug(nameEn) {
@@ -123,13 +139,18 @@ function resolveWikiLink(targetRaw, label) {
     return text;
   }
   const currentSlug = ctx.domain.slug;
-  // 先同领域、后跨领域：按标题 / 文件名（去日期）匹配
+  // 先同领域、后跨领域：按标题 / 文件名（Obsidian [[ 补全插入的就是文件名）/ 网址匹配
   const pools = [ctx.index.filter((e) => e.domainSlug === currentSlug), ctx.index.filter((e) => e.domainSlug !== currentSlug)];
   for (const pool of pools) {
-    const hit = pool.find((e) => e.title === base || e.slug === base);
+    const hit = pool.find(
+      (e) => e.title === base || e.slug === base || e.basename === base || e.nameSlug === base
+    );
     if (hit) {
       const href = hit.domainSlug === currentSlug ? `${hit.slug}.html` : `../${hit.domainSlug}/${hit.slug}.html`;
-      return `<a href="${esc(href)}">${text}</a>`;
+      // 没写别名时显示文章标题——Obsidian 的 [[ 补全插进来的是带日期前缀的文件名，
+      // 直接显示会很难看
+      const linkText = label ? esc(label) : esc(hit.title);
+      return `<a href="${esc(href)}">${linkText}</a>`;
     }
   }
   // 匹配领域名 → 领域立面页
@@ -254,7 +275,14 @@ function parseDomain(dirName) {
   const dir = path.join(CONTENT_DIR, dirName);
   const metaFile = path.join(dir, '_领域.md');
   if (!fs.existsSync(metaFile)) {
-    errors.push(`✗ ${relDisplay(dir)}\n  缺少 _领域.md。每个领域文件夹需要一个 _领域.md 声明「名称」和「英文」。`);
+    // 还没有文章的文件夹不算领域，静默跳过——在 Obsidian 里随手建的空文件夹不该让发布失败。
+    // 只有「已经有文章却缺 _领域.md」才是真的写错了。
+    const hasArticles = fs
+      .readdirSync(dir, { withFileTypes: true })
+      .some((e) => e.isFile() && e.name.endsWith('.md') && !e.name.startsWith('_'));
+    if (hasArticles) {
+      errors.push(`✗ ${relDisplay(dir)}\n  这个文件夹里有文章，但缺少 _领域.md。每个领域需要一个 _领域.md 声明「名称」和「英文」（照抄别的领域改一下就行）。`);
+    }
     return null;
   }
   const { data: meta, content: metaBody } = matter.read(metaFile);
@@ -290,7 +318,10 @@ function parseDomain(dirName) {
     articles.push({
       mdFile,
       filename: entry.name,
-      slug: slugFromFilename(entry.name),
+      basename: baseName(entry.name),
+      nameSlug: slugFromFilename(entry.name),
+      slug: articleSlug(fm, date, relDisplay(mdFile)),
+      hasCustomSlug: Boolean((fm['网址'] || '').toString().trim()),
       title,
       date,
       summary: (fm['简介'] || '').toString().trim(),
@@ -301,12 +332,20 @@ function parseDomain(dirName) {
 
   articles.sort((a, b) => (a.date === b.date ? a.filename.localeCompare(b.filename) : a.date.localeCompare(b.date)));
 
-  // slug 冲突检查
+  // slug 冲突处理：自定义网址重复直接报错；日期回退的自动加序号
   const seen = new Set();
   for (const a of articles) {
-    if (seen.has(a.slug)) {
-      errors.push(`✗ ${relDisplay(a.mdFile)}\n  文章标识「${a.slug}」重复（去掉日期前缀后文件名相同）。请改一下文件名。`);
+    if (!seen.has(a.slug)) {
+      seen.add(a.slug);
+      continue;
     }
+    if (a.hasCustomSlug) {
+      errors.push(`✗ ${relDisplay(a.mdFile)}\n  「网址」填的「${a.slug}」和同领域另一篇文章重复了，换一个。`);
+      continue;
+    }
+    let n = 2;
+    while (seen.has(`${a.slug}-${n}`)) n += 1;
+    a.slug = `${a.slug}-${n}`;
     seen.add(a.slug);
   }
 
@@ -342,6 +381,7 @@ function buildArticlePage(domain, article, floorNum, articleTpl, domains, linkIn
     TITLE: esc(article.title),
     TITLE_ESC: esc(article.title),
     SUMMARY_ESC: esc(article.summary || `${domain.name} · ${article.title}`),
+    SOURCE_URL: esc(`${SITE_ORIGIN}/mc/${domain.slug}/${article.slug}`),
     DOMAIN_NAME: esc(domain.name),
     FLOOR_LABEL: `${floorNum}F`,
     DATE: article.date,
@@ -406,7 +446,13 @@ function main() {
   const linkIndex = [];
   for (const d of domains) {
     for (const a of d.articles) {
-      linkIndex.push({ domainSlug: d.slug, slug: a.slug, title: a.title });
+      linkIndex.push({
+        domainSlug: d.slug,
+        slug: a.slug,
+        basename: a.basename,
+        nameSlug: a.nameSlug,
+        title: a.title,
+      });
     }
   }
 

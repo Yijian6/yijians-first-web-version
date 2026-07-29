@@ -18,6 +18,14 @@
             padding: 48px var(--side-pad) 0;
         }
 
+        .mca-topbar {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
         .mca-crumb {
             display: inline-flex;
             align-items: center;
@@ -27,11 +35,27 @@
             letter-spacing: 0.15em;
             color: var(--gold);
             text-decoration: none;
-            margin-bottom: 28px;
         }
 
         .mca-crumb:hover {
             color: var(--gold-bright);
+        }
+
+        .mca-export {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            color: var(--white-30);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .mca-export:hover {
+            color: var(--gold);
         }
 
         .mca-title {
@@ -289,6 +313,201 @@
             text-align: right;
             margin-left: auto;
         }
+
+        /* ============ 打印 / 导出 PDF ============
+           深色主题直接打印既费墨又看不清，这里整体翻成白底黑字，
+           只保留标题、日期、出处和正文，并控制分页不劈开代码块和图片。 */
+        @media print {
+            @page {
+                margin: 1.8cm;
+            }
+
+            html, body {
+                background: #fff !important;
+                color: #1a1a1a !important;
+            }
+
+            /* 屏幕专属的结构：导航、进度条、页脚、楼梯、导出按钮、灯箱 */
+            .progress-track,
+            .navbar,
+            .mobile-menu,
+            .hamburger,
+            .footer,
+            .mca-stairs,
+            .mca-export,
+            .mc-lightbox,
+            .custom-cursor {
+                display: none !important;
+            }
+
+            .main {
+                opacity: 1 !important;
+                transform: none !important;
+                padding: 0 !important;
+                min-height: 0 !important;
+            }
+
+            .mca-wrap {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* reveal 类元素在打印时必须是可见的最终态 */
+            .reveal, .reveal-left, .reveal-scale, .reveal-clip {
+                opacity: 1 !important;
+                transform: none !important;
+                clip-path: none !important;
+            }
+
+            .mca-topbar {
+                margin-bottom: 12px;
+                display: block;
+            }
+
+            .mca-crumb {
+                color: #5a7a3c !important;
+                font-size: 10pt;
+                letter-spacing: 0.1em;
+            }
+
+            .mca-title {
+                color: #111 !important;
+                font-size: 22pt;
+                margin-bottom: 8px;
+                break-after: avoid;
+            }
+
+            .mca-meta {
+                color: #666 !important;
+                font-size: 9pt;
+                margin-bottom: 16px;
+            }
+
+            .mca-rule {
+                background: #ccc !important;
+                margin-bottom: 20px;
+            }
+
+            .mca-body {
+                color: #1a1a1a !important;
+                font-size: 11pt;
+                line-height: 1.75;
+            }
+
+            .mca-body h2,
+            .mca-body h3 {
+                color: #111 !important;
+                break-after: avoid;
+                margin-top: 20px;
+            }
+
+            .mca-body strong {
+                color: #000 !important;
+            }
+
+            .mca-body em {
+                color: #3f6b23 !important;
+            }
+
+            .mca-body a {
+                color: #2c5aa0 !important;
+            }
+
+            .mca-body blockquote {
+                color: #555 !important;
+                border-left-color: #bbb !important;
+                break-inside: avoid;
+            }
+
+            .mca-body li::marker {
+                color: #5a7a3c !important;
+            }
+
+            /* 代码块与高亮：强制保留底色，否则纸上没有区分度 */
+            .mca-body pre {
+                background: #f5f5f2 !important;
+                border: 1px solid #ddd !important;
+                border-left: 3px solid #7a9c5a !important;
+                break-inside: avoid;
+                white-space: pre-wrap;
+                word-break: break-word;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body pre code,
+            .mca-body code {
+                color: #24303a !important;
+                background: none !important;
+                font-size: 9.5pt;
+            }
+
+            .mca-body :not(pre) > code {
+                background: #f0f0ec !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body mark {
+                background: #e8f2d8 !important;
+                color: #2d4a15 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body .mc-indent {
+                border-left-color: #ddd !important;
+            }
+
+            /* max-height + width:auto 已经等比缩放，不用 object-fit（也就不会裁切） */
+            .mca-body img {
+                border-color: #ddd !important;
+                max-height: 16cm;
+                width: auto;
+                break-inside: avoid;
+                cursor: auto;
+            }
+
+            .mc-table-wrap {
+                overflow: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body table {
+                font-size: 9.5pt;
+                min-width: 0;
+                width: 100%;
+            }
+
+            .mca-body th,
+            .mca-body td {
+                border-color: #ccc !important;
+            }
+
+            .mca-body th {
+                color: #2d4a15 !important;
+                background: #f2f5ec !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body hr {
+                background: #ddd !important;
+            }
+
+            /* 页尾出处 */
+            .mca-wrap::after {
+                content: "来自 " attr(data-source);
+                display: block;
+                margin-top: 28px;
+                padding-top: 10px;
+                border-top: 1px solid #ddd;
+                font-family: var(--font-mono);
+                font-size: 8.5pt;
+                color: #888;
+            }
+        }
     </style>
 </head>
 <body>
@@ -316,8 +535,11 @@
     </div>
 
     <div id="main" class="main">
-        <article class="mca-wrap">
-            <a href="index.html" class="mca-crumb">计算机系统基础II · 1F</a>
+        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/prerequisites">
+            <div class="mca-topbar">
+                <a href="index.html" class="mca-crumb">计算机系统基础II · 1F</a>
+                <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
+            </div>
             <h1 class="mca-title">前置基础</h1>
             <p class="mca-meta">2026-07-23 · 约 6 分钟</p>
             <div class="mca-rule"></div>
@@ -399,6 +621,6 @@
 
     <script src="../../js/compat.js" defer></script>
     <script src="../../js/script.js" defer></script>
-    <script src="../../js/mc-lightbox.js" defer></script>
+    <script src="../../js/mc-article.js" defer></script>
 </body>
 </html>
