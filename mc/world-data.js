@@ -1,6 +1,31 @@
 window.MC_WORLD = {
-  "builtAt": "2026-07-29",
+  "builtAt": "2026-07-30",
   "domains": [
+    {
+      "name": "写在前面",
+      "nameEn": "Preword",
+      "slug": "preword",
+      "floors": [
+        {
+          "n": 1,
+          "title": "这里存在的意义",
+          "date": "2026-07-30"
+        },
+        {
+          "n": 2,
+          "title": "为什么想要分享知识",
+          "date": "2026-07-30"
+        },
+        {
+          "n": 3,
+          "title": "为什么想要分享思考",
+          "date": "2026-07-30"
+        }
+      ],
+      "ghosts": [],
+      "lastDate": "2026-07-30",
+      "stale": false
+    },
     {
       "name": "计算机系统基础II",
       "nameEn": "CSAPP",
@@ -8,64 +33,81 @@ window.MC_WORLD = {
       "floors": [
         {
           "n": 1,
+          "title": "前言",
+          "date": "2026-07-30"
+        },
+        {
+          "n": 2,
           "title": "前置基础",
-          "date": "2026-07-23"
+          "date": "2026-07-21"
+        },
+        {
+          "n": 3,
+          "title": "Shell实验引入",
+          "date": "2026-07-30"
+        },
+        {
+          "n": 4,
+          "title": "Shell实验：概念层次理解",
+          "date": "2026-07-30"
         }
       ],
       "ghosts": [
-        "异常控制流的层次",
-        "进程的控制",
-        "信号、信号阻塞",
-        "SHELL实验破解",
+        "Shell实验代码层次理解",
+        "Shell实验破解",
+        "Malloc实验",
+        "Proxy实验",
         "虚拟存储器……"
       ],
-      "lastDate": "2026-07-23",
+      "lastDate": "2026-07-30",
       "stale": false
     },
     {
       "name": "数据结构",
       "nameEn": "Data Structures",
       "slug": "data-structures",
-      "floors": [
-        {
-          "n": 1,
-          "title": "为什么需要数据结构",
-          "date": "2026-07-15"
-        },
-        {
-          "n": 2,
-          "title": "链表与数组之争",
-          "date": "2026-07-21"
-        }
-      ],
+      "floors": [],
       "ghosts": [
+        "链表",
         "栈与队列",
         "二叉树",
         "哈希表",
         "图"
       ],
-      "lastDate": "2026-07-21",
+      "lastDate": null,
       "stale": false
     }
   ],
   "log": [
     {
-      "date": "2026-07-23",
-      "title": "前置基础",
+      "date": "2026-07-30",
+      "title": "这里存在的意义",
+      "domainName": "写在前面",
+      "url": "mc/preword/meaning.html"
+    },
+    {
+      "date": "2026-07-30",
+      "title": "为什么想要分享知识",
+      "domainName": "写在前面",
+      "url": "mc/preword/knowledge-area.html"
+    },
+    {
+      "date": "2026-07-30",
+      "title": "为什么想要分享思考",
+      "domainName": "写在前面",
+      "url": "mc/preword/thoughts-area.html"
+    },
+    {
+      "date": "2026-07-30",
+      "title": "前言",
       "domainName": "计算机系统基础II",
-      "url": "mc/csapp/prerequisites.html"
+      "url": "mc/csapp/preword.html"
     },
     {
-      "date": "2026-07-21",
-      "title": "链表与数组之争",
-      "domainName": "数据结构",
-      "url": "mc/data-structures/linked-list-vs-array.html"
-    },
-    {
-      "date": "2026-07-15",
-      "title": "为什么需要数据结构",
-      "domainName": "数据结构",
-      "url": "mc/data-structures/why-data-structures.html"
+      "date": "2026-07-30",
+      "title": "Shell实验引入",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/before-shelllab.html"
     }
   ]
 };

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>链表与数组之争 — 觉的 Minecraft</title>
-    <meta name="description" content="从&quot;插入一个转学生&quot;讲清楚链表和数组各自的代价。（示例文章，可删除）">
+    <title>这里存在的意义 — 觉的 Minecraft</title>
+    <meta name="description" content="写在前面 · 这里存在的意义">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
@@ -311,7 +311,45 @@
 
         .mca-stair--next {
             text-align: right;
-            margin-left: auto;
+        }
+
+        /* 中间那个「回到这栋楼」每层都在，读完哪一层都能直接回去 */
+        .mca-stair--home {
+            flex-shrink: 0;
+            color: var(--white-30);
+            letter-spacing: 0.1em;
+            text-align: center;
+        }
+
+        .mca-stair--home:hover {
+            color: var(--gold);
+        }
+
+        .mca-stair--empty {
+            flex: 1;
+            max-width: 46%;
+        }
+
+        @media (max-width: 560px) {
+            .mca-stairs {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px 16px;
+            }
+
+            .mca-stair {
+                max-width: 100%;
+            }
+
+            .mca-stair--home {
+                order: -1;
+                width: 100%;
+                padding-bottom: 6px;
+            }
+
+            .mca-stair--empty {
+                display: none;
+            }
         }
 
         /* ============ 打印 / 导出 PDF ============
@@ -535,63 +573,25 @@
     </div>
 
     <div id="main" class="main">
-        <article class="mca-wrap" data-source="yijian6.com/mc/data-structures/linked-list-vs-array">
+        <article class="mca-wrap" data-source="yijian6.com/mc/preword/meaning">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">数据结构 · 2F</a>
+                <a href="index.html" class="mca-crumb">← 回到 写在前面</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title">链表与数组之争</h1>
-            <p class="mca-meta">2026-07-21 · 约 1 分钟</p>
+            <h1 class="mca-title">这里存在的意义</h1>
+            <p class="mca-meta">1F · 2026-07-30 · 约 1 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<blockquote>
-<p>你居然能发现这里，嘻嘻嘻！下面的文章只是一个配图、和代码块的写法的Test，试试看</p>
-</blockquote>
-<p>数组和链表是最基础的两种线性结构，它们的区别可以用一张图说清楚：</p>
-<p><img src="../../content/minecraft/数据结构/assets/链表与数组.svg" alt="链表与数组" width="720" height="300" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<h2>数组：住在连续的房间里</h2>
-<p>数组的所有元素在内存里<strong>紧挨着</strong>。好处是定位快——知道第一个房间在哪，第 100 个房间的位置一步就能算出来。代价是插入慢：想在中间插一个人，后面所有人都得搬家。</p>
-<h2>链表：每个人手里有下一个人的地址</h2>
-<p>链表的元素散落在内存各处，靠<strong>指针</strong>串起来。插入的时候只要改两根指针，谁都不用搬家。代价是找人慢：想找第 100 个节点，必须从头一个一个问过去。</p>
-<p>用代码表示一个最简单的链表节点：</p>
-<pre><code class="language-python">class Node:
-    def __init__(self, value):
-        self.value = value
-        self.next = None  # 指向下一个节点
-</code></pre>
-<h2>我的判断</h2>
-<div class="mc-table-wrap"><table>
-<thead>
-<tr>
-<th>操作</th>
-<th>数组</th>
-<th>链表</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>按位置访问</td>
-<td>O(1)</td>
-<td>O(n)</td>
-</tr>
-<tr>
-<td>中间插入/删除</td>
-<td>O(n)</td>
-<td>O(1)*</td>
-</tr>
-<tr>
-<td>内存布局</td>
-<td>连续，缓存友好</td>
-<td>分散</td>
-</tr>
-</tbody></table></div>
-<p>*前提是已经拿到了插入位置的指针。</p>
-<p>实际工程里数组（和它的变体）出场率远高于链表——因为现代 CPU 的缓存机制太偏爱连续内存了。链表的价值更多在于它的<strong>思想</strong>：用指针把分散的东西组织起来，这个思想通向树和图。</p>
+<p>我想看看我脑袋里到底有些什么……<br>把我的思考、学习的过程记录下来</p>
+<p>这里分为<a href="knowledge-area.html">为什么想要分享知识</a>和<a href="thoughts-area.html">为什么想要分享思考</a>两个部分，分享所学、传递所思。</p>
 
             </div>
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="why-data-structures.html" class="mca-stair">↓ 1F 为什么需要数据结构</a>
+            <span class="mca-stair mca-stair--empty"></span>
+            <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
+            <a href="knowledge-area.html" class="mca-stair mca-stair--next">2F 为什么想要分享知识 ↑</a>
         </nav>
 
         <footer class="footer">
