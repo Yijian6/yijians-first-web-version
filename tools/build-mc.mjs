@@ -17,11 +17,31 @@ const TPL_DIR = path.join(ROOT, 'tools', 'mc-templates');
 
 const SITE_ORIGIN = 'yijian6.com';
 const STALE_DAYS = 60;
+const TODAY = new Date().toLocaleDateString('sv-SE'); // 本地时区的 YYYY-MM-DD
 const IMG_WARN_BYTES = 500 * 1024;
 const IMG_ERROR_BYTES = 1200 * 1024;
 
 const errors = [];
 const warnings = [];
+const notices = [];
+
+// Obsidian 的附件文件夹：用户在 Obsidian 里粘贴图片时会全部存到这里，
+// 位置由用户自己的设置决定，所以直接读他们的配置，而不是要求他们迁就脚本。
+function readAttachmentDir() {
+  const cfg = path.join(CONTENT_DIR, '.obsidian', 'app.json');
+  if (!fs.existsSync(cfg)) return null;
+  try {
+    const p = JSON.parse(fs.readFileSync(cfg, 'utf8'))['attachmentFolderPath'];
+    if (!p || typeof p !== 'string') return null;
+    // "./" 开头或 "/" 表示库根，其余是库内相对路径
+    const clean = p.replace(/^\.?\//, '').trim();
+    return clean ? clean.split('/')[0] : null;
+  } catch {
+    return null;
+  }
+}
+
+const ATTACHMENT_DIR = readAttachmentDir();
 
 // ---------- 工具函数 ----------
 
@@ -33,14 +53,16 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
-function normalizeDate(value, file) {
+function normalizeDate(value, file, opts = {}) {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     return value.toISOString().slice(0, 10);
   }
   if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value.trim())) {
     return value.trim();
   }
-  errors.push(`✗ ${file}\n  「日期」缺失或格式不对。请在 Obsidian 属性面板填写日期（格式 2026-07-21）。`);
+  if (!opts.quiet) {
+    errors.push(`✗ ${file}\n  「日期」格式不对，应该是 2026-07-21 这样。`);
+  }
   return null;
 }
 
@@ -55,15 +77,50 @@ function slugFromFilename(filename) {
     .trim();
 }
 
-// 网址：优先用 frontmatter 的「网址」字段（英文短链接），否则回退到日期
+// 网址：优先用 frontmatter 的「网址」字段（英文短链接），否则回退到日期。
+// 大小写不该卡人，统一转小写；只有真正没法放进网址的字符才报错。
 function articleSlug(fm, date, file) {
-  const custom = (fm['网址'] || '').toString().trim();
+  const custom = (fm['网址'] || '').toString().trim().toLowerCase();
   if (!custom) return date;
   if (!/^[a-z0-9-]+$/.test(custom)) {
-    errors.push(`✗ ${file}\n  「网址」只能用小写英文字母、数字和连字符，例如 exceptional-control-flow。当前填的是「${custom}」。`);
+    const suggestion = custom.replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
+    errors.push(
+      `✗ ${file}\n  「网址」里有不能用在网址上的字符（空格、中文或符号）。` +
+        (suggestion ? `改成「${suggestion}」这样就可以。` : '请用英文字母、数字和连字符。')
+    );
     return date;
   }
   return custom;
+}
+
+// 缺日期时自动补今天，并写回源文件——这样日期被永久记录（重新 clone 也不丢），
+// 用户又完全不用手填。只做最小化文本插入，不重新序列化整块 frontmatter，
+// 避免打乱用户其它属性的写法和顺序。
+function writeBackDate(mdFile, today) {
+  const raw = fs.readFileSync(mdFile, 'utf8');
+  let next;
+  if (/^﻿?---\r?\n/.test(raw)) {
+    next = raw.replace(/^(﻿?---\r?\n)/, `$1日期: ${today}\n`);
+  } else {
+    next = `---\n日期: ${today}\n---\n\n${raw}`;
+  }
+  fs.writeFileSync(mdFile, next, 'utf8');
+  notices.push(`  · ${relDisplay(mdFile)} → 日期: ${today}`);
+}
+
+// 按公共前缀长度挑最接近的蓝图项（「Shell实验之前」→「Shell实验引入」）
+function nearestBlueprintItem(claim, blueprint) {
+  let best = null;
+  let bestLen = 0;
+  for (const item of blueprint) {
+    let n = 0;
+    while (n < claim.length && n < item.length && claim[n] === item[n]) n += 1;
+    if (n > bestLen) {
+      bestLen = n;
+      best = item;
+    }
+  }
+  return bestLen >= 2 ? best : null;
 }
 
 function domainSlug(nameEn) {
@@ -97,10 +154,15 @@ function resolveImage(src, mdFile) {
     path.join(domainDir, src),
     path.join(domainDir, 'assets', src),
   ];
+  // Obsidian 粘贴的图片会进用户配置的附件文件夹（库级），也兜底找一次库根
+  if (ATTACHMENT_DIR) candidates.push(path.join(CONTENT_DIR, ATTACHMENT_DIR, src));
+  candidates.push(path.join(CONTENT_DIR, src));
+
   for (const abs of candidates) {
     if (fs.existsSync(abs) && fs.statSync(abs).isFile()) return abs;
   }
-  errors.push(`✗ ${relDisplay(mdFile)}\n  找不到图片「${src}」。请确认图片放在文章旁边或 assets/ 文件夹里，文件名一致。`);
+  const searched = candidates.map((c) => path.dirname(relDisplay(c))).join('\n    ');
+  errors.push(`✗ ${relDisplay(mdFile)}\n  找不到图片「${src}」。检查文件名（含后缀）是否完全一致。已经找过这些位置：\n    ${searched}`);
   return null;
 }
 
@@ -307,9 +369,14 @@ function parseDomain(dirName) {
     const mdFile = path.join(dir, entry.name);
     const { data: fm, content: body } = matter.read(mdFile);
     if (fm['草稿'] === true) continue;
+    // 还没动笔的空笔记：在 Obsidian 里新建一篇待写的笔记是常态，不该挡住发布
+    if (!body.trim()) continue;
 
-    const date = normalizeDate(fm['日期'], relDisplay(mdFile));
-    if (!date) continue;
+    let date = normalizeDate(fm['日期'], relDisplay(mdFile), { quiet: true });
+    if (!date) {
+      date = TODAY;
+      writeBackDate(mdFile, date);
+    }
 
     const titleMatch = body.match(/^#\s+(.+)$/m);
     const title = titleMatch ? titleMatch[1].trim() : slugFromFilename(entry.name);
@@ -330,7 +397,17 @@ function parseDomain(dirName) {
     });
   }
 
-  articles.sort((a, b) => (a.date === b.date ? a.filename.localeCompare(b.filename) : a.date.localeCompare(b.date)));
+  // 楼层顺序：蓝图清单就是阅读顺序，认领了蓝图项的按清单排；
+  // 没认领的排在后面，按日期。领域没写蓝图时自然退化成纯日期顺序。
+  const bpIndex = (a) => (a.blueprintClaim ? blueprint.indexOf(a.blueprintClaim) : -1);
+  articles.sort((a, b) => {
+    const ia = bpIndex(a);
+    const ib = bpIndex(b);
+    if (ia >= 0 && ib >= 0) return ia - ib;
+    if (ia >= 0) return -1;
+    if (ib >= 0) return 1;
+    return a.date === b.date ? a.filename.localeCompare(b.filename) : a.date.localeCompare(b.date);
+  });
 
   // slug 冲突处理：自定义网址重复直接报错；日期回退的自动加序号
   const seen = new Set();
@@ -349,10 +426,14 @@ function parseDomain(dirName) {
     seen.add(a.slug);
   }
 
-  // 蓝图认领校验
+  // 蓝图认领校验：找不到时挑一个最接近的项作为提示，多半就是笔误
   for (const a of articles) {
     if (a.blueprintClaim && !blueprint.includes(a.blueprintClaim)) {
-      errors.push(`✗ ${relDisplay(a.mdFile)}\n  「蓝图」填了「${a.blueprintClaim}」，但 _领域.md 的蓝图清单里没有这一项。检查文字是否完全一致。`);
+      const closest = nearestBlueprintItem(a.blueprintClaim, blueprint);
+      errors.push(
+        `✗ ${relDisplay(a.mdFile)}\n  「蓝图」填了「${a.blueprintClaim}」，但 _领域.md 的蓝图清单里没有这一项。` +
+          (closest ? `你是不是想填「${closest}」？` : '检查文字是否完全一致。')
+      );
     }
   }
 
@@ -365,16 +446,21 @@ function buildArticlePage(domain, article, floorNum, articleTpl, domains, linkIn
   const bodyHtml = renderMarkdown(article.body, article.mdFile, domain, domains, linkIndex);
   const total = domain.articles.length;
 
+  // 楼梯：上一层 / 回到这栋楼 / 下一层。中间那个每层都有——
+  // 读完任意一层都该能直接回楼，而不是一层层走下去。
   const stairs = [];
   if (floorNum > 1) {
     const prev = domain.articles[floorNum - 2];
     stairs.push(`            <a href="${esc(prev.slug)}.html" class="mca-stair">↓ ${floorNum - 1}F ${esc(prev.title)}</a>`);
   } else {
-    stairs.push(`            <a href="index.html" class="mca-stair">↓ 回到立面</a>`);
+    stairs.push('            <span class="mca-stair mca-stair--empty"></span>');
   }
+  stairs.push(`            <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>`);
   if (floorNum < total) {
     const next = domain.articles[floorNum];
     stairs.push(`            <a href="${esc(next.slug)}.html" class="mca-stair mca-stair--next">${floorNum + 1}F ${esc(next.title)} ↑</a>`);
+  } else {
+    stairs.push('            <span class="mca-stair mca-stair--empty"></span>');
   }
 
   return fill(articleTpl, {
@@ -431,8 +517,9 @@ function main() {
 
   const domains = [];
   for (const entry of fs.readdirSync(CONTENT_DIR, { withFileTypes: true })) {
-    // 跳过隐藏目录、下划线开头的目录（如 _模板、_日记）和 assets
-    if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name.startsWith('_') || entry.name === 'assets') continue;
+    // 跳过隐藏目录、下划线开头的目录（如 _模板、_日记）、assets 和 Obsidian 附件文件夹
+    if (!entry.isDirectory() || entry.name.startsWith('.') || entry.name.startsWith('_')) continue;
+    if (entry.name === 'assets' || entry.name === ATTACHMENT_DIR) continue;
     const d = parseDomain(entry.name);
     if (d) domains.push(d);
   }
@@ -516,6 +603,9 @@ function main() {
   }
 
   for (const w of warnings) console.warn(w);
+  if (notices.length) {
+    console.log(`\n📅 这些文章没填日期，已自动补上今天并写进文件：\n${notices.join('\n')}`);
+  }
   const floorTotal = worldDomains.reduce((s, d) => s + d.floors.length, 0);
   console.log(`✅ 构建完成：${worldDomains.length} 个领域，${floorTotal} 层楼，共生成 ${output.size} 个文件。`);
 }

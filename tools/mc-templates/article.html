@@ -311,7 +311,45 @@
 
         .mca-stair--next {
             text-align: right;
-            margin-left: auto;
+        }
+
+        /* 中间那个「回到这栋楼」每层都在，读完哪一层都能直接回去 */
+        .mca-stair--home {
+            flex-shrink: 0;
+            color: var(--white-30);
+            letter-spacing: 0.1em;
+            text-align: center;
+        }
+
+        .mca-stair--home:hover {
+            color: var(--gold);
+        }
+
+        .mca-stair--empty {
+            flex: 1;
+            max-width: 46%;
+        }
+
+        @media (max-width: 560px) {
+            .mca-stairs {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px 16px;
+            }
+
+            .mca-stair {
+                max-width: 100%;
+            }
+
+            .mca-stair--home {
+                order: -1;
+                width: 100%;
+                padding-bottom: 6px;
+            }
+
+            .mca-stair--empty {
+                display: none;
+            }
         }
 
         /* ============ 打印 / 导出 PDF ============
@@ -537,11 +575,11 @@
     <div id="main" class="main">
         <article class="mca-wrap" data-source="{{SOURCE_URL}}">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">{{DOMAIN_NAME}} · {{FLOOR_LABEL}}</a>
+                <a href="index.html" class="mca-crumb">← 回到 {{DOMAIN_NAME}}</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">{{TITLE}}</h1>
-            <p class="mca-meta">{{DATE}} · 约 {{READ_MIN}} 分钟</p>
+            <p class="mca-meta">{{FLOOR_LABEL}} · {{DATE}} · 约 {{READ_MIN}} 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
 {{BODY}}
