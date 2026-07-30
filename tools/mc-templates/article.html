@@ -575,11 +575,11 @@
     <div id="main" class="main">
         <article class="mca-wrap" data-source="{{SOURCE_URL}}">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">← 回到 {{DOMAIN_NAME}}</a>
+                <a href="{{CRUMB_HREF}}" class="mca-crumb">{{CRUMB_TEXT}}</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">{{TITLE}}</h1>
-            <p class="mca-meta">{{FLOOR_LABEL}} · {{DATE}} · 约 {{READ_MIN}} 分钟</p>
+            <p class="mca-meta">{{META}}</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
 {{BODY}}

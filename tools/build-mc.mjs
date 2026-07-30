@@ -468,10 +468,9 @@ function buildArticlePage(domain, article, floorNum, articleTpl, domains, linkIn
     TITLE_ESC: esc(article.title),
     SUMMARY_ESC: esc(article.summary || `${domain.name} · ${article.title}`),
     SOURCE_URL: esc(`${SITE_ORIGIN}/mc/${domain.slug}/${article.slug}`),
-    DOMAIN_NAME: esc(domain.name),
-    FLOOR_LABEL: `${floorNum}F`,
-    DATE: article.date,
-    READ_MIN: String(readMinutes(bodyHtml)),
+    CRUMB_HREF: 'index.html',
+    CRUMB_TEXT: esc(`← 回到 ${domain.name}`),
+    META: `${floorNum}F · ${article.date} · 约 ${readMinutes(bodyHtml)} 分钟`,
     BODY: bodyHtml,
     STAIRS: stairs.join('\n'),
   });
@@ -507,6 +506,71 @@ function buildDomainPage(domain, domainTpl, stale) {
   });
 }
 
+// 附页：库根目录下的笔记（不在任何领域文件夹里）。
+// 它们是资料而不是思考沉淀，所以照常渲染成可被 [[链接]] 指到的页面，
+// 但不占楼层、不进天际线、不上冒险日志。
+const NOTES_SLUG = 'notes';
+// 使用说明是写给作者自己看的（含本机路径和发布步骤），不发布
+const NOTES_EXCLUDE = new Set(['使用说明.md']);
+
+function noteSlug(fm, basename, file) {
+  const custom = (fm['网址'] || '').toString().trim().toLowerCase();
+  if (custom) {
+    if (/^[a-z0-9-]+$/.test(custom)) return custom;
+    errors.push(`✗ ${file}\n  「网址」里有不能用在网址上的字符，请用英文字母、数字和连字符。`);
+  }
+  const auto = basename
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  if (auto) return auto;
+  warnings.push(`⚠ ${file} 的文件名里没有英文，网址会是一串编码。想要干净的网址，在属性里加一个「网址」字段。`);
+  return basename;
+}
+
+function parseRootNotes() {
+  const notes = [];
+  for (const entry of fs.readdirSync(CONTENT_DIR, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.md')) continue;
+    if (entry.name.startsWith('_') || NOTES_EXCLUDE.has(entry.name)) continue;
+
+    const mdFile = path.join(CONTENT_DIR, entry.name);
+    const { data: fm, content: body } = matter.read(mdFile);
+    if (fm['草稿'] === true || !body.trim()) continue;
+
+    const bn = baseName(entry.name);
+    const titleMatch = body.match(/^#\s+(.+)$/m);
+    notes.push({
+      mdFile,
+      filename: entry.name,
+      basename: bn,
+      nameSlug: bn,
+      slug: noteSlug(fm, bn, relDisplay(mdFile)),
+      title: titleMatch ? titleMatch[1].trim() : bn,
+      body: titleMatch ? body.replace(titleMatch[0], '').trim() : body.trim(),
+      summary: (fm['简介'] || '').toString().trim(),
+      date: normalizeDate(fm['日期'], relDisplay(mdFile), { quiet: true }),
+    });
+  }
+  return notes;
+}
+
+function buildNotePage(note, articleTpl, domains, linkIndex) {
+  const pseudoDomain = { slug: NOTES_SLUG, name: '附页' };
+  const bodyHtml = renderMarkdown(note.body, note.mdFile, pseudoDomain, domains, linkIndex);
+  return fill(articleTpl, {
+    TITLE: esc(note.title),
+    TITLE_ESC: esc(note.title),
+    SUMMARY_ESC: esc(note.summary || note.title),
+    SOURCE_URL: esc(`${SITE_ORIGIN}/mc/${NOTES_SLUG}/${note.slug}`),
+    CRUMB_HREF: '../../minecraft.html',
+    CRUMB_TEXT: '← 回到世界',
+    META: ['附页', note.date, `约 ${readMinutes(bodyHtml)} 分钟`].filter(Boolean).join(' · '),
+    BODY: bodyHtml,
+    STAIRS: '            <a href="../../minecraft.html" class="mca-stair mca-stair--home">▤ 回到世界</a>',
+  });
+}
+
 // ---------- 主流程 ----------
 
 function main() {
@@ -529,7 +593,9 @@ function main() {
   const domainTpl = readTemplate('domain.html');
   const today = new Date();
 
-  // 内链索引：渲染前先收齐全部文章（标题 + slug），供 [[内链]] 解析
+  const notes = parseRootNotes();
+
+  // 内链索引：渲染前先收齐全部文章和附页（标题 + slug），供 [[内链]] 解析
   const linkIndex = [];
   for (const d of domains) {
     for (const a of d.articles) {
@@ -542,11 +608,24 @@ function main() {
       });
     }
   }
+  for (const n of notes) {
+    linkIndex.push({
+      domainSlug: NOTES_SLUG,
+      slug: n.slug,
+      basename: n.basename,
+      nameSlug: n.nameSlug,
+      title: n.title,
+    });
+  }
 
   // 先渲染全部（渲染过程会追加校验错误），有错则不写任何文件
   const output = new Map(); // 相对路径 → 内容
   const worldDomains = [];
   const log = [];
+
+  for (const note of notes) {
+    output.set(path.join('mc', NOTES_SLUG, `${note.slug}.html`), buildNotePage(note, articleTpl, domains, linkIndex));
+  }
 
   for (const domain of domains) {
     const lastDate = domain.articles.length ? domain.articles[domain.articles.length - 1].date : null;
