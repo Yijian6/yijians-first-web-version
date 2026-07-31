@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>Shell实验：概念层次理解 — 觉的 Minecraft</title>
-    <meta name="description" content="计算机系统基础II · Shell实验：概念层次理解">
+    <title>前置基础II — 觉的 Minecraft</title>
+    <meta name="description" content="计算机系统基础II · 前置基础II">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
@@ -573,83 +573,69 @@
     </div>
 
     <div id="main" class="main">
-        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-concept">
+        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/before-shelllab-2">
             <div class="mca-topbar">
                 <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title">Shell实验：概念层次理解</h1>
-            <p class="mca-meta">5F · 2026-07-30 · 约 2 分钟</p>
+            <h1 class="mca-title">前置基础II</h1>
+            <p class="mca-meta">3F · 2026-07-23 · 约 4 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
 <blockquote>
-<p>Shell是解析命令、运行相关程序的工具程序，下面我们按照实验的题目，来攻克、完成题目要求我们实现的tsh(Tiny Shell)<br>这是实验的Readme文件：<a href="../notes/shell-readme.html">Shell实验</a><br>你也可以通过下载WSL之后，用VScode 安装WSL插件，打开Terminal运行下面的代码，获取全部的文件，自己运行、试着完成这个实验</p>
+<p>前情提要：</p>
+<p class="mc-indent">在前置基础I中，我们提到，程序就是按照一定顺序完成任务的流程。程序表达的方式有很多种。从自然语言的流程表、到C语言的代码，为了CPU能够执行，又被编译器编译成了机器指令。</p>
+<p>这些都是“死的程序”，只是呈现了程序的理论内容、概念。<br>而想要客观上实际被执行，我们还需要满足一些客观物质条件。他们也是计算机的组成部件的一部分。<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723150716.png" alt="Pasted image 20260723150716" width="1147" height="613" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(500px, 100%)"></p>
 </blockquote>
-<pre><code class="language-shell">git clone https://gitee.com/tjuics/shelllab.git
+<h2>1️⃣CPU</h2>
+<p>CPU当然是必不可少的，它是理解机器指令，执行机器指令的工具。但，光有CPU还不够。程序要有地方放啊，以及程序过程产生的数据也要有地方放，就需要——</p>
+<h2>2️⃣内存</h2>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260731152051.png" alt="Pasted image 20260731152051" width="936" height="557" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(500px, 100%)"></p>
+<p>内存是电脑主板上的一个芯片，是用于存放数据的硬件。<br>有了内存，代码、数据、变量等等才可能被存储。</p>
+<p><mark>综上，当计算机给一个程序分配了一块内存，CPU开始运行这个程序，这个程序就不再是一个“死的文件”了，我们把他叫做——进程。</mark></p>
+<h2><strong>进程(Process)</strong>：是占用了一定的<strong>内存</strong>空间，正在运行中的<strong>程序</strong>。</h2>
+<p>从定义中你也能看出来，<strong>内存</strong>是硬件层次，程序是软件层次。要想建立连接。就需要<strong>操作系统程序</strong>作为中介。</p>
+<p>在计算机中，我们往往要有很多个进程。比如，<strong>浏览器</strong>看网页、<strong>微信</strong>聊天、<strong>音乐播放器</strong>放歌、<strong>文件管理器</strong>找文件。</p>
+<p>这些不同的进程，占用着不同的内存(否则我的代码覆盖你的代码就乱套了)</p>
+<p>那么，问题来了。我们的程序(<strong>用户程序</strong>)由C语言代码构成，如何能够调用操作系统的程序，来实现多<strong>进程</strong>？</p>
+<p>操作系统的开发者，那些计算机的先辈们。在设计操作系统的时候，为我们写好了可以完成操作<strong>系统调用</strong>的函数库。<br>如：</p>
+<ul>
+<li><strong>Linux/Unix操作系统</strong>(程序)中，开发者将那些函数放在了操作系统中的一个名为<code>&lt;unistd.h&gt;</code>(Unix Stdandard)的文件里。<br>于是，我们在<strong>用户程序</strong>的开头写上<code>#include &lt;unistd.h&gt;</code>就能够调用这些C函数，让操作系统运行核心程序，实现<strong>调用操作系统程序</strong>。</li>
+</ul>
+<h2>这类系统调用函数有哪些呢？</h2>
+<p>下面的例子都是C语言代码 <code>&lt;unistd.h&gt;</code>中的函数，实现了调用<strong>操作系统</strong>管理进程。</p>
+<p>了解</p>
+<h3><code>fork()</code>： 让操作系统在内存里再开一块地，复制当前进程，分叉出一个新进程(子进程)</h3>
+<blockquote>
+<p><code>fork</code>单词的本意是叉子，分叉，函数给人一种，克隆了一个一模一样的进程，但这个进程与原来的进程，被处理改变的方式不同，走向可能不同，形成分叉。</p>
+</blockquote>
+<p>❶函数的输入：无<br>❷函数的处理：告诉<strong>操作系统</strong>执行以下动作：</p>
+<p class="mc-indent">a.在内存里<strong>开一块新的空间</strong><br>b.把当前进程的内容（代码、数据）<strong>复制</strong>到那块新空间里，作为一个<strong>新进程</strong>(是原来进程的子进程)<br>c.给<strong>新进程</strong>分配一个<strong>ID编号</strong>——pid(<strong>P</strong>rocess <strong>id</strong>entity)<br>d.在<strong>进程表</strong>中登记好这个新进程的记录</p>
+<p>❸函数的输出：</p>
+<p class="mc-indent">a.操作系统给<strong>父进程</strong>返回子进程的id编号；<br>b.操作系统给<strong>子进程</strong>返回0；</p>
+<p>于是同样一段代码，被父、子进程运行的时候，就产生了分叉，如下</p>
+<pre><code class="language-C">pid_t pid = fork();     
+// pid_t =pid type，是专门表示进程的id的数据类型 ，用它来保存fork()函数的返回值。
+//从这行开始，有两个进程在各自执行这段代码，但是由于返回值不同(子进程返回0，父进程返回子进程的pid)，从而产生分叉。
+if (pid == 0) {
+    // 子进程走这里（因为它拿到的是 0）
+} else {
+    // 父进程走这里（因为它拿到的是 16234(比方说)）
+}
 </code></pre>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260730153943.png" alt="Pasted image 20260730153943" width="1723" height="1067" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<p>完成任何一个确定性目标的最高效方式，就是盯准目标，走直线。<br>解题也是如此。为了完成Shell实验，我们务必先要弄清楚自己的起点在哪里，目标是什么。通过Readme.md(名字都告诉你了，求求你阅读我!(Readme!))</p>
-<p>我们先理清楚，这么大一个shelllab的文件夹里有哪些文件，他们分别负责做什么、有什么关系，过程中，我先会介绍一些相关的重要概念、专业名词。</p>
-<h2>文件名中的概念</h2>
-<div class="mc-table-wrap"><table>
-<thead>
-<tr>
-<th>文件名</th>
-<th>对应英文</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>Readme.md</code></td>
-<td>Readme Markdown</td>
-<td>.md是用Markdown语法表示排版的纯文本文件,Readme表示该文件是一个对整体所有文件的内容、架构说明，最重要！</td>
-</tr>
-<tr>
-<td><code>.gitignore</code></td>
-<td>git ignore</td>
-<td>是告诉<strong>版本管理工具Git</strong>，在管理时候<strong>忽略</strong>一些文件的文件，与实验无关，不用管。</td>
-</tr>
-<tr>
-<td><code>Makefile</code></td>
-<td>make file</td>
-<td>是告诉<code>make</code>工具读取的<strong>自动化命令清单</strong>，常用于<strong>自动编译</strong>、<strong>测试</strong>、<strong>清理</strong>和管理程序项目，也不用管，Readme会告诉我们用法</td>
-</tr>
-<tr>
-<td><code>.c后缀</code></td>
-<td></td>
-<td>用C语言写的代码文件。可以被编译器编译成CPU可以理解执行的文件。编译后的文件会去掉.c。如：<code>tsh.c--编译--&gt;tsh</code>，运行<code>./tsh</code>就能执行<code>tsh</code>文件</td>
-</tr>
-<tr>
-<td><code>.pl后缀</code></td>
-<td>Perl</td>
-<td>用Perl语言写的代码文件，可以被解释器解释、执行的脚本文件。已经安装解释器Perl、文件指定后可以直接执行,运行<code>./sdriver.pl</code></td>
-</tr>
-<tr>
-<td><code>.txt后缀</code></td>
-<td>text</td>
-<td>内容就是纯文字</td>
-</tr>
-<tr>
-<td><code>.out后缀</code></td>
-<td>output</td>
-<td>常常是软件、程序的输出结果。</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table></div>
-<h2>Shell程序运行中的相关概念</h2>
-<p>为了毫无歧义的描述Shell实验过程，我们需要理解清楚下面这些概念、以及概念的英文也尤其重要(便于之后和代码相关联、建立联系)</p>
+<h3><code>execve()</code>让操作系统把当前进程的内存里的内容清掉，换成另一个程序的内容，从头开始执行的函数</h3>
+<p>❶函数的输入：如下三个参数</p>
+<p class="mc-indent">a.要运行的程序的路径，比如说：<code>&quot;/bin/ls&quot;</code><br>b.
+</p>
+<p>❷函数的处理：<br>❸函数的输出：</p>
 
             </div>
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="before-shelllab.html" class="mca-stair">↓ 4F Shell实验引入</a>
+            <a href="prerequisites.html" class="mca-stair">↓ 2F 前置基础I</a>
             <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <span class="mca-stair mca-stair--empty"></span>
+            <a href="before-shelllab.html" class="mca-stair mca-stair--next">4F Shell实验引入 ↑</a>
         </nav>
 
         <footer class="footer">

@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-07-30",
+  "builtAt": "2026-07-31",
   "domains": [
     {
       "name": "写在前面",
@@ -38,16 +38,21 @@ window.MC_WORLD = {
         },
         {
           "n": 2,
-          "title": "前置基础",
+          "title": "前置基础I",
           "date": "2026-07-21"
         },
         {
           "n": 3,
+          "title": "前置基础II",
+          "date": "2026-07-23"
+        },
+        {
+          "n": 4,
           "title": "Shell实验引入",
           "date": "2026-07-30"
         },
         {
-          "n": 4,
+          "n": 5,
           "title": "Shell实验：概念层次理解",
           "date": "2026-07-30"
         }
