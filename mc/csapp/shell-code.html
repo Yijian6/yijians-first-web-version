@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>Shell实验：概念层次理解 — 觉的 Minecraft</title>
-    <meta name="description" content="计算机系统基础II · Shell实验：概念层次理解">
+    <title>Shell实验代码层次的理解 — 觉的 Minecraft</title>
+    <meta name="description" content="计算机系统基础II · Shell实验代码层次的理解">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
@@ -573,173 +573,47 @@
     </div>
 
     <div id="main" class="main">
-        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-concept">
+        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-code">
             <div class="mca-topbar">
                 <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title">Shell实验：概念层次理解</h1>
-            <p class="mca-meta">5F · 2026-07-27 · 约 7 分钟</p>
+            <h1 class="mca-title">Shell实验代码层次的理解</h1>
+            <p class="mca-meta">6F · 2026-07-29 · 约 2 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
 <blockquote>
-<p>Shell是解析命令、运行相关程序的工具程序，下面我们按照实验的题目，来攻克、完成题目要求我们实现的tsh(Tiny Shell)<br>这是实验的Readme文件：<a href="../notes/shell-readme.html">Shell实验</a><br>你也可以通过下载WSL之后，用VScode 安装WSL插件，打开Terminal运行下面的代码，获取全部的文件，自己运行、试着完成这个实验</p>
+<p>上一篇已经让你从概念上理清楚了Shell在解析命令之后，要控制进程、处理信号的过程的一些概念，而Shell本质是一个代码构成的程序。<br>要想要让程序真正实现其功能，要借助代码中，先辈为我们沉淀下来的函数工具、调用接口等……<br>所以，接下来，落到实处，我会介绍C代码中在这个过程需要用到的重要函数、他们的用法(输入、处理、输出)</p>
 </blockquote>
-<pre><code class="language-shell">git clone https://gitee.com/tjuics/shelllab.git
+<h3>信号发送函数——<code>kill(pid，sig)</code>的用法</h3>
+<p>和<code>fork()</code>/<code>execve()</code>类似，它是C代码可调用<code>&lt;signal.h&gt;</code>库中为程序提供的系统调用函数的一个。用法如下：<br>❶函数的输入：</p>
+<p class="mc-indent">a.pid：需要操作系统发送信号的进程名。若写成<code>-pid</code>，则表示对以该进程为组长的整个进程组发送信号<br>b.sig：需要发送的信号的信号名，上面7个都是</p>
+<p>❷函数的处理：让操作系统，给该pid对应的程序发送sig信号。<br>❸函数的输出：<br>若信号发送成功，返回0<br>若信号发送失败，返回<code>-1</code><br>❹例如：</p>
+<pre><code class="language-C">kill(114514,SIGINT)
 </code></pre>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260730153943.png" alt="Pasted image 20260730153943" width="1723" height="1067" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<p>我们先理清楚，这么大一个shelllab的文件夹里有哪些文件，他们分别负责做什么、有什么关系，过程中，我先会介绍一些相关的重要概念、专业名词。</p>
-<h2>文件名中的概念</h2>
-<div class="mc-table-wrap"><table>
-<thead>
-<tr>
-<th>文件名</th>
-<th>对应英文</th>
-<th>功能</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>Readme.md</code></td>
-<td>Readme Markdown</td>
-<td>.md是用Markdown语法表示排版的纯文本文件,Readme表示该文件是一个对整体所有文件的内容、架构说明，最重要！</td>
-</tr>
-<tr>
-<td><code>.gitignore</code></td>
-<td>git ignore</td>
-<td>是告诉<strong>版本管理工具Git</strong>，在管理时候<strong>忽略</strong>一些文件的文件，与实验无关，不用管。</td>
-</tr>
-<tr>
-<td><code>Makefile</code></td>
-<td>make file</td>
-<td>是告诉<code>make</code>工具读取的<strong>自动化命令清单</strong>，常用于<strong>自动编译</strong>、<strong>测试</strong>、<strong>清理</strong>和管理程序项目，也不用管，Readme会告诉我们用法</td>
-</tr>
-<tr>
-<td><code>.c后缀</code></td>
-<td></td>
-<td>用C语言写的代码文件。可以被编译器编译成CPU可以理解执行的文件。编译后的文件会去掉.c。如：<code>tsh.c--编译--&gt;tsh</code>，运行<code>./tsh</code>就能执行<code>tsh</code>文件</td>
-</tr>
-<tr>
-<td><code>.pl后缀</code></td>
-<td>Perl</td>
-<td>用Perl语言写的代码文件，可以被解释器解释、执行的脚本文件。已经安装解释器Perl、文件指定后可以直接执行,运行<code>./sdriver.pl</code></td>
-</tr>
-<tr>
-<td><code>.txt后缀</code></td>
-<td>text</td>
-<td>内容就是纯文字</td>
-</tr>
-<tr>
-<td><code>.out后缀</code></td>
-<td>output</td>
-<td>常常是软件、程序的输出结果。</td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody></table></div>
-<h2>Shell的工作原理</h2>
-<p>Shell 本身是一个<strong>进程</strong>，它在自己的那块内存里跑着一个无限循环。</p>
-<p>每一轮循环做三件事：</p>
-<ol>
-<li><strong>打印提示符</strong>，等你输入命令</li>
-<li><strong>读取</strong>、并<strong>解析</strong>你输入的命令</li>
-<li>调用 <code>fork()</code> 让操作系统<strong>再开一个进程</strong>，然后子进程调用 <code>execve()</code> 把自己变成你要运行的程序</li>
-</ol>
-<h2>Shell程序运行中的相关概念</h2>
-<p>为了毫无歧义的描述Shell实验过程，我们需要理解清楚下面这些概念、以及概念的英文也<br>尤其重要(便于之后和代码相关联、建立联系)</p>
-<blockquote>
-<p>注意！这些概念的英文也同样重要！因为所有代码都只能使用英文来描述它们！理解这些英文更容易你理解代码！</p>
-</blockquote>
-<h3>终端(Terminal)</h3>
-<p>终端是，<strong>提供文本输入、显示输出的窗口</strong>。<br>我们把<strong>指令</strong>输入在终端这个窗口上，Shell程序从终端读取、解析这个指令。<br>每条<strong>指令</strong>，一般占据终端的一行。所以<strong>指令</strong>也被称为<strong>命令行</strong>(Command Line)</p>
-<h3>进程 与 进程ID (PID)</h3>
-<p>进程是占用了一定的内存空间，正在运行中的程序。<br>在操作系统的程序中，为了便于管理和控制进程，我们需要为每一个进程“起一个”名字，这个名字就是<mark><strong>PID</strong></mark>(Process identity)，就像身份证、学号一样，pid是唯一标识某一进程的一串数字。</p>
-<h3>进程组 与 进程组ID (PGID)</h3>
-<p>有些进程之间有着紧密的关系，这些进程构成了一个进程组(Process Group)。每一个进程组有一个组长。</p>
-<p>进程组也有名字，叫<mark><strong>PGID</strong></mark>(Process Group identity)，PGID = 该进程组组长的PID。</p>
-<p>比方说，微信朋友圈的进程和微信整体的进程。我们想要在关掉微信进程的时候，把它的子进程朋友圈也给关闭。于是，操作系统把这类相互存在关系的进程可以看成是一个进程组，只需要发送一次信号，就能让组内的所有进程终止。</p>
-<h3><code>fork()</code>函数与进程组的关系</h3>
-<p><code>fork()</code>可以为一个(父)进程创建一个子进程。由于这个子进程和原来的父进程存在着绑定关系，即子进程由父进程复制、分支而产生，所以，操作系统会默认把子进程加入父进程所在的进程组中。</p>
-<p>如果父进程是最起始的那个进程(父进程不是别的进程的子进程)，那么父进程就是这个进程组的组长。</p>
-<h3>作业(jobs) 与作业ID</h3>
-<p>作业是指：由Shell创建，用来执行一条命令的所有子进程。唯一标识作业的名字，就是JID(Job identity)<br>举个例子<br>》你在Shell中输入：<code>sleep 100</code>指令(这会启动一个等待100s，啥也不做的程序)<br>》shell会创建<code>fork()</code>一个子进程，然后<code>execve(sleep,100,environ)</code>，让Sleep程序代替子进程。<br>这个进程组可以清晰的如下表示：</p>
-<pre><code class="language-C">shell                  ← Shell，本身不是 job
-└── sleep 100          ← job 是shell创建的所有子进程(该条命令就只有一个子进程)
+<p>执行该函数时，会请求操作系统，向pid = 114514的进程，发送SIGINT的信号，默认情况(指没有自定义处理方式的情况)下，代号为114514的进程就会终止。</p>
+<h3>信号接受、自定义处理函数—— <code>signal(sig,处理方式)</code>的用法</h3>
+<p>❶函数的输入：</p>
+<p class="mc-indent">a.<code>sig</code>，想要自定义处理方式的信号<br>b.<code>处理方式</code>， 一种是：<code>sig_IGN</code>，忽略，另一种是，<code>singal_hander</code>，在这里填入另外一个函数。</p>
+<p>❷函数的处理：<br>当进程在收到<code>sig</code>信号时，会调用这个<code>singal_handler()</code>函数，而不是执行默认处理动作<br>❸函数的输出：<br>设置成功，无返回值<br>设置失败，返回<code>SIG_ERR</code><br>❹例如：</p>
+<pre><code class="language-C">提前写好handler函数：
+/* SIGINT 的处理函数 */
+void handle_sigint(int sig) {
+    stop = 1;
+}
+在主程序中写入自定义处理函数，即可在接受到SIGINT时调用相应处理函数了
+int main(){
+signal(SIGINT,handle_sigint);//不会立刻调用，而是在收到SIGINT时，自动调用
+}
 </code></pre>
-<h3>前台作业、后台作业</h3>
-<p>前台作业是指：<strong>占用着终端</strong>(让终端不能为别的程序服务了)，可以接受键盘输入、终端信号的作业。<br>后台作业是指：不占用终端，不能直接读取键盘输入的作业.</p>
-<p>用户在可以用&amp;来标识让Shell在后台执行这个命令。</p>
-<pre><code class="language-C">如：sleep 100 &amp;   # &amp;符号表示让这个指令的进程任务不占用前台(终端)。
-</code></pre>
-<h3>信号(Signal)</h3>
-<p>信号是<strong>操作系统内核</strong>给某一<strong>进程</strong>发送的信息<br>常见的信号有这些，可以先了解：</p>
-<div class="mc-table-wrap"><table>
-<thead>
-<tr>
-<th>信号名</th>
-<th>对应英文单词</th>
-<th>让操作系统内核发送该信号的一般方法(也可以通过🌟kill这个信号发送函数，不要理解成“杀死”函数)</th>
-<th>含义</th>
-</tr>
-</thead>
-<tbody><tr>
-<td><code>SIGINT</code></td>
-<td>Signal interrupt</td>
-<td><code>Ctrl+C</code>、<code>kill(pid,SIGINT)</code></td>
-<td>请求中断当前前台进程</td>
-</tr>
-<tr>
-<td><code>SIGTSTP</code></td>
-<td>Signal Terminal Stop</td>
-<td><code>Ctrl+Z</code>、<code>kill(pid,SIGTSTP)</code></td>
-<td>暂停当前前台进程</td>
-</tr>
-<tr>
-<td><code>SIGCONT</code></td>
-<td>Signal Continue</td>
-<td><code>kill(pid,SIGCONT)</code></td>
-<td>让暂停的进程继续运行</td>
-</tr>
-<tr>
-<td><code>SIGTERM</code></td>
-<td>Signal Terminal</td>
-<td><code>kill(pid,SIGTERM)</code></td>
-<td>告诉pid进程正常退出</td>
-</tr>
-<tr>
-<td><code>SIGKILL</code></td>
-<td>Signal Kill</td>
-<td><code>kill(pid,SIGKILL)</code></td>
-<td>强制终止pid进程</td>
-</tr>
-<tr>
-<td><code>SIGHUP</code></td>
-<td>Signal Hangup</td>
-<td>关闭终端</td>
-<td>通常导致关联进程终止</td>
-</tr>
-<tr>
-<td><code>SIGCHLD</code></td>
-<td>Signal Child</td>
-<td>子进程退出</td>
-<td>通知父进程子进程状态发生变化</td>
-</tr>
-</tbody></table></div>
-<h3>进程接受到信号，怎么办？</h3>
-<p>当一个进程收到了来自操作系统的信号，有两种处理方式：<br>1️⃣默认处理：收到SIGINT就中断结束，收到SIGTSTP就暂停，……<br>2️⃣用户自定义处理(非默认处理)：执行用户自定义的<strong>信号处理函数</strong>(Signal_handler)。</p>
-<h3>用户自定义信号处理 与 信号处理函数(Singnal_handler)</h3>
-<p><code>kill(pid,sig)</code>是我们的程序中，可以调用操作系统发送信号的函数。<br>而<code>singal(sig,处理方式)</code>，是我们程序中，可以自定义一个进程收到某个信号后的处理方式的函数。他们都来自<code>&lt;signal.h&gt;</code><br>这里的处理方式，可以是忽略<code>SIG_IGN</code>，也可以是一个<strong>信号处理函数</strong>(singnal_handler)，告诉进程，在收到sig信号后，去执行相应的函数。</p>
-<p>暂时有点抽象，不理解没关系。接下来，我们会在<a href="shell-code.html">Shell实验代码层次的理解</a>深入讲解，在C代码中，我们如何调用这两个函数，以及他们的输入、处理、输出是什么。</p>
 
             </div>
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="before-shelllab.html" class="mca-stair">↓ 4F Shell实验引入</a>
+            <a href="shell-concept.html" class="mca-stair">↓ 5F Shell实验：概念层次理解</a>
             <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <a href="shell-code.html" class="mca-stair mca-stair--next">6F Shell实验代码层次的理解 ↑</a>
+            <a href="shell-analyse-goal.html" class="mca-stair mca-stair--next">7F Shell实验目标、背景、工具分析 ↑</a>
         </nav>
 
         <footer class="footer">

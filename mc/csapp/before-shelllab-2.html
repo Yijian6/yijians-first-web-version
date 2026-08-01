@@ -603,13 +603,12 @@
 <li><strong>Linux/Unix操作系统</strong>(程序)中，开发者将那些函数放在了操作系统中的一个名为<code>&lt;unistd.h&gt;</code>(Unix Stdandard)的文件里。<br>于是，我们在<strong>用户程序</strong>的开头写上<code>#include &lt;unistd.h&gt;</code>就能够调用这些C函数，让操作系统运行核心程序，实现<strong>调用操作系统程序</strong>。</li>
 </ul>
 <h2>这类系统调用函数有哪些呢？</h2>
-<p>下面的例子都是C语言代码 <code>&lt;unistd.h&gt;</code>中的函数，实现了调用<strong>操作系统</strong>管理进程。</p>
-<p>了解</p>
+<p>下面的两个例子都是C语言代码 <code>&lt;unistd.h&gt;</code>中的函数，实现了调用<strong>操作系统</strong>管理进程。</p>
 <h3><code>fork()</code>： 让操作系统在内存里再开一块地，复制当前进程，分叉出一个新进程(子进程)</h3>
 <blockquote>
 <p><code>fork</code>单词的本意是叉子，分叉，函数给人一种，克隆了一个一模一样的进程，但这个进程与原来的进程，被处理改变的方式不同，走向可能不同，形成分叉。</p>
 </blockquote>
-<p>❶函数的输入：无<br>❷函数的处理：告诉<strong>操作系统</strong>执行以下动作：</p>
+<p>❶函数的输入：无<br>❷函数的处理过程：告诉<strong>操作系统</strong>执行以下动作：</p>
 <p class="mc-indent">a.在内存里<strong>开一块新的空间</strong><br>b.把当前进程的内容（代码、数据）<strong>复制</strong>到那块新空间里，作为一个<strong>新进程</strong>(是原来进程的子进程)<br>c.给<strong>新进程</strong>分配一个<strong>ID编号</strong>——pid(<strong>P</strong>rocess <strong>id</strong>entity)<br>d.在<strong>进程表</strong>中登记好这个新进程的记录</p>
 <p>❸函数的输出：</p>
 <p class="mc-indent">a.操作系统给<strong>父进程</strong>返回子进程的id编号；<br>b.操作系统给<strong>子进程</strong>返回0；</p>
@@ -623,11 +622,12 @@ if (pid == 0) {
     // 父进程走这里（因为它拿到的是 16234(比方说)）
 }
 </code></pre>
-<h3><code>execve()</code>让操作系统把当前进程的内存里的内容清掉，换成另一个程序的内容，从头开始执行的函数</h3>
-<p>❶函数的输入：如下三个参数</p>
-<p class="mc-indent">a.要运行的程序的路径，比如说：<code>&quot;/bin/ls&quot;</code><br>b.
-</p>
-<p>❷函数的处理：<br>❸函数的输出：</p>
+<h3><code>execve(路径,参数,environ)</code>让操作系统把当前进程的内存里的内容清掉，换成另一个程序的内容，从头开始执行的函数</h3>
+<p>❶函数的输入：如下三类参数</p>
+<p class="mc-indent">a.要<strong>运行的程序</strong>(目标程序)的<strong>路径</strong>，比如说：<code>&quot;/bin/ls&quot;</code><br>b.<strong>目标程序</strong>需要的<strong>参数</strong>，比如<code>&quot;-l&quot;</code>/<code>&quot;-d&quot;</code>,……<br>c.环境变量，一般存在<code>environ</code>这个全局变量里，所以直接写environ就可以。</p>
+<p>❷函数的处理：让操作系统执行：</p>
+<p class="mc-indent">a.把当前进程的内存中的内容(代码、数据)清空<br>b.按照路径找到<strong>目标程序</strong>，向内存装入该程序的代码、数据<br>c.从main()函数开始执行<strong>目标程序</strong></p>
+<p>❸函数的输出：<br>成功时，用<strong>目标程序</strong>替换了<strong>当前程序</strong>，没有返回值；<br>失败时，返回值是-1；</p>
 
             </div>
         </article>

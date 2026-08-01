@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-07-31",
+  "builtAt": "2026-08-01",
   "domains": [
     {
       "name": "写在前面",
@@ -49,22 +49,37 @@ window.MC_WORLD = {
         {
           "n": 4,
           "title": "Shell实验引入",
-          "date": "2026-07-30"
+          "date": "2026-07-25"
         },
         {
           "n": 5,
           "title": "Shell实验：概念层次理解",
-          "date": "2026-07-30"
+          "date": "2026-07-27"
+        },
+        {
+          "n": 6,
+          "title": "Shell实验代码层次的理解",
+          "date": "2026-07-29"
+        },
+        {
+          "n": 7,
+          "title": "Shell实验目标、背景、工具分析",
+          "date": "2026-08-01"
+        },
+        {
+          "n": 8,
+          "title": "Shell实验破解-1",
+          "date": "2026-08-02"
         }
       ],
       "ghosts": [
-        "Shell实验代码层次理解",
-        "Shell实验破解",
+        "Shell实验破解-2",
+        "Shell实验破解-3",
         "Malloc实验",
         "Proxy实验",
         "虚拟存储器……"
       ],
-      "lastDate": "2026-07-30",
+      "lastDate": "2026-08-02",
       "stale": false
     },
     {
@@ -85,6 +100,18 @@ window.MC_WORLD = {
   ],
   "log": [
     {
+      "date": "2026-08-02",
+      "title": "Shell实验破解-1",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/shell-over-1.html"
+    },
+    {
+      "date": "2026-08-01",
+      "title": "Shell实验目标、背景、工具分析",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/shell-analyse-goal.html"
+    },
+    {
       "date": "2026-07-30",
       "title": "这里存在的意义",
       "domainName": "写在前面",
@@ -101,18 +128,6 @@ window.MC_WORLD = {
       "title": "为什么想要分享思考",
       "domainName": "写在前面",
       "url": "mc/preword/thoughts-area.html"
-    },
-    {
-      "date": "2026-07-30",
-      "title": "前言",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/preword.html"
-    },
-    {
-      "date": "2026-07-30",
-      "title": "Shell实验引入",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/before-shelllab.html"
     }
   ]
 };
