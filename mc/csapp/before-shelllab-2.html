@@ -579,7 +579,7 @@
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">前置基础II</h1>
-            <p class="mca-meta">3F · 2026-07-23 · 约 4 分钟</p>
+            <p class="mca-meta">3F · 2026-07-23 · 约 5 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
 <blockquote>
@@ -627,7 +627,17 @@ if (pid == 0) {
 <p class="mc-indent">a.要<strong>运行的程序</strong>(目标程序)的<strong>路径</strong>，比如说：<code>&quot;/bin/ls&quot;</code><br>b.<strong>目标程序</strong>需要的<strong>参数</strong>，比如<code>&quot;-l&quot;</code>/<code>&quot;-d&quot;</code>,……<br>c.环境变量，一般存在<code>environ</code>这个全局变量里，所以直接写environ就可以。</p>
 <p>❷函数的处理：让操作系统执行：</p>
 <p class="mc-indent">a.把当前进程的内存中的内容(代码、数据)清空<br>b.按照路径找到<strong>目标程序</strong>，向内存装入该程序的代码、数据<br>c.从main()函数开始执行<strong>目标程序</strong></p>
-<p>❸函数的输出：<br>成功时，用<strong>目标程序</strong>替换了<strong>当前程序</strong>，没有返回值；<br>失败时，返回值是-1；</p>
+<p>❸函数的输出：<br>成功时，用<strong>目标程序</strong>替换了<strong>当前程序</strong>，没有返回值；<br>失败时，返回值是-1；<br>❹例子(搭配fork一起食用)：</p>
+<pre><code class="language-C">pid_t pid;
+pid = fork();
+
+if(pid == 0){
+	execve(argv[0], argv, environ);  //用argv[0]路径、传入argv参数、环境变量，运行新程序以替代子进程。
+}else{
+
+}
+</code></pre>
+<p>那一个进程，调用了子进程，之后，子进程要是结束了怎么办？是不是得让操作系统把它处理、回收、并且删掉他们名字啊？<br>需要父进程调用这个函数：<code>waitpid()</code>,我们在<a href="shell-code.html">Shell实验代码层次的理解</a>中会详细讲解。<br>以及，对于那些没有被回收、但已经结束的进程，我们给它起了个名字，叫做<strong>僵尸进程</strong>，挺形象的。</p>
 
             </div>
         </article>

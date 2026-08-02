@@ -43,3 +43,6 @@ int main(){
 signal(SIGINT,handle_sigint);//不会立刻调用，而是在收到SIGINT时，自动调用
 }
 ```
+
+### 等待、回收进程函数`waitpid()`的用法
+

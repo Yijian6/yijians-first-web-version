@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>常用C标准库函数 — 觉的 Minecraft</title>
-    <meta name="description" content="常用C标准库函数">
+    <title>常用C标准库函数分类 — 觉的 Minecraft</title>
+    <meta name="description" content="常用C标准库函数分类">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
@@ -578,11 +578,65 @@
                 <a href="../../minecraft.html" class="mca-crumb">← 回到世界</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title">常用C标准库函数</h1>
-            <p class="mca-meta">附页 · 约 1 分钟</p>
+            <h1 class="mca-title">常用C标准库函数分类</h1>
+            <p class="mca-meta">附页 · 约 2 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<h3><code>feof()</code></h3>
+<div class="mc-table-wrap"><table>
+<thead>
+<tr>
+<th>分类类型</th>
+<th>头文件</th>
+<th>对应英文</th>
+<th>函数例子</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>输入输出类</strong></td>
+<td><code>&lt;stdio.h&gt;</code></td>
+<td><mark>st</mark>an<mark>d</mark>ard <mark>i</mark>nput/<mark>o</mark>utput</td>
+<td><code>feof()</code><br><code>fflush()</code><br></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table></div>
+<h2>输入输出类：</h2>
+<h3>1️⃣检查文件是否遇到EOF(文件结束符号)<code>feof(FILE *stream)</code>函数</h3>
+<p>❶函数的输入：一个文件的指针<br>❷函数的处理：<strong>仅</strong>读取文件的EOF(文件被读完时候会设置标志位)<br>❸函数的输出：</p>
+<p class="mc-indent">a.EOF存在，返回非0，<br>b.EOF不存在(文件没有读完)，返回0</p>
+<p>❹例子：</p>
+<pre><code class="language-C">#fp = file point 即为输入的文件的指针
+if (feof(fp)) printf(&quot;正常读完\n&quot;);
+</code></pre>
+<h3>2️⃣<code>fflush(FILE *stream)</code>函数</h3>
+<p>这个函数的来源背景，涉及到性能优化：<br>由于每一次打印(<code>printf()</code>)设计系统调用(需要操作系统参与)，会非常耽误时间。所以，我们采取设置<code>缓冲区</code>的办法，让每一次打印的内容，先吞在缓冲区里，在<code>fflush()</code>或者遇到换行符<code>\n</code>之后，再一并调用操作系统，打印到屏幕上。提高效率。<br>❶函数的输入：一个指向文件的指针<br>❷函数的处理：将缓冲区内的没有写出的数据<code>flush(冲刷)</code>出来，立刻让内核运作，打印<br>❸函数的输出：</p>
+<p class="mc-indent">成功，则返回0<br>失败，则返回EOF，设置错误标志</p>
+<p>❹例子：</p>
+<ul>
+<li><code>buffer zone</code>表示缓冲区，简称为buf</li>
+</ul>
+<pre><code class="language-C">printf(&quot;h&quot;);   →  buf: [h . . . . .]     没写
+printf(&quot;e&quot;);   →  buf: [h e . . . .]     没写
+printf(&quot;l&quot;);   →  buf: [h e l . . .]     没写
+printf(&quot;l&quot;);   →  buf: [h e l l . .]     没写
+printf(&quot;o&quot;);   →  buf: [h e l l o .]     没写
+fflush(stdout);→  write(1, buf, 5);      ← 这一刻才真正写出去
+</code></pre>
+<h1><code>exit(status)</code>函数</h1>
+<p>❶函数的输入：退出状态码<br>❷函数的处理：做清理工作 → 请求内核终止本进程 → 把 <code>status</code> 留给父进程<br>❸函数的输出：无返回值(因为已经退出)<br>❹例子：</p>
+<pre><code class="language-C">printf(&quot;hello&quot;); // 无 \n，卡在缓冲区 
+exit(0); // ✅ 输出 hello,退出程序
+</code></pre>
 
             </div>
         </article>

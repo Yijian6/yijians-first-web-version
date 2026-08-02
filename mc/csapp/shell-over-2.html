@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>Shell实验破解-2 — 觉的 Minecraft</title>
+    <meta name="description" content="计算机系统基础II · Shell实验破解-2">
+    <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        :root {
+            --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
+        }
+
+        .mca-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px var(--side-pad) 0;
+        }
+
+        .mca-topbar {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .mca-crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .mca-crumb:hover {
+            color: var(--gold-bright);
+        }
+
+        .mca-export {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            color: var(--white-30);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .mca-export:hover {
+            color: var(--gold);
+        }
+
+        .mca-title {
+            font-family: var(--font-display-mc);
+            font-size: clamp(30px, 6vw, 44px);
+            font-weight: 400;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            margin-bottom: 14px;
+        }
+
+        .mca-meta {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: var(--white-30);
+            margin-bottom: 28px;
+        }
+
+        .mca-rule {
+            height: 1px;
+            background: var(--white-10);
+            margin-bottom: 40px;
+        }
+
+        .mca-body {
+            font-size: clamp(15px, 2vw, 16px);
+            font-weight: 300;
+            line-height: 2;
+            color: var(--white-60);
+        }
+
+        .mca-body h2 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(22px, 3.5vw, 28px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 48px 0 16px;
+        }
+
+        .mca-body h3 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(18px, 3vw, 22px);
+            font-weight: 400;
+            color: var(--white-90);
+            margin: 36px 0 12px;
+        }
+
+        .mca-body p {
+            margin-bottom: 20px;
+        }
+
+        .mca-body strong {
+            color: var(--white-90);
+            font-weight: 500;
+        }
+
+        .mca-body em {
+            color: var(--gold);
+            font-style: normal;
+        }
+
+        .mca-body a {
+            color: var(--gold);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .mca-body blockquote {
+            border-left: 3px solid var(--gold-dim);
+            padding: 4px 0 4px 18px;
+            margin: 24px 0;
+            color: var(--white-30);
+        }
+
+        .mca-body blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        .mca-body ul, .mca-body ol {
+            margin: 0 0 20px;
+            padding-left: 24px;
+        }
+
+        .mca-body li {
+            margin-bottom: 8px;
+        }
+
+        .mca-body li::marker {
+            color: var(--gold);
+        }
+
+        .mca-body code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            color: var(--gold-bright);
+            background: var(--bg-surface);
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .mca-body pre {
+            background: var(--bg-surface);
+            border: 1px solid var(--white-10);
+            border-left: 3px solid var(--gold);
+            border-radius: 2px;
+            padding: 18px 20px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+
+        .mca-body pre code {
+            background: none;
+            padding: 0;
+            font-size: 13px;
+            line-height: 1.9;
+            color: var(--white-60);
+        }
+
+        .mca-body img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 28px auto;
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: zoom-in;
+        }
+
+        /* ===== 图片灯箱 ===== */
+        .mc-lightbox {
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            inset: 0;
+            z-index: 300;
+            background: rgba(8, 10, 8, 0.92);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 24px;
+            cursor: zoom-out;
+            animation: mcLbIn 0.25s ease;
+        }
+
+        @keyframes mcLbIn {
+            from { opacity: 0; }
+        }
+
+        .mc-lightbox img {
+            max-width: min(1400px, 96vw);
+            max-height: 82vh;
+            width: auto;
+            height: auto;
+            border: 1px solid var(--white-10);
+        }
+
+        .mc-lightbox-cap {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--white-60);
+            text-align: center;
+            max-width: 80vw;
+        }
+
+        .mc-lightbox-hint {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--white-30);
+        }
+
+        @supports not (backdrop-filter: blur(1px)) {
+            .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+        }
+
+        html.mc-lightbox-open,
+        html.mc-lightbox-open body {
+            overflow: hidden;
+        }
+
+        .mca-body hr {
+            border: none;
+            height: 1px;
+            background: var(--white-10);
+            margin: 40px 0;
+        }
+
+        .mca-body mark {
+            background: rgba(168, 204, 136, 0.16);
+            color: var(--gold-bright);
+            padding: 1px 5px;
+            border-radius: 2px;
+        }
+
+        .mca-body .mc-indent {
+            padding-left: 20px;
+            border-left: 2px solid var(--white-05);
+        }
+
+        .mc-table-wrap {
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        .mca-body table {
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 320px;
+        }
+
+        .mca-body th, .mca-body td {
+            border: 1px solid var(--white-10);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .mca-body th {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: var(--gold);
+            background: var(--bg-surface);
+        }
+
+        .mca-stairs {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            max-width: 720px;
+            margin: 64px auto 0;
+            padding: 24px var(--side-pad) 48px;
+            border-top: 1px solid var(--white-10);
+        }
+
+        .mca-stair {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            color: var(--white-60);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            max-width: 46%;
+        }
+
+        .mca-stair:hover {
+            color: var(--gold);
+        }
+
+        .mca-stair--next {
+            text-align: right;
+        }
+
+        /* 中间那个「回到这栋楼」每层都在，读完哪一层都能直接回去 */
+        .mca-stair--home {
+            flex-shrink: 0;
+            color: var(--white-30);
+            letter-spacing: 0.1em;
+            text-align: center;
+        }
+
+        .mca-stair--home:hover {
+            color: var(--gold);
+        }
+
+        .mca-stair--empty {
+            flex: 1;
+            max-width: 46%;
+        }
+
+        @media (max-width: 560px) {
+            .mca-stairs {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px 16px;
+            }
+
+            .mca-stair {
+                max-width: 100%;
+            }
+
+            .mca-stair--home {
+                order: -1;
+                width: 100%;
+                padding-bottom: 6px;
+            }
+
+            .mca-stair--empty {
+                display: none;
+            }
+        }
+
+        /* ============ 打印 / 导出 PDF ============
+           深色主题直接打印既费墨又看不清，这里整体翻成白底黑字，
+           只保留标题、日期、出处和正文，并控制分页不劈开代码块和图片。 */
+        @media print {
+            @page {
+                margin: 1.8cm;
+            }
+
+            html, body {
+                background: #fff !important;
+                color: #1a1a1a !important;
+            }
+
+            /* 屏幕专属的结构：导航、进度条、页脚、楼梯、导出按钮、灯箱 */
+            .progress-track,
+            .navbar,
+            .mobile-menu,
+            .hamburger,
+            .footer,
+            .mca-stairs,
+            .mca-export,
+            .mc-lightbox,
+            .custom-cursor {
+                display: none !important;
+            }
+
+            .main {
+                opacity: 1 !important;
+                transform: none !important;
+                padding: 0 !important;
+                min-height: 0 !important;
+            }
+
+            .mca-wrap {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* reveal 类元素在打印时必须是可见的最终态 */
+            .reveal, .reveal-left, .reveal-scale, .reveal-clip {
+                opacity: 1 !important;
+                transform: none !important;
+                clip-path: none !important;
+            }
+
+            .mca-topbar {
+                margin-bottom: 12px;
+                display: block;
+            }
+
+            .mca-crumb {
+                color: #5a7a3c !important;
+                font-size: 10pt;
+                letter-spacing: 0.1em;
+            }
+
+            .mca-title {
+                color: #111 !important;
+                font-size: 22pt;
+                margin-bottom: 8px;
+                break-after: avoid;
+            }
+
+            .mca-meta {
+                color: #666 !important;
+                font-size: 9pt;
+                margin-bottom: 16px;
+            }
+
+            .mca-rule {
+                background: #ccc !important;
+                margin-bottom: 20px;
+            }
+
+            .mca-body {
+                color: #1a1a1a !important;
+                font-size: 11pt;
+                line-height: 1.75;
+            }
+
+            .mca-body h2,
+            .mca-body h3 {
+                color: #111 !important;
+                break-after: avoid;
+                margin-top: 20px;
+            }
+
+            .mca-body strong {
+                color: #000 !important;
+            }
+
+            .mca-body em {
+                color: #3f6b23 !important;
+            }
+
+            .mca-body a {
+                color: #2c5aa0 !important;
+            }
+
+            .mca-body blockquote {
+                color: #555 !important;
+                border-left-color: #bbb !important;
+                break-inside: avoid;
+            }
+
+            .mca-body li::marker {
+                color: #5a7a3c !important;
+            }
+
+            /* 代码块与高亮：强制保留底色，否则纸上没有区分度 */
+            .mca-body pre {
+                background: #f5f5f2 !important;
+                border: 1px solid #ddd !important;
+                border-left: 3px solid #7a9c5a !important;
+                break-inside: avoid;
+                white-space: pre-wrap;
+                word-break: break-word;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body pre code,
+            .mca-body code {
+                color: #24303a !important;
+                background: none !important;
+                font-size: 9.5pt;
+            }
+
+            .mca-body :not(pre) > code {
+                background: #f0f0ec !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body mark {
+                background: #e8f2d8 !important;
+                color: #2d4a15 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body .mc-indent {
+                border-left-color: #ddd !important;
+            }
+
+            /* max-height + width:auto 已经等比缩放，不用 object-fit（也就不会裁切） */
+            .mca-body img {
+                border-color: #ddd !important;
+                max-height: 16cm;
+                width: auto;
+                break-inside: avoid;
+                cursor: auto;
+            }
+
+            .mc-table-wrap {
+                overflow: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body table {
+                font-size: 9.5pt;
+                min-width: 0;
+                width: 100%;
+            }
+
+            .mca-body th,
+            .mca-body td {
+                border-color: #ccc !important;
+            }
+
+            .mca-body th {
+                color: #2d4a15 !important;
+                background: #f2f5ec !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body hr {
+                background: #ddd !important;
+            }
+
+            /* 页尾出处 */
+            .mca-wrap::after {
+                content: "来自 " attr(data-source);
+                display: block;
+                margin-top: 28px;
+                padding-top: 10px;
+                border-top: 1px solid #ddd;
+                font-family: var(--font-mono);
+                font-size: 8.5pt;
+                color: #888;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <nav class="navbar">
+        <a href="../../index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <div class="nav-links">
+            <a href="../../work.html" class="nav-link" data-index="01">Work</a>
+            <a href="../../me.html" class="nav-link" data-index="02">Me</a>
+            <a href="../../passion.html" class="nav-link" data-index="03">Passion</a>
+            <a href="../../prediction.html" class="nav-link" data-index="04">Becoming</a>
+            <a href="../../offer.html" class="nav-link" data-index="05">Offer</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
+    </nav>
+
+    <div class="mobile-menu">
+        <a href="../../index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="../../work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="../../me.html" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="../../passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="../../prediction.html" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="../../offer.html" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+    </div>
+
+    <div id="main" class="main">
+        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-over-2">
+            <div class="mca-topbar">
+                <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
+                <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
+            </div>
+            <h1 class="mca-title">Shell实验破解-2</h1>
+            <p class="mca-meta">9F · 2026-08-02 · 约 15 分钟</p>
+            <div class="mca-rule"></div>
+            <div class="mca-body">
+<blockquote>
+<p>从trace02开始，一直做完trace16</p>
+</blockquote>
+<h2>在此之前，我们再次回顾我们的最终目标——那7个函数，在解题效率方面，再怎么强调目标意识都不为过。</h2>
+<p>据此，我们每一次都去看看，要补充的函数是哪个或者哪些。</p>
+<pre><code class="language-C">* eval：解析和解释命令行的主例程。 【70行】
+//Shell就是主要的进程，可见这个是最主要的那个函数。
+
+* builtin cmd：识别和解释内置命令：quit、fg、bg和jobs。【25行】
+//识别一个命令是内置命令，大概需要我们比较字符串即可。
+
+* do_bgfg：实现bg和fg内置命令。【50行】
+//似乎是两个命令函数，但我们暂时不知道是干嘛的
+
+* waitfg：等待前台作业完成。【20行】
+//一个等待前台作业的函数，
+
+* sigchld handler：捕获SIGCHILD信号。【80行】
+//这是一个handler函数，可见，我们需要自定义收到SIGCHILD之后做的事情
+//还记得吗，SIGCHILD是子进程状态发生改变的信号
+
+* sigint handler：捕获SIGINT（ctrl-c）信号。【15行】
+//这也是一个handler函数，我们需要自定义收到SIGINT之后做的事情，ctrl-c可以让操作系统向前台进程发送这个信号。
+
+* sigtstp handler：捕获SIGTSTP（ctrl-z）信号。【15行】
+//这也是一个handler函数，我们需要自定义收到SIGTSTP之后做的事情，ctrl-z可以让操作系统向前台进程发送这个信号。
+</code></pre>
+<h2>trace02</h2>
+<p> <img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802120405.png" alt="Pasted image 20260802120405" width="849" height="246" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(532px, 100%)"><br> 注释告诉我们，我们要“Process，处理”quit这个内置命令<br> 第4行的小写字符告诉我们，quit会被直接传入shell 中当作命令。<br> 首先，一定设计到的地方有<code>builtin_cmd</code>函数，我们应该是要在这里加入quit的处理方式。我们直接去看一眼<code>tsh.c</code>中相关的注释、代码。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802121144.png" alt="Pasted image 20260802121144" width="1208" height="385" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<h2>找到了，注释说明了<code>builtin_cmd()</code>函数的功能：</h2>
+<p> ❶输入：<code>argv[]</code>(argument vector)参数数组<br> ❷处理：至少有：①如果用户输入built-in 命令，②立刻处理<br> ❸输出：一个int类型的整数</p>
+<p class="mc-indent"> 如果不是builtin command，返回0。</p>
+<h3>思考：那很明显了，<code>builtin(argv)</code>起到的作用有两个：</h3>
+<p class="mc-indent">①识别内置命令<br>②处理该命令</p>
+<p>就<code>quit</code>而言，我们要</p>
+<p class="mc-indent">①识别出来<code>quit</code>是内置命令<br>②处理这个内置命令</p>
+<p>❹写代码</p>
+<p class="mc-indent">①识别直接用<code>strcmp(string1，string2)</code>(string compare)函数就可以,内部return 1;<br>②执行quit命令，直接用exit(0)退出就可以。</p>
+<p>❺示例代码如下：</p>
+<pre><code class="language-C">int builtin_cmd(char **argv)
+{
+	if(strcmp(argv[0],&quot;quit&quot;== 0))//argv[0]表示输入的第一个参数
+	{
+		exit(0); //处理quit的方式就是，直接退出
+		return 1; //为了区别于不是内置命令的情况，我们返回1;
+	}
+    return 0;     /* not a builtin command *///如果不是内置命令返回0，
+}
+</code></pre>
+<p>太对了，下一步是检验，一下，从<code>main()</code>函数开始，能不把<code>解析命令-识别内置命令-执行quit命令</code>串联起来。<br>耐下心来，从<code>main()</code>开始慢慢读吧~毕竟是最首先被执行的函数，不读main怎么可能做出题。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802122540.png" alt="Pasted image 20260802122540" width="1264" height="1017" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(530px, 100%)"><br>养成好习惯，先读注释，再读代码：也不长，我直接复制过来逐行读。看不懂是常态。千万不要慌。只要没有涉及到上面目标的7个函数，那都是现成给你的，又不要你敲出来，压根不慌。</p>
+<pre><code class="language-C">int main(int argc, char **argv)
+{
+//定义argc、argv,显然用来接受用户的输入用的。原理中我们提到输入会变成一个数组argv[]
+    char c;
+    char cmdline[MAXLINE];
+    int emit_prompt = 1; /* emit prompt (default) */
+	//前面几行定义变量，cmdline就是一行命令的意思
+	//emit是发出的意思，Prompt是(命令)提示符，就是说设置了一个
+	
+    /* Redirect stderr to stdout (so that driver will get all output
+     * on the pipe connected to stdout) */
+    dup2(1, 2);
+	//这个函数不太熟悉，但注释说了，把stderr(standard error)和stdout(standard output)通过一个管道链接起来，变成stdout。
+    /* Parse the command line */
+	//下面开始解析(Parse)命令行了，里面也没有看到我们要完成的7个函数，所以都是给我们看看而已，看不懂就跳过。
+    while ((c = getopt(argc, argv, &quot;hvp&quot;)) != EOF) {
+        switch (c) {
+        case &#39;h&#39;:             /* print help message */
+            usage();
+        break;
+        case &#39;v&#39;:             /* emit additional diagnostic info */
+            verbose = 1;
+        break;
+        case &#39;p&#39;:             /* don&#39;t print a prompt */
+            emit_prompt = 0;  /* handy for automatic testing */
+        break;
+    default:
+            usage();
+    }
+    }
+//命令行的h、v、p三个选项，对应不同处理方式。
+  
+
+    /* Install the signal handlers */
+//这里！注意，自定义了该进程收到三类信号时候的不同处理方式，分别是SIGINT、SIGTSTP、SIGCHLD。
+
+    /* These are the ones you will need to implement */
+//并且，三个自定义处理函数的内容，都需要我们完成。(目前trace还没用到，先不管)
+    Signal(SIGINT,  sigint_handler);   /* ctrl-c */
+    Signal(SIGTSTP, sigtstp_handler);  /* ctrl-z */
+    Signal(SIGCHLD, sigchld_handler);  /* Terminated or stopped child */
+	
+	/* This one provides a clean way to kill the shell */
+    Signal(SIGQUIT, sigquit_handler);
+	//这个是已经写好的， kill shell的方法，自动调用，不管了。
+    /* Initialize the job list */
+	//初始化jobs这个列表，调用了一个函数，这个函数不属于我们要完成的那7个以内的，那就是已经自己写好的。不管。
+    initjobs(jobs);
+
+	/* Execute the shell&#39;s read/eval loop */
+//进入读取、解析、执行的核心内容了，但我们依旧，只关心那7个函数。
+    while (1) {
+    /* Read command line */
+    if (emit_prompt) {
+        printf(&quot;%s&quot;, prompt);  //打印提示词:tsh&gt;
+        fflush(stdout);
+    }
+    if ((fgets(cmdline, MAXLINE, stdin) == NULL) &amp;&amp; ferror(stdin))
+        app_error(&quot;fgets error&quot;);
+    if (feof(stdin)) { /* End of file (ctrl-d) */
+        fflush(stdout);
+        exit(0);  //好眼熟，这不是上一题用到的地方吗
+    }
+    /* Evaluate the command line */
+	这里进入执行阶段
+    eval(cmdline);
+	//将cmdline(一开始定义的这个表示用户输入的一行命令的字符数组)扔给eval处理
+    fflush(stdout);
+	//刷新输出，直接打印？？？这哪来了，eval没处理，我怎么打印啊？？
+	//可见，我们下一步必须要完成eval()函数，将cmdline的命令解析、并处理了
+    fflush(stdout);
+	//再一次确保输出刷新成功
+    }
+    exit(0); /* control never reaches here */
+
+}
+</code></pre>
+<p>读完了！整个main函数，涉及到重要的入口<code>eval()</code>函数。就是我们下一步要去看的！<br>直接搜索！第一次出现就在main上面的函数声明区，我们来看看<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802122858.png" alt="Pasted image 20260802122858" width="1193" height="765" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(380px, 100%)"><br> 可以看到，main函数上面有一大堆的函数声明，似乎我们都看不太懂。但，可以先看看注释：<code>Here are ……</code><br>哦~明白了，Function prototype告诉我们函数分两类：<br>①you will inplement (你来完成)：</p>
+<p class="mc-indent">我们可能需要分别搜索跳转过去再看看他们的注释、详细用法。<br>务必仔细研磨，一字不落，毕竟《解题之道，就在其中》.</p>
+<p>②helpers we provided(帮你实现)：</p>
+<p class="mc-indent">这么多函数，原来都是&quot;helper&quot;,也就是，早就已经实现的工具啊。那我们也要跳转过去，尽可能看看注释，了解他们做什么即可。<br>先从名字大概看看吧，毕竟《工欲善其事，必先利其器》：<br>有如下这么多辅助工具：我用表格简单整理罗列下他们注释里可以看到的简单用法</p>
+<div class="mc-table-wrap"><table>
+<thead>
+<tr>
+<th>工具函数</th>
+<th>英文名字拆解</th>
+<th>注释提到的用法</th>
+<th>输入</th>
+<th>输出</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>parseline()</code></td>
+<td>parse line<br>(解析,行)</td>
+<td>①解析命令<br>②构建<code>argv[]</code>这个数组</td>
+<td>①cmdline(一行命令)   <br>②argv数组</td>
+<td>后台命令返回1         <br>前台命令返回0</td>
+</tr>
+<tr>
+<td><code>sigquit_handler()</code></td>
+<td>sig quit handler</td>
+<td>①driver给shell<br>发送SIGQUIT信号后，终止shell</td>
+<td>①sig</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>clearjob()</code></td>
+<td>clear 清空<br>job    作业</td>
+<td>①把job的所有东西清空</td>
+<td>①job 一个作业</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>initjob()</code></td>
+<td>initialize<br>初始化</td>
+<td>①给job 清单初始化</td>
+<td>①jobs 清单</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>maxjid()</code></td>
+<td>max 最大<br>jid 作业ID</td>
+<td>①返回最大已分配的id</td>
+<td>①jobs 清单</td>
+<td>最大jid</td>
+</tr>
+<tr>
+<td><code>addjob()</code></td>
+<td>add 增加</td>
+<td>①给jobs 清单增加一项PID = pid ，状态 = state，用命令=cmdline添加的job</td>
+<td>①jobs 清单<br>②增加的pid<br>③state<br>④cmdline</td>
+<td></td>
+</tr>
+<tr>
+<td><code>deletejob()</code></td>
+<td>delete 删除</td>
+<td>①从jobs 清单删除PID = pid 的job</td>
+<td>①</td>
+<td></td>
+</tr>
+<tr>
+<td><code>fgpid()</code></td>
+<td>fg：foreground</td>
+<td>①获取jobs清单中所有状态为fg的(占据终端的)前台任务的 pid</td>
+<td>①jobs清单</td>
+<td>job的地址</td>
+</tr>
+<tr>
+<td><code>getjobpid()</code></td>
+<td>get 获取</td>
+<td>①找到jobs清单中PID = pid的job</td>
+<td>①jobs清单<br>②pid</td>
+<td>job的地址</td>
+</tr>
+<tr>
+<td><code>getjobjid()</code></td>
+<td></td>
+<td>①找到jobs清单中JID = jid的job</td>
+<td>①jobs清单<br>②jid</td>
+<td>job的地址</td>
+</tr>
+<tr>
+<td><code>pid2jid()</code></td>
+<td>2 = to 转换</td>
+<td>①根据进程的pid，得到对应job的jid</td>
+<td>①pid</td>
+<td>job的jid</td>
+</tr>
+<tr>
+<td><code>listjobs()</code></td>
+<td>list 罗列</td>
+<td>①打印jobs清单的所有项</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>unix_error()</code></td>
+<td>unix 操作系统<br>error 错误</td>
+<td>①发生操作系统错误的处理例程</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>app_error()</code></td>
+<td>application<br>应用程序</td>
+<td>①发生用户程序错误的处理例程</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>Signal()</code></td>
+<td></td>
+<td>熟悉的自定义信号处理函数</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table></div>
+<p>工具大概就扫完了，在实际过程中不用细看，了解关键词就好、比如说，<br>1、我知道<code>pid2jid()</code>可以实现转换jid和pid，所以我需要转换的使用，我就用这个。我压跟不知道原理也没关系。<br>2、我知道parseline可以解析命令行，我可能在处理解析的时候用得到，得到argv数组。<br>……</p>
+<p>刚才说到，帮助函数只是小菜，我们更重要的要逐字细读7个要完成的函数的内容。回顾主函数，定义了一个 <code>cmdline</code>字符数组(作为输入)之后，就把它扔给了<code>eval()</code>，我们跳转去看看<code>eval()</code>的注释。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802123151.png" alt="Pasted image 20260802123151" width="1206" height="532" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(381px, 100%)"><br>果然，函数内部是空的，完全需要我们来填写。</p>
+<h2><code>eval()</code>，我们阅读注释、分析他的作用：</h2>
+<p>❶输入：cmdline，一行命令作为参数。<br>❷处理：</p>
+<p class="mc-indent">①判断，是不是内置命令(<mark>quit</mark>、jobs、bg、fg)，如果是，直接执行。(这不就刚才完成了一个quit吗，我们原来是要在这里调用builtin_cmd)<br>②如果不是内置命令(Otherwise)，<code>fork()</code>产生一个子进程，运行job。<br>③如果job是前台的，等待(哦，似乎有一个<code>waitfg()</code>函数来着？)</p>
+<p>❸输出：无<br>懂了，我们要初步实现的就是eval函数处理过程的逻辑！</p>
+<h3>思考：</h3>
+<p>①如何判断，命令是不是内置命令？<code>builtin_cmd()</code>已经做到了，如果不是，这个函数会返回0，如果命令内置命令的话，它会直接处理完了，返回1，所以这样写：</p>
+<pre><code class="language-C">	if(builtin_cmd(argv)){
+		return; //如果是内置命令，builtin_cmd()会直接处理完了，所以我们直接return，跳出这个函数即可。
+	}
+</code></pre>
+<p>argv哪来的？得提前定义！并借助<code>parseline()</code>函数，解析获取！</p>
+<pre><code class="language-C">char *argv[MAXARGS];//数组大小源自于文件开头定义的MAXARGS(max arguments)常数
+
+parseline(cmdline,argv);
+</code></pre>
+<p>而又因为parseline的输出告诉我们了这个命令是是前台还是后台，我们需要一个变量来记录，所以还要定义一个变量bg：</p>
+<pre><code class="language-C">int bg;
+
+bg =parseline(cmdline,argv);
+</code></pre>
+<p>内置命令搞定了，判定前/后台变量也搞定了<br>②接下来处理不是内置命令的情况：我们要先<code>fork()</code>一个子进程，然后子进程调用<code>execve()</code>执行目标命令，替换掉子进程</p>
+<pre><code class="language-C">pid_t pid;  //定义pid变量以接受fork()的返回值
+
+pid = fork();
+//子进程
+if(pid == 0){
+	execve(argv[0],argv,environ);
+}
+</code></pre>
+<p>③父进程怎么处理？如果是前台进程(即bg = 0)要等待<br>我们先看看<code>waitfg()</code>，《等待前台进程》这个函数让我们完成啥吧？<br>注释告诉我们：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802163851.png" alt="Pasted image 20260802163851" width="1072" height="111" loading="lazy" decoding="async" data-media-fit="natural"><br>🌟只要一个进程还是前台进程，我们就要一直等待它结束。<br>等着简单：我们知道有一个<code>waitpid()</code>函数<br>如何判断一个进程是前台进程啊？？？我们只知道pid啊。<br>不好说，我们先空着，<br>？因为trace2只要求我们处理内置命令。</p>
+<p>于是，<code>waitfg()</code>的框架成型了：</p>
+<pre><code class="language-C">void waitfg(pid_t pid)
+{
+
+    return;
+}
+</code></pre>
+<p>所以父进程的框架也能成型了：</p>
+<pre><code class="language-C">//父进程处理
+//前台进程
+if(bg == 0){  
+	waitfg(pid);
+	
+}
+
+//后台进程
+if(bg == 1){
+
+}
+</code></pre>
+<p>完成拼起来，填入<code>eval()</code>就是：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802165948.png" alt="Pasted image 20260802165948" width="533" height="810" loading="lazy" decoding="async" data-media-fit="natural"><br>来吧，make、make test02和make rtest02，比较结果。发现也是直接过了！输出一模一样，在最后输出完之后，成功自动quit了<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802170313.png" alt="Pasted image 20260802170313" width="1149" height="547" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<blockquote>
+<p>trace02的内容其实本没有这么复杂，没有涉及到关于非内置命令的复杂处理。<br>如fork()、execve()、以及判断前台、后台作业，分别情况处理的部分。<br>但是我们在分析的过程当中，想到了shell处理的逻辑本来就要按照这个框架分类，所以提前打好了框架，也更便于下一步！</p>
+</blockquote>
+<p>这篇有点长了，我们在<a href="2026-08-02.html">Shell实验破解-3</a>里继续解决trace03到trace16！</p>
+
+            </div>
+        </article>
+
+        <nav class="mca-stairs" aria-label="楼层导航">
+            <a href="shell-over-1.html" class="mca-stair">↓ 8F Shell实验破解-1</a>
+            <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
+            <a href="2026-08-02.html" class="mca-stair mca-stair--next">10F Shell实验破解-3 ↑</a>
+        </nav>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"一切伟大的建筑，都始于第一个方块"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：iDoWantiDoWill</p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../js/compat.js" defer></script>
+    <script src="../../js/script.js" defer></script>
+    <script src="../../js/mc-article.js" defer></script>
+</body>
+</html>

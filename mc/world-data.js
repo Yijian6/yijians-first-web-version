@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-08-01",
+  "builtAt": "2026-08-02",
   "domains": [
     {
       "name": "写在前面",
@@ -69,11 +69,20 @@ window.MC_WORLD = {
         {
           "n": 8,
           "title": "Shell实验破解-1",
+          "date": "2026-08-01"
+        },
+        {
+          "n": 9,
+          "title": "Shell实验破解-2",
+          "date": "2026-08-02"
+        },
+        {
+          "n": 10,
+          "title": "Shell实验破解-3",
           "date": "2026-08-02"
         }
       ],
       "ghosts": [
-        "Shell实验破解-2",
         "Shell实验破解-3",
         "Malloc实验",
         "Proxy实验",
@@ -101,9 +110,15 @@ window.MC_WORLD = {
   "log": [
     {
       "date": "2026-08-02",
-      "title": "Shell实验破解-1",
+      "title": "Shell实验破解-2",
       "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-over-1.html"
+      "url": "mc/csapp/shell-over-2.html"
+    },
+    {
+      "date": "2026-08-02",
+      "title": "Shell实验破解-3",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/2026-08-02.html"
     },
     {
       "date": "2026-08-01",
@@ -112,22 +127,16 @@ window.MC_WORLD = {
       "url": "mc/csapp/shell-analyse-goal.html"
     },
     {
+      "date": "2026-08-01",
+      "title": "Shell实验破解-1",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/shell-over-1.html"
+    },
+    {
       "date": "2026-07-30",
       "title": "这里存在的意义",
       "domainName": "写在前面",
       "url": "mc/preword/meaning.html"
-    },
-    {
-      "date": "2026-07-30",
-      "title": "为什么想要分享知识",
-      "domainName": "写在前面",
-      "url": "mc/preword/knowledge-area.html"
-    },
-    {
-      "date": "2026-07-30",
-      "title": "为什么想要分享思考",
-      "domainName": "写在前面",
-      "url": "mc/preword/thoughts-area.html"
     }
   ]
 };
