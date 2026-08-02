@@ -79,16 +79,30 @@ window.MC_WORLD = {
         {
           "n": 10,
           "title": "Shell实验破解-3",
-          "date": "2026-08-02"
+          "date": "2026-08-03"
         }
       ],
       "ghosts": [
-        "Shell实验破解-3",
         "Malloc实验",
         "Proxy实验",
         "虚拟存储器……"
       ],
-      "lastDate": "2026-08-02",
+      "lastDate": "2026-08-03",
+      "stale": false
+    },
+    {
+      "name": "AI",
+      "nameEn": "arti-intelligence",
+      "slug": "arti-intelligence",
+      "floors": [
+        {
+          "n": 1,
+          "title": "做AI时代的生产者，而非消费者",
+          "date": "2026-07-15"
+        }
+      ],
+      "ghosts": [],
+      "lastDate": "2026-07-15",
       "stale": false
     },
     {
@@ -109,16 +123,16 @@ window.MC_WORLD = {
   ],
   "log": [
     {
+      "date": "2026-08-03",
+      "title": "Shell实验破解-3",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/shell-over-3.html"
+    },
+    {
       "date": "2026-08-02",
       "title": "Shell实验破解-2",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/shell-over-2.html"
-    },
-    {
-      "date": "2026-08-02",
-      "title": "Shell实验破解-3",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/2026-08-02.html"
     },
     {
       "date": "2026-08-01",
