@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-08-02",
+  "builtAt": "2026-08-03",
   "domains": [
     {
       "name": "写在前面",
@@ -109,7 +109,13 @@ window.MC_WORLD = {
       "name": "数据结构",
       "nameEn": "Data Structures",
       "slug": "data-structures",
-      "floors": [],
+      "floors": [
+        {
+          "n": 1,
+          "title": "期末考试刷题",
+          "date": "2026-08-03"
+        }
+      ],
       "ghosts": [
         "链表",
         "栈与队列",
@@ -117,7 +123,7 @@ window.MC_WORLD = {
         "哈希表",
         "图"
       ],
-      "lastDate": null,
+      "lastDate": "2026-08-03",
       "stale": false
     }
   ],
@@ -127,6 +133,12 @@ window.MC_WORLD = {
       "title": "Shell实验破解-3",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/shell-over-3.html"
+    },
+    {
+      "date": "2026-08-03",
+      "title": "期末考试刷题",
+      "domainName": "数据结构",
+      "url": "mc/data-structures/test.html"
     },
     {
       "date": "2026-08-02",
@@ -145,12 +157,6 @@ window.MC_WORLD = {
       "title": "Shell实验破解-1",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/shell-over-1.html"
-    },
-    {
-      "date": "2026-07-30",
-      "title": "这里存在的意义",
-      "domainName": "写在前面",
-      "url": "mc/preword/meaning.html"
     }
   ]
 };
