@@ -579,7 +579,7 @@
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">Shell实验代码层次的理解</h1>
-            <p class="mca-meta">6F · 2026-07-29 · 约 2 分钟</p>
+            <p class="mca-meta">6F · 2026-07-29 · 约 5 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
 <blockquote>
@@ -606,7 +606,42 @@ int main(){
 signal(SIGINT,handle_sigint);//不会立刻调用，而是在收到SIGINT时，自动调用
 }
 </code></pre>
-<h3>等待、回收进程函数<code>waitpid()</code>的用法</h3>
+<h3>子进程状态变化监听函数<code>waitpid(pid,*status,options)</code>的用法</h3>
+<p>❶函数的输入：</p>
+<p class="mc-indent">a.<code>pid</code>：指定需要监听的子进程对象。又可以分为以下情况<br>1、 pid = -1，表示任意一个子进程<br>2、 pid = 0 ,表示同一个进程组的任意一个子进程<br>3、 pid &gt; 0 ,表示PID =该值的哪个子进程<br>b.<code>*status</code>：状态指针，打包了子进程的所有状态信息。<br>为了获取状态中的信息，我们需要用到<strong>宏工具</strong>，其用法与函数相同，从打包的<code>status</code>中可以提取出来信息。<br>1、若status =NULL，表示我们不关注信息，常用于<code>waitpid(-1,NULL,WNOHANG)</code>回收任意僵尸进程<br>c.<code>options</code>：方式选择<br>1、options=0，表示：等待，直到一个进程被终止，回收它，然后返回。<br>2、options=WNOHANG(Wait No Hang)，表示：不等待，若已有一个子进程终止，则回收它并返回 PID；否则立刻返回 <code>0</code><br>3、options=WUNTRACED，等待，直到发生两种情况：<br>❶一个子进程终止，回收，然后返回。<br>❷或一个子进程被暂停，不回收，直接返回。<br>4、options=WCONTINUED，等待，直到发生两种情况：<br>❶一个子进程终止，回收，然后返回。<br>❷或一个暂停的子进程被恢复运行，不回收，直接返回。
+
+</p>
+<p>❷函数的处理：按照如上的options方式选择处理并返回<br>❸函数的输出(返回值)：</p>
+<p class="mc-indent">1.如果有子进程状态发生变化，就返回这个子进程的PID。<br>2.如果是<code>WNOHANG</code>选项，没有子进程状态发生变化时，返回0。<br>3.如果已经没有子进程了、或报错，返1。</p>
+<h3><strong>宏工具</strong>的使用</h3>
+<div class="mc-table-wrap"><table>
+<thead>
+<tr>
+<th>宏工具</th>
+<th>作用</th>
+<th>进一步详细状态确定</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>WIFEXITED(status)</code><br>if 是否<br>exited 退出</td>
+<td>问“是正常退出的吗”<br>若是，返回1<br>若不是，返回0</td>
+<td><code>WEXITSTATUS(status)</code><br>exit 退出<br>status 状态</td>
+<td>返回正常退出码<br>(0~255的一个数字)</td>
+</tr>
+<tr>
+<td><code>WIFSIGNALED(status)</code><br>if<br>signaled</td>
+<td>问“是被信号杀死的吗”<br>若是，返回1<br>若不是，返回0</td>
+<td><code>WTERMSIG(status)</code><br>terminate 终止<br>signal 信号</td>
+<td>返回杀死进程的信号名</td>
+</tr>
+<tr>
+<td><code>WIFSTOPPED(status)</code><br>if<br>stopped</td>
+<td>问“是被暂停了吗”<br>若是，返回1<br>若不是，返回0</td>
+<td><code>WSTOPSIG(status)</code><br>stop<br>signal</td>
+<td>返回暂停进程的信号名</td>
+</tr>
+</tbody></table></div>
 
             </div>
         </article>

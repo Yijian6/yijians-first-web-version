@@ -80,6 +80,11 @@ window.MC_WORLD = {
           "n": 10,
           "title": "Shell实验破解-3",
           "date": "2026-08-03"
+        },
+        {
+          "n": 11,
+          "title": "Shell实验破解-4",
+          "date": "2026-08-03"
         }
       ],
       "ghosts": [
@@ -112,7 +117,7 @@ window.MC_WORLD = {
       "floors": [
         {
           "n": 1,
-          "title": "期末考试刷题",
+          "title": "数据结构期末考卷",
           "date": "2026-08-03"
         }
       ],
@@ -136,7 +141,13 @@ window.MC_WORLD = {
     },
     {
       "date": "2026-08-03",
-      "title": "期末考试刷题",
+      "title": "Shell实验破解-4",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/shell-over-4.html"
+    },
+    {
+      "date": "2026-08-03",
+      "title": "数据结构期末考卷",
       "domainName": "数据结构",
       "url": "mc/data-structures/test.html"
     },
@@ -151,12 +162,6 @@ window.MC_WORLD = {
       "title": "Shell实验目标、背景、工具分析",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/shell-analyse-goal.html"
-    },
-    {
-      "date": "2026-08-01",
-      "title": "Shell实验破解-1",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-over-1.html"
     }
   ]
 };

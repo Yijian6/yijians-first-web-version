@@ -84,15 +84,15 @@ shell                  ← Shell，本身不是 job
 信号是**操作系统内核**给某一**进程**发送的信息
 常见的信号有这些，可以先了解：
 
-| 信号名       | 对应英文单词               | 让操作系统内核发送该信号的一般方法(也可以通过🌟kill这个信号发送函数，不要理解成“杀死”函数) | 含义             |
-| --------- | -------------------- | -------------------------------------------------- | -------------- |
-| `SIGINT`  | Signal interrupt     | `Ctrl+C`、`kill(pid,SIGINT)`                        | 请求中断当前前台进程     |
-| `SIGTSTP` | Signal Terminal Stop | `Ctrl+Z`、`kill(pid,SIGTSTP)`                       | 暂停当前前台进程       |
-| `SIGCONT` | Signal Continue      | `kill(pid,SIGCONT)`                                | 让暂停的进程继续运行     |
-| `SIGTERM` | Signal Terminal      | `kill(pid,SIGTERM)`                                | 告诉pid进程正常退出    |
-| `SIGKILL` | Signal Kill          | `kill(pid,SIGKILL)`                                | 强制终止pid进程      |
-| `SIGHUP`  | Signal Hangup        | 关闭终端                                               | 通常导致关联进程终止     |
-| `SIGCHLD` | Signal Child         | 子进程退出                                              | 通知父进程子进程状态发生变化 |
+| 信号名       | 对应英文单词               | 让操作系统内核发送该信号的一般方法(也可以通过🌟kill这个信号发送函数，不要理解成“杀死”函数)                  | 含义               |
+| --------- | -------------------- | ------------------------------------------------------------------- | ---------------- |
+| `SIGCHLD` | Signal Child         | 任意子进程的状态发生变化(❶由运行变为终止❷由运行变为暂停❸从暂停恢复运行)，(操作系统)内核都会检测到，并且向父进程发送信号<br> | 通知父进程，子进程状态的发生变化 |
+| `SIGINT`  | Signal interrupt     | `Ctrl+C`、`kill(pid,SIGINT)`                                         | 请求中断当前前台进程       |
+| `SIGTSTP` | Signal Terminal Stop | `Ctrl+Z`、`kill(pid,SIGTSTP)`                                        | 暂停当前前台进程         |
+| `SIGCONT` | Signal Continue      | `kill(pid,SIGCONT)`                                                 | 让暂停的进程继续运行       |
+| `SIGTERM` | Signal Terminal      | `kill(pid,SIGTERM)`                                                 | 告诉pid进程正常退出      |
+| `SIGKILL` | Signal Kill          | `kill(pid,SIGKILL)`                                                 | 强制终止pid进程        |
+| `SIGHUP`  | Signal Hangup        | 关闭终端                                                                | 通常导致关联进程终止       |
 
 ### 进程接受到信号，怎么办？
 当一个进程收到了来自操作系统的信号，有两种处理方式：

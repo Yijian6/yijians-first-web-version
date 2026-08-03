@@ -579,10 +579,99 @@
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">Shell实验破解-3</h1>
-            <p class="mca-meta">10F · 2026-08-03 · 约 1 分钟</p>
+            <p class="mca-meta">10F · 2026-08-03 · 约 8 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
 <blockquote>
+<p>trace03继续。别忘了解题思路的循环。</p>
+</blockquote>
+<pre><code class="language-C">看trace--&gt;找sdriver.pl--&gt;改tsh.c--&gt;make、反复调试
+</code></pre>
+<h2>Trace03</h2>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123459.png" alt="Pasted image 20260803123459" width="1087" height="302" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>trace03 的要求是：<code>#运行前台作业</code>，两行都是shell命令，会直接传给shell。<br>1、第一行运行一个给定路径的echo程序，我们的<code>exevce()</code>已经可以实现。<br>2、第二行，是运行内置的quit指令，我们的早已实现。<br>说明trace03是送我们的，直接make、make test03、make rtest03验证吧<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123846.png" alt="Pasted image 20260803123846" width="1170" height="647" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(411px, 100%)"></p>
+<h2>Trace04</h2>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123936.png" alt="Pasted image 20260803123936" width="1092" height="340" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>trace04要求：<code>#运行后台命令</code>,两行都是shell命令、直接传给shell。<br>1、第一行同trace03，echo，已经实现<br>2、第二行是运行一个后台程序。那无论前台、后台，他们都通过<code>exevce()</code>来运行啊。所以我们已经可以实现。<br>直接make验证：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803124449.png" alt="Pasted image 20260803124449" width="1136" height="693" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(392px, 100%)"><br>出问题了， 标准输出还要求输出一行这个后台作业的情况。问题来了，我们压根就没有记录所有运行的作业(job)。<br>咋记录？看看我们有什么工具呢？<a href="shell-over-2.html">Shell实验破解-2</a>中的<code>工具函数表</code>还记得吗？<br>于是我们很快联想到：</p>
+<pre><code class="language-C">我们需要利用作业列表(jobs List)来记录下来我们所有的作业的信息。
+jobs是已经初始化好的
+addjob(jobs,pid,state,cmdline)可以把用cmdline命令添加、PID=pid、state确定的一条作业的情况，加入jobs List。
+</code></pre>
+<p>补充好后台作业处理的代码。(都是<code>eval()</code>的一部分)</p>
+<pre><code class="language-C">//父进程后台作业的处理
+if(bg == 1){
+	addjob(jobs,pid,BG,cmdline); //之前已经初始化了jobs清单，可以直接用,BG表示后台作业
+	printf(&quot;[%d] (%d) %s&quot;,pid2jid(pid),pid,cmdline);//输出到屏幕上
+}
+</code></pre>
+<p>同时，我们联想到，前台作业也需要记录，但不打印。把BG换成FG。加上<code>addjob()</code></p>
+<pre><code class="language-C">//父进程前台作业的处理
+if(bg == 0){
+	addjob(jobs,pid,FG,cmdline);
+}
+</code></pre>
+<p>好，make、测试！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803130325.png" alt="Pasted image 20260803130325" width="1110" height="728" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(471px, 100%)"><br>我们发现非常奇怪的现象——如上。<br>1️⃣我的job编号为啥是2？？，意思是还有一个job存在咯？<br>2️⃣为啥输出的顺序还颠倒了？？？<br>思考：<br>回顾全程，我们一共就运行了两行代码、对应两个进程。那么真相水落石出了：第一行的前台作业，子进程在运行完之后，就被终止了，而我没有回收、删除掉它！！所以会有两个进程。<br>这是谁的责任？？！！！进程终止后，操作系统发送SIGCHLD给父进程。父进程收到了SIGCHLD之后，自动调用sigchld_handler函数，没有发挥作用！！！！因为我们还没写😁<br>于是我们来完成它。<br>怎么回收？用<code>子进程监听函数waitpid()</code>啦！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803134147.png" alt="Pasted image 20260803134147" width="912" height="361" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<p>我们目前只需要把所有的终止的进程自动回收，并且从jobs列表里面删除。用：</p>
+<pre><code class="language-C">void sigchld_handler(int sig)
+{
+    pid_t pid; //定义pid，用来接受waitpid的返回值
+    while() (pid = waitpid(-1,NULL,0))&gt;0){ //循环，只要还有进程就等待、回收
+        deletejob(jobs,pid);
+    };//回收所有被终止的进程
+    return;
+}
+</code></pre>
+<p>OK，1️⃣解决了，那么颠倒的问题呢？我们继续想这个过程。首先会有一个前台作业(对应echo进程)，还没等它运行完，这个时候，我们的shell就又运行了第二行代码，先输出了结果。也就是说，我们没有等待前台进程结束。<br>这是哪个函数的责任？<code>waitfg()</code>。<br>怎么写<code>waitfg()</code>？<br>❶判断一个进程是前台进程？我们现在每一个进程的状态都已经保存，存在了jobs表里。所以我们通过读表，就可以直到标志为FG的就是前台进程。可以直接从表里读前台进程的pid。正好有一个工具函数！<code>fgpid()</code>，</p>
+<pre><code class="language-C">(fgpid(jobs) == pid))就可以用作判断子进程是否占据前台
+</code></pre>
+<p>❷如果占据了前台，怎么做？等。</p>
+<pre><code class="language-C">sleep(1)
+</code></pre>
+<p>所以：</p>
+<pre><code class="language-C">void waitfg(pid_t pid)
+{
+	whlie(fgpid(jobs) == pid){
+		sleep(1); //只要占据前台，就空运转着
+	}
+    return;
+}
+</code></pre>
+<p>再测试！！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803140501.png" alt="Pasted image 20260803140501" width="1223" height="743" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(419px, 100%)"><br>只有pid不一样，正常。因为操作系统每一次创建的进程都会 分配新的PID。<br>Trace04通过！</p>
+<h2>Trace05</h2>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803140826.png" alt="Pasted image 20260803140826" width="1270" height="634" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(427px, 100%)"><br>trace05要求：<code>#处理jobs内置命令</code><br>之前4条命令都一样，运行外部程序、两个后台作业，我们都能处理。<br>关键是jobs，这也没有输出啊？我们回顾REAEME检索这个命令的作用，同时make rtest05看一下标准输出。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803141354.png" alt="Pasted image 20260803141354" width="1237" height="275" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(701px, 100%)"><br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803141442.png" alt="Pasted image 20260803141442" width="1098" height="645" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(407px, 100%)"><br>joibs和quit一样是内置函数，我们修改<code>builtin_cmd()</code>,仿照quit的处理，在检测到jobs的时候,罗列所有的jobs，我们看看有没有工具可以使用。！刚好，看来要用<code>listjobs()</code>辅助函数了！(养成先看看有没有现用工具的习惯，不要什么都想着自己造，会很累)<br>那简单了：</p>
+<pre><code class="language-C">int builtin_cmd(char **argv)
+
+{
+    /*quit内置命令，识别，并且处理*/
+    if(strcmp(argv[0],&quot;quit&quot;) == 0){
+        exit(0);
+        return 1;
+    }
+	/*jobs内置命令，识别，并且处理*/
+	if(strcmp(argv[0],&quot;jobs&quot;) == 0){
+        listjobs(jobs);
+        return 1;
+    }
+
+    return 0;     /* not a builtin command */
+
+}
+</code></pre>
+<p>make、测试！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803142159.png" alt="Pasted image 20260803142159" width="1199" height="1095" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(463px, 100%)"><br>出问题了：<br>jobs显示没有进程，说明：进程已经被回收了，才运行jobs这个指令。我们的sigchld_handler 在回收的处理方面有问题。<br>回顾整个过程定位：</p>
+<p>❶运行<code>./myspin 2 &amp;</code>之后，会创建后台作业，写入jobs，JID=1。<br>❷顺带打印<code>[1] (52862) ./myspin 2 &amp;</code>信息<br>🌟❗️❸<code>/bin/echo ...</code> ，创建前台作业，写入jobs，JID=2，很快执行完，子进程结束，操作系统发送SIGCHLD信号，触发<code>sigchld_handler()</code>，首先，回收<code>/bin/echo ...</code>进程、删除JID= 2的这个作业。然后，由于仍然存在进程(<code>./myspin 2 &amp;</code>)，<code>waitpid()</code>还会等待、回收<code>./myspin 2 &amp;</code>这个后台作业,苦苦等了两秒之后，才将它回收。而伴随着<code>./myspin 2 &amp;</code>进程终止，操作系统又发送SIGCHLD信号，触发<code>sigchld_handler()</code>，这次，因为已经没有进程，所以就没有运行删除作业。<br>❹之后运行<code>./myspin 3 &amp;</code>，创建后台作业，写入jobs，JID=1。<br>❺i打印<code>[1] (52862) ./myspin 3 &amp;</code>信息<br>❻<code>/bin/echo jobs</code>，创建前台作业，写入jobs，JID=2很快执行完，子进程结束，操作系统发送SIGCHLD信号，触发<code>sigchld_handler()</code>,回收<code>/bin/echo jobs</code> 进程、删除JID=2的作业，然后由于还存在进程(<code>./myspin 3 &amp;</code>)，故而<code>waitpid()</code>还会等待、回收它，苦苦3秒过后，才将它回收。删除了这个JID =1的作业，于是作业表为空。<br>❼运行jobs指令，打印了空的列表。</p>
+<p>马萨卡，罪怪于sigchld_handler(,,0)这个选项“等待所有进程直到终止”的机制！所以我们换一个options，改成WNOHANG模式，这样，对于已经终止的进程，回收掉它。如果还有进程没有终止，不等待，立刻返回0。</p>
+<pre><code class="language-C">void sigchld_handler(int sig)
+{
+    pid_t pid; //定义pid，用来接受waitpid的返回值
+
+    while ((pid = waitpid(-1,NULL,WNOHANG))&gt;0){
+        deletejob(jobs,pid);
+    };//不等待，立刻回收所有被终止的进程
+    return;
+
+}
+</code></pre>
+<p>再make、make test05。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803152922.png" alt="Pasted image 20260803152922" width="1141" height="1088" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(440px, 100%)"><br>通过~😁</p>
+<blockquote>
+<p>下一节继续，trace06</p>
 </blockquote>
 
             </div>
@@ -591,7 +680,7 @@
         <nav class="mca-stairs" aria-label="楼层导航">
             <a href="shell-over-2.html" class="mca-stair">↓ 9F Shell实验破解-2</a>
             <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <span class="mca-stair mca-stair--empty"></span>
+            <a href="shell-over-4.html" class="mca-stair mca-stair--next">11F Shell实验破解-4 ↑</a>
         </nav>
 
         <footer class="footer">

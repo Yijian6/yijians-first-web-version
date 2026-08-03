@@ -685,6 +685,12 @@
 </tr>
 </thead>
 <tbody><tr>
+<td><code>SIGCHLD</code></td>
+<td>Signal Child</td>
+<td>任意子进程的状态发生变化(❶由运行变为终止❷由运行变为暂停❸从暂停恢复运行)，(操作系统)内核都会检测到，并且向父进程发送信号<br></td>
+<td>通知父进程，子进程状态的发生变化</td>
+</tr>
+<tr>
 <td><code>SIGINT</code></td>
 <td>Signal interrupt</td>
 <td><code>Ctrl+C</code>、<code>kill(pid,SIGINT)</code></td>
@@ -719,12 +725,6 @@
 <td>Signal Hangup</td>
 <td>关闭终端</td>
 <td>通常导致关联进程终止</td>
-</tr>
-<tr>
-<td><code>SIGCHLD</code></td>
-<td>Signal Child</td>
-<td>子进程退出</td>
-<td>通知父进程子进程状态发生变化</td>
 </tr>
 </tbody></table></div>
 <h3>进程接受到信号，怎么办？</h3>

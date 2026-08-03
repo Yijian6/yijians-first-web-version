@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>做AI时代的生产者，而非消费者 — 觉的 Minecraft</title>
-    <meta name="description" content="AI · 做AI时代的生产者，而非消费者">
+    <title>Shell实验破解-4 — 觉的 Minecraft</title>
+    <meta name="description" content="计算机系统基础II · Shell实验破解-4">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
@@ -573,39 +573,43 @@
     </div>
 
     <div id="main" class="main">
-        <article class="mca-wrap" data-source="yijian6.com/mc/arti-intelligence/ai-forbit">
+        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-over-4">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">← 回到 AI</a>
+                <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title">做AI时代的生产者，而非消费者</h1>
-            <p class="mca-meta">1F · 2026-07-15 · 约 1 分钟</p>
+            <h1 class="mca-title">Shell实验破解-4</h1>
+            <p class="mca-meta">11F · 2026-08-03 · 约 3 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<h2>AI应当是服务于我们为世界产生、创造价值的工具，而不是消耗品。</h2>
-<p>在使用AI的过程中，我们要警惕以下想法的产生。<br>它们会让人陷入：误以为自己很厉害，<strong>实则什么都没有产出</strong>的意淫。</p>
-<pre><code class="language-C">在AI界，永远不应以这些事情为荣：
-
-关注到多少个最新的模型的信息、
-开了3个AI的会员、
-一天花了几亿的Token、
-参加了很多个AI的比赛、
-进入了什么AI社群、
-见了很多Ai大佬……
-学了很多AI相关的东西……
+<h2>Trace06</h2>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803153237.png" alt="Pasted image 20260803153237" width="1292" height="490" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(525px, 100%)"><br>trace06要求：<code>#给前台job发送SIGINT，终止它</code><br>参考输出是：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803154006.png" alt="Pasted image 20260803154006" width="1152" height="392" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(531px, 100%)"><br>查阅sdriver.pl：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803153423.png" alt="Pasted image 20260803153423" width="862" height="281" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(389px, 100%)"><br>INT就是发送一个SIGINT终止信号给shell。所以我们要写的函数就是shell收到SIGINT之后，如何处理——<code>sigint_handler()</code> 函数<br>很简单：<br>❶获取现在的前台作业吧，<code>fgpid()</code>  = pid<br>❷直接把对应pid的作业终止了就好，借助信号发送函数<code>kill(pid,SIGINT)</code>：<br>代码就是：</p>
+<pre><code class="language-C">void sigint_handler(int sig)
+{
+    pid_t pid;// 先定义pid，为了后续使用
+    pid = fgpid(jobs); //获取现在前台的作业(因为我们要终止的是前台作业)
+	
+    if(pid != 0){
+        kill(pid,sig);
+    }
+    return;
+}
 </code></pre>
-<p>这些事情的本质是在“消耗”AI，而不是利用AI真正产出有价值的东西。<br>AI的价值不过变成了，让这些人误以为自己高人一等的多巴胺而已。<br>我们要摒弃这一类行为，取而代之的应该是：</p>
-<pre><code class="language-C">用AI提高了多少效率
-解决了原本不能解决的问题
-产生了什么价值
-赚到了多少钱
-</code></pre>
+<p>kill发送信号之后，子进程收到了SIGINT的信号，会立刻终止。操作系统检测到了子进程的终止，又会发送SIGCHLD信号给父进程，接下来，我们又需要在sigchld_handler中获取这这个进程被信号终止的信息，打印输出！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803154922.png" alt="Pasted image 20260803154922" width="845" height="295" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(484px, 100%)"><br>所以这个函数：<br>❶首先不能用NULL了，因为收到信号要保存状态。<br>❷要定义status，然后使用宏工具解析它<br>改动后如下：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161105.png" alt="Pasted image 20260803161105" width="1218" height="647" loading="lazy" decoding="async" data-media-fit="natural"><br>make、测试！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161007.png" alt="Pasted image 20260803161007" width="1191" height="719" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(353px, 100%)"><br>通过！</p>
+<h2>Trace07</h2>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161311.png" alt="Pasted image 20260803161311" width="1403" height="747" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(371px, 100%)"><br>要求<code>#确保SIGINT只给前台发送终止</code><br>那我们上面的代码里，本身就写的是，对前台处理，压根不影响后台，如下：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161444.png" alt="Pasted image 20260803161444" width="1294" height="788" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(440px, 100%)"><br>所以直接测试、通过！</p>
+<h2>Trace08</h2>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161926.png" alt="Pasted image 20260803161926" width="1269" height="733" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(317px, 100%)"><br>类比INT，现在要我们处理SIGTSTP信号。相对比较容易了。<br><code>sigtstp_handler()</code>直接复制粘贴，同理可得:<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803162919.png" alt="Pasted image 20260803162919" width="395" height="305" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(307px, 100%)"></p>
+<p>而在给子进程发送了暂停信号后，子进程的状态发生改变()。操作系统会发送SIGCHLD给父进程，于是又进入<code>sigchld_handler()</code>这个函数。而<code>sigchld_handler()</code>对于暂停(SIGTSTP)的处理，和终止(SIGINT)的区别在于：<br>❶需要加入对被暂停的进程的监听：也就是加入<code>WUNTRACED</code>这个选项。<br>❷将解析中断状态的宏工具换成解析暂停状态的<code>WIFSTOPPED()</code>和<code>WSTOPSIG()</code><br>🌟❸还要另外处理：状态由运行变成暂停之后，需要设置、改变这个job的属性，而不能直接删除这个job。</p>
+<p>嗯嗯，测试一下吧😈。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803170507.png" alt="Pasted image 20260803170507" width="540" height="295" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(442px, 100%)"><br>通过了吗😈😈😈<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803170557.png" alt="Pasted image 20260803170557" width="1289" height="687" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>这里要放一个😈表情包。你应该感应到不对劲了。</p>
+<h2>竞态条件(race condition)</h2>
+<p>如上两幅图，同样的代码，是我在不同时间运行的结果。图一，通过。图二却卡死在了</p>
 
             </div>
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <span class="mca-stair mca-stair--empty"></span>
+            <a href="shell-over-3.html" class="mca-stair">↓ 10F Shell实验破解-3</a>
             <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
             <span class="mca-stair mca-stair--empty"></span>
         </nav>

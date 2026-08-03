@@ -609,7 +609,7 @@
 * sigtstp handler：捕获SIGTSTP（ctrl-z）信号。【15行】
 //这也是一个handler函数，我们需要自定义收到SIGTSTP之后做的事情，ctrl-z可以让操作系统向前台进程发送这个信号。
 </code></pre>
-<h2>trace02</h2>
+<h2>Trace02</h2>
 <p> <img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802120405.png" alt="Pasted image 20260802120405" width="849" height="246" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(532px, 100%)"><br> 注释告诉我们，我们要“Process，处理”quit这个内置命令<br> 第4行的小写字符告诉我们，quit会被直接传入shell 中当作命令。<br> 首先，一定设计到的地方有<code>builtin_cmd</code>函数，我们应该是要在这里加入quit的处理方式。我们直接去看一眼<code>tsh.c</code>中相关的注释、代码。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802121144.png" alt="Pasted image 20260802121144" width="1208" height="385" loading="lazy" decoding="async" data-media-fit="natural"></p>
 <h2>找到了，注释说明了<code>builtin_cmd()</code>函数的功能：</h2>
 <p> ❶输入：<code>argv[]</code>(argument vector)参数数组<br> ❷处理：至少有：①如果用户输入built-in 命令，②立刻处理<br> ❸输出：一个int类型的整数</p>
@@ -619,7 +619,7 @@
 <p>就<code>quit</code>而言，我们要</p>
 <p class="mc-indent">①识别出来<code>quit</code>是内置命令<br>②处理这个内置命令</p>
 <p>❹写代码</p>
-<p class="mc-indent">①识别直接用<code>strcmp(string1，string2)</code>(string compare)函数就可以,内部return 1;<br>②执行quit命令，直接用exit(0)退出就可以。</p>
+<p class="mc-indent">①识别：直接用<code>strcmp(string1，string2)</code>(string compare)函数就可以,内部return 1;<br>②执行：quit命令，直接用exit(0)退出就可以。</p>
 <p>❺示例代码如下：</p>
 <pre><code class="language-C">int builtin_cmd(char **argv)
 {
@@ -713,6 +713,7 @@
 <p class="mc-indent">我们可能需要分别搜索跳转过去再看看他们的注释、详细用法。<br>务必仔细研磨，一字不落，毕竟《解题之道，就在其中》.</p>
 <p>②helpers we provided(帮你实现)：</p>
 <p class="mc-indent">这么多函数，原来都是&quot;helper&quot;,也就是，早就已经实现的工具啊。那我们也要跳转过去，尽可能看看注释，了解他们做什么即可。<br>先从名字大概看看吧，毕竟《工欲善其事，必先利其器》：<br>有如下这么多辅助工具：我用表格简单整理罗列下他们注释里可以看到的简单用法</p>
+<h3>工具函数表</h3>
 <div class="mc-table-wrap"><table>
 <thead>
 <tr>
@@ -867,15 +868,7 @@ if(pid == 0){
 	execve(argv[0],argv,environ);
 }
 </code></pre>
-<p>③父进程怎么处理？如果是前台进程(即bg = 0)要等待<br>我们先看看<code>waitfg()</code>，《等待前台进程》这个函数让我们完成啥吧？<br>注释告诉我们：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802163851.png" alt="Pasted image 20260802163851" width="1072" height="111" loading="lazy" decoding="async" data-media-fit="natural"><br>🌟只要一个进程还是前台进程，我们就要一直等待它结束。<br>等着简单：我们知道有一个<code>waitpid()</code>函数<br>如何判断一个进程是前台进程啊？？？我们只知道pid啊。<br>不好说，我们先空着，<br>？因为trace2只要求我们处理内置命令。</p>
-<p>于是，<code>waitfg()</code>的框架成型了：</p>
-<pre><code class="language-C">void waitfg(pid_t pid)
-{
-
-    return;
-}
-</code></pre>
-<p>所以父进程的框架也能成型了：</p>
+<p>③父进程怎么处理？如果是前台进程(即bg = 0)要等待<br>我们先看看<code>waitfg()</code>，这个函数让我们完成啥吧？<br>注释告诉我们：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802163851.png" alt="Pasted image 20260802163851" width="1072" height="111" loading="lazy" decoding="async" data-media-fit="natural"><br>🌟只要一个进程还是前台进程，我们就要一直等待它结束。有点复杂啊？<br>❶我们要判断一个进程是不是前台进程。<br>❷一个进程的结束，对于Shell而言，是 <code>fork()</code>完了之后，子进程的状态的变化，操作系统，会发生SIGCHLD,这还设计到了另一个函数<code>sigchld_handler()</code>.<br>有点复杂啊？<br>不会处理。<br>不过，<br>毕竟trace2只让我们处理一个内置命令。接受quit,解析、执行quit、退出。(我们的<code>parseline()</code>和<code>builtin_cmd()</code>已经实现)现在我们已经就把trace02通过了，那我们先把<code>waitpid()</code>和<code>sigchld_handler()</code>空着吧，之后再写。<br>所以父进程的框架就成型了：</p>
 <pre><code class="language-C">//父进程处理
 //前台进程
 if(bg == 0){  
@@ -888,7 +881,8 @@ if(bg == 1){
 
 }
 </code></pre>
-<p>完成拼起来，填入<code>eval()</code>就是：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802165948.png" alt="Pasted image 20260802165948" width="533" height="810" loading="lazy" decoding="async" data-media-fit="natural"><br>来吧，make、make test02和make rtest02，比较结果。发现也是直接过了！输出一模一样，在最后输出完之后，成功自动quit了<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802170313.png" alt="Pasted image 20260802170313" width="1149" height="547" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<p>完成拼起来，填入<code>eval()</code>就是：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803125915.png" alt="Pasted image 20260803125915" width="635" height="1047" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<p>来吧，make、make test02和make rtest02，比较结果。发现也是直接过了！输出一模一样，都在最后输出完之后，自动退出了。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802170313.png" alt="Pasted image 20260802170313" width="1149" height="547" loading="lazy" decoding="async" data-media-fit="natural"></p>
 <blockquote>
 <p>trace02的内容其实本没有这么复杂，没有涉及到关于非内置命令的复杂处理。<br>如fork()、execve()、以及判断前台、后台作业，分别情况处理的部分。<br>但是我们在分析的过程当中，想到了shell处理的逻辑本来就要按照这个框架分类，所以提前打好了框架，也更便于下一步！</p>
 </blockquote>
