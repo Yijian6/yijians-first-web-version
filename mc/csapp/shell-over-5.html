@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title># trace14.txt - Simple error handling — 觉的 Minecraft</title>
-    <meta name="description" content="计算机系统基础II · # trace14.txt - Simple error handling">
+    <title>Shell实验破解-5 — 觉的 Minecraft</title>
+    <meta name="description" content="计算机系统基础II · Shell实验破解-5">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
@@ -578,11 +578,10 @@
                 <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title"># trace14.txt - Simple error handling</h1>
+            <h1 class="mca-title">Shell实验破解-5</h1>
             <p class="mca-meta">12F · 2026-08-04 · 约 4 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<h2>Shell实验破解-5</h2>
 <p>话不多说，直接进trace09，我们争取这篇文章干完后面所有的！</p>
 <h2>Trace09</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804104337.png" alt="Pasted image 20260804104337" width="932" height="868" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(287px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804105846.png" alt="Pasted image 20260804105846" width="942" height="696" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(366px, 100%)"><br>要求：<code>#处理bg内置命令</code>，这个%是啥意思来着？搜索！<img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804104918.png" alt="Pasted image 20260804104918" width="1294" height="197" loading="lazy" decoding="async" data-media-fit="natural"><br>在规范里看到这一句话，也就是说，我们要识别命令的第二个参数<code>argv[1]</code>，判定有没有%从而判定，到底是由PID对应作业，还是JID，有%的是JID，没有的是PID。</p>
@@ -602,7 +601,8 @@
 <h2>Trace14</h2>
 <p>内容很长，我复制过来逐行解释，要我们处理一些错误情况</p>
 <pre><code class="language-bash">yijian@Jue:~/re-lab/shelllab$ cat trace14.txt
-
+#
+# trace14.txt - Simple error handling
 #
 
 1️⃣故意启动了一个没有的程序，我们直接execve()会报错，要判断

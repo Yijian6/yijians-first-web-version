@@ -88,7 +88,7 @@ window.MC_WORLD = {
         },
         {
           "n": 12,
-          "title": "# trace14.txt - Simple error handling",
+          "title": "Shell实验破解-5",
           "date": "2026-08-04"
         }
       ],
@@ -140,7 +140,7 @@ window.MC_WORLD = {
   "log": [
     {
       "date": "2026-08-04",
-      "title": "# trace14.txt - Simple error handling",
+      "title": "Shell实验破解-5",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/shell-over-5.html"
     },

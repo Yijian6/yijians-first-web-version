@@ -3,7 +3,7 @@
 网址: shell-over-5
 蓝图: Shell实验破解-5
 ---
-## Shell实验破解-5
+# Shell实验破解-5
 话不多说，直接进trace09，我们争取这篇文章干完后面所有的！
 ## Trace09
 ![[Pasted image 20260804104337.png|287]]![[Pasted image 20260804105846.png|366]]
