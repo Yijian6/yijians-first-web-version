@@ -312,11 +312,19 @@ marked.use({
       if (!abs) return '';
       return imageHtml(abs, text);
     },
+    // 给小标题按顺序编号做锚点，供大纲跳转。
+    // 用序号而不是标题文字：中文 id 分享出去会变成一长串编码。
+    heading({ tokens, depth }) {
+      const text = this.parser.parseInline(tokens);
+      if (depth !== 2 && depth !== 3) return `<h${depth}>${text}</h${depth}>\n`;
+      ctx.headingCount += 1;
+      return `<h${depth} id="s${ctx.headingCount}">${text}</h${depth}>\n`;
+    },
   },
 });
 
 function renderMarkdown(body, mdFile, domain, domains, index) {
-  ctx = { mdFile, domain, domains, index };
+  ctx = { mdFile, domain, domains, index, headingCount: 0 };
   let html = marked.parse(body);
   ctx = null;
   // 表格包滚动容器，防手机端溢出
