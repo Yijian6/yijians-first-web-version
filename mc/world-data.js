@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-08-03",
+  "builtAt": "2026-08-04",
   "domains": [
     {
       "name": "写在前面",
@@ -85,6 +85,11 @@ window.MC_WORLD = {
           "n": 11,
           "title": "Shell实验破解-4",
           "date": "2026-08-03"
+        },
+        {
+          "n": 12,
+          "title": "# trace14.txt - Simple error handling",
+          "date": "2026-08-04"
         }
       ],
       "ghosts": [
@@ -92,7 +97,7 @@ window.MC_WORLD = {
         "Proxy实验",
         "虚拟存储器……"
       ],
-      "lastDate": "2026-08-03",
+      "lastDate": "2026-08-04",
       "stale": false
     },
     {
@@ -134,6 +139,12 @@ window.MC_WORLD = {
   ],
   "log": [
     {
+      "date": "2026-08-04",
+      "title": "# trace14.txt - Simple error handling",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/shell-over-5.html"
+    },
+    {
       "date": "2026-08-03",
       "title": "Shell实验破解-3",
       "domainName": "计算机系统基础II",
@@ -156,12 +167,6 @@ window.MC_WORLD = {
       "title": "Shell实验破解-2",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/shell-over-2.html"
-    },
-    {
-      "date": "2026-08-01",
-      "title": "Shell实验目标、背景、工具分析",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-analyse-goal.html"
     }
   ]
 };
