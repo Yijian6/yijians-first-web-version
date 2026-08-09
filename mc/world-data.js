@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-08-04",
+  "builtAt": "2026-08-09",
   "domains": [
     {
       "name": "写在前面",

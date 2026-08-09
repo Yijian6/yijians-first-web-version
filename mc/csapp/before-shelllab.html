@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -588,10 +775,10 @@
 /命令名 参数
 </code></pre>
 <p>这背后就离不开一个能够将你的命令<strong>拆解、分析、并且执行相关程序的工具(也是程序)</strong>，这个工具程序就是<strong>Shell</strong>。</p>
-<h2>Shell是什么</h2>
+<h2 id="s1">Shell是什么</h2>
 <p>Shell 是一个解析命令、根据命令启动相关程序的程序。</p>
 <p>在Windows电脑上，你可以搜索(快捷键：Win+S)Windows Powershell，来打开这个程序，输入命令启动电脑操作系统中的相关程序。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260730143438.png" alt="Pasted image 20260730143438" width="391" height="268" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"></p>
-<h2>Shell的使用实践</h2>
+<h2 id="s2">Shell的使用实践</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260730144515.png" alt="Pasted image 20260730144515" width="968" height="269" loading="lazy" decoding="async" data-media-fit="natural"><br>打开PowerShell之后，会呈现这个界面，叫<strong>终端(Terminal)</strong>，它指的是<strong>提供文本输入、显示输出的窗口</strong>。其中运行的程序，就是PowerShell</p>
 <p><code>PS C:\Users\觉&gt;</code><br>这一行代码叫做<strong>命令提示符</strong>(prompt)，它会<strong>提示</strong>你所在的文件夹，“C:\Users\觉”，你可以在<code>&gt;</code>这个<strong>分割符</strong>之后输入<strong>命令</strong><br>其他的Shell也都类似：</p>
 <p>1️⃣Linux的Bash</p>
@@ -669,7 +856,7 @@ root@ubuntu:/home/jue#
 <pre><code class="language-shell">shutdown /s /t 3600  #系统会弹出注销的弹窗，3600秒之后自动关机。
 shutdown /a          #取消刚才设置的自动关机任务
 </code></pre>
-<h2>最后，说回Shell实验</h2>
+<h2 id="s3">最后，说回Shell实验</h2>
 <p>这是一个让我们亲手补全一个Shell背后的实现逻辑的实验。它回答了你对于Shell的所有疑问：</p>
 <ul>
 <li>PowerShell这个程序怎么解析我的<code>shutdown /s /t</code>这个命令的？</li>

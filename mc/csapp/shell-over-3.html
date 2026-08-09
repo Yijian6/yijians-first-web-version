@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -587,9 +774,9 @@
 </blockquote>
 <pre><code class="language-C">看trace--&gt;找sdriver.pl--&gt;改tsh.c--&gt;make、反复调试
 </code></pre>
-<h2>Trace03</h2>
+<h2 id="s1">Trace03</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123459.png" alt="Pasted image 20260803123459" width="1087" height="302" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>trace03 的要求是：<code>#运行前台作业</code>，两行都是shell命令，会直接传给shell。<br>1、第一行运行一个给定路径的echo程序，我们的<code>exevce()</code>已经可以实现。<br>2、第二行，是运行内置的quit指令，我们的早已实现。<br>说明trace03是送我们的，直接make、make test03、make rtest03验证吧<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123846.png" alt="Pasted image 20260803123846" width="1170" height="647" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(411px, 100%)"></p>
-<h2>Trace04</h2>
+<h2 id="s2">Trace04</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123936.png" alt="Pasted image 20260803123936" width="1092" height="340" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>trace04要求：<code>#运行后台命令</code>,两行都是shell命令、直接传给shell。<br>1、第一行同trace03，echo，已经实现<br>2、第二行是运行一个后台程序。那无论前台、后台，他们都通过<code>exevce()</code>来运行啊。所以我们已经可以实现。<br>直接make验证：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803124449.png" alt="Pasted image 20260803124449" width="1136" height="693" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(392px, 100%)"><br>出问题了， 标准输出还要求输出一行这个后台作业的情况。问题来了，我们压根就没有记录所有运行的作业(job)。<br>咋记录？看看我们有什么工具呢？<a href="shell-over-2.html">Shell实验破解-2</a>中的<code>工具函数表</code>还记得吗？<br>于是我们很快联想到：</p>
 <pre><code class="language-C">我们需要利用作业列表(jobs List)来记录下来我们所有的作业的信息。
 jobs是已经初始化好的
@@ -635,7 +822,7 @@ if(bg == 0){
 }
 </code></pre>
 <p>再测试！！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803140501.png" alt="Pasted image 20260803140501" width="1223" height="743" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(419px, 100%)"><br>只有pid不一样，正常。因为操作系统每一次创建的进程都会 分配新的PID。<br>Trace04通过！</p>
-<h2>Trace05</h2>
+<h2 id="s3">Trace05</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803140826.png" alt="Pasted image 20260803140826" width="1270" height="634" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(427px, 100%)"><br>trace05要求：<code>#处理jobs内置命令</code><br>之前4条命令都一样，运行外部程序、两个后台作业，我们都能处理。<br>关键是jobs，这也没有输出啊？我们回顾REAEME检索这个命令的作用，同时make rtest05看一下标准输出。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803141354.png" alt="Pasted image 20260803141354" width="1237" height="275" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(701px, 100%)"><br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803141442.png" alt="Pasted image 20260803141442" width="1098" height="645" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(407px, 100%)"><br>joibs和quit一样是内置函数，我们修改<code>builtin_cmd()</code>,仿照quit的处理，在检测到jobs的时候,罗列所有的jobs，我们看看有没有工具可以使用。！刚好，看来要用<code>listjobs()</code>辅助函数了！(养成先看看有没有现用工具的习惯，不要什么都想着自己造，会很累)<br>那简单了：</p>
 <pre><code class="language-C">int builtin_cmd(char **argv)
 

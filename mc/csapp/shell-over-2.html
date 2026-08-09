@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -585,7 +772,7 @@
 <blockquote>
 <p>从trace02开始，一直做完trace16</p>
 </blockquote>
-<h2>在此之前，我们再次回顾我们的最终目标——那7个函数，在解题效率方面，再怎么强调目标意识都不为过。</h2>
+<h2 id="s1">在此之前，我们再次回顾我们的最终目标——那7个函数，在解题效率方面，再怎么强调目标意识都不为过。</h2>
 <p>据此，我们每一次都去看看，要补充的函数是哪个或者哪些。</p>
 <pre><code class="language-C">* eval：解析和解释命令行的主例程。 【70行】
 //Shell就是主要的进程，可见这个是最主要的那个函数。
@@ -609,12 +796,12 @@
 * sigtstp handler：捕获SIGTSTP（ctrl-z）信号。【15行】
 //这也是一个handler函数，我们需要自定义收到SIGTSTP之后做的事情，ctrl-z可以让操作系统向前台进程发送这个信号。
 </code></pre>
-<h2>Trace02</h2>
+<h2 id="s2">Trace02</h2>
 <p> <img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802120405.png" alt="Pasted image 20260802120405" width="849" height="246" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(532px, 100%)"><br> 注释告诉我们，我们要“Process，处理”quit这个内置命令<br> 第4行的小写字符告诉我们，quit会被直接传入shell 中当作命令。<br> 首先，一定设计到的地方有<code>builtin_cmd</code>函数，我们应该是要在这里加入quit的处理方式。我们直接去看一眼<code>tsh.c</code>中相关的注释、代码。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802121144.png" alt="Pasted image 20260802121144" width="1208" height="385" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<h2>找到了，注释说明了<code>builtin_cmd()</code>函数的功能：</h2>
+<h2 id="s3">找到了，注释说明了<code>builtin_cmd()</code>函数的功能：</h2>
 <p> ❶输入：<code>argv[]</code>(argument vector)参数数组<br> ❷处理：至少有：①如果用户输入built-in 命令，②立刻处理<br> ❸输出：一个int类型的整数</p>
 <p class="mc-indent"> 如果不是builtin command，返回0。</p>
-<h3>思考：那很明显了，<code>builtin(argv)</code>起到的作用有两个：</h3>
+<h3 id="s4">思考：那很明显了，<code>builtin(argv)</code>起到的作用有两个：</h3>
 <p class="mc-indent">①识别内置命令<br>②处理该命令</p>
 <p>就<code>quit</code>而言，我们要</p>
 <p class="mc-indent">①识别出来<code>quit</code>是内置命令<br>②处理这个内置命令</p>
@@ -713,7 +900,7 @@
 <p class="mc-indent">我们可能需要分别搜索跳转过去再看看他们的注释、详细用法。<br>务必仔细研磨，一字不落，毕竟《解题之道，就在其中》.</p>
 <p>②helpers we provided(帮你实现)：</p>
 <p class="mc-indent">这么多函数，原来都是&quot;helper&quot;,也就是，早就已经实现的工具啊。那我们也要跳转过去，尽可能看看注释，了解他们做什么即可。<br>先从名字大概看看吧，毕竟《工欲善其事，必先利其器》：<br>有如下这么多辅助工具：我用表格简单整理罗列下他们注释里可以看到的简单用法</p>
-<h3>工具函数表</h3>
+<h3 id="s5">工具函数表</h3>
 <div class="mc-table-wrap"><table>
 <thead>
 <tr>
@@ -839,11 +1026,11 @@
 </tbody></table></div>
 <p>工具大概就扫完了，在实际过程中不用细看，了解关键词就好、比如说，<br>1、我知道<code>pid2jid()</code>可以实现转换jid和pid，所以我需要转换的使用，我就用这个。我压跟不知道原理也没关系。<br>2、我知道parseline可以解析命令行，我可能在处理解析的时候用得到，得到argv数组。<br>……</p>
 <p>刚才说到，帮助函数只是小菜，我们更重要的要逐字细读7个要完成的函数的内容。回顾主函数，定义了一个 <code>cmdline</code>字符数组(作为输入)之后，就把它扔给了<code>eval()</code>，我们跳转去看看<code>eval()</code>的注释。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260802123151.png" alt="Pasted image 20260802123151" width="1206" height="532" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(381px, 100%)"><br>果然，函数内部是空的，完全需要我们来填写。</p>
-<h2><code>eval()</code>，我们阅读注释、分析他的作用：</h2>
+<h2 id="s6"><code>eval()</code>，我们阅读注释、分析他的作用：</h2>
 <p>❶输入：cmdline，一行命令作为参数。<br>❷处理：</p>
 <p class="mc-indent">①判断，是不是内置命令(<mark>quit</mark>、jobs、bg、fg)，如果是，直接执行。(这不就刚才完成了一个quit吗，我们原来是要在这里调用builtin_cmd)<br>②如果不是内置命令(Otherwise)，<code>fork()</code>产生一个子进程，运行job。<br>③如果job是前台的，等待(哦，似乎有一个<code>waitfg()</code>函数来着？)</p>
 <p>❸输出：无<br>懂了，我们要初步实现的就是eval函数处理过程的逻辑！</p>
-<h3>思考：</h3>
+<h3 id="s7">思考：</h3>
 <p>①如何判断，命令是不是内置命令？<code>builtin_cmd()</code>已经做到了，如果不是，这个函数会返回0，如果命令内置命令的话，它会直接处理完了，返回1，所以这样写：</p>
 <pre><code class="language-C">	if(builtin_cmd(argv)){
 		return; //如果是内置命令，builtin_cmd()会直接处理完了，所以我们直接return，跳出这个函数即可。

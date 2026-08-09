@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -587,13 +774,13 @@
 <p class="mc-indent">在前置基础I中，我们提到，程序就是按照一定顺序完成任务的流程。程序表达的方式有很多种。从自然语言的流程表、到C语言的代码，为了CPU能够执行，又被编译器编译成了机器指令。</p>
 <p>这些都是“死的程序”，只是呈现了程序的理论内容、概念。<br>而想要客观上实际被执行，我们还需要满足一些客观物质条件。他们也是计算机的组成部件的一部分。<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723150716.png" alt="Pasted image 20260723150716" width="1147" height="613" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(500px, 100%)"></p>
 </blockquote>
-<h2>1️⃣CPU</h2>
+<h2 id="s1">1️⃣CPU</h2>
 <p>CPU当然是必不可少的，它是理解机器指令，执行机器指令的工具。但，光有CPU还不够。程序要有地方放啊，以及程序过程产生的数据也要有地方放，就需要——</p>
-<h2>2️⃣内存</h2>
+<h2 id="s2">2️⃣内存</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260731152051.png" alt="Pasted image 20260731152051" width="936" height="557" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(500px, 100%)"></p>
 <p>内存是电脑主板上的一个芯片，是用于存放数据的硬件。<br>有了内存，代码、数据、变量等等才可能被存储。</p>
 <p><mark>综上，当计算机给一个程序分配了一块内存，CPU开始运行这个程序，这个程序就不再是一个“死的文件”了，我们把他叫做——进程。</mark></p>
-<h2><strong>进程(Process)</strong>：是占用了一定的<strong>内存</strong>空间，正在运行中的<strong>程序</strong>。</h2>
+<h2 id="s3"><strong>进程(Process)</strong>：是占用了一定的<strong>内存</strong>空间，正在运行中的<strong>程序</strong>。</h2>
 <p>从定义中你也能看出来，<strong>内存</strong>是硬件层次，程序是软件层次。要想建立连接。就需要<strong>操作系统程序</strong>作为中介。</p>
 <p>在计算机中，我们往往要有很多个进程。比如，<strong>浏览器</strong>看网页、<strong>微信</strong>聊天、<strong>音乐播放器</strong>放歌、<strong>文件管理器</strong>找文件。</p>
 <p>这些不同的进程，占用着不同的内存(否则我的代码覆盖你的代码就乱套了)</p>
@@ -602,9 +789,9 @@
 <ul>
 <li><strong>Linux/Unix操作系统</strong>(程序)中，开发者将那些函数放在了操作系统中的一个名为<code>&lt;unistd.h&gt;</code>(Unix Stdandard)的文件里。<br>于是，我们在<strong>用户程序</strong>的开头写上<code>#include &lt;unistd.h&gt;</code>就能够调用这些C函数，让操作系统运行核心程序，实现<strong>调用操作系统程序</strong>。</li>
 </ul>
-<h2>这类系统调用函数有哪些呢？</h2>
+<h2 id="s4">这类系统调用函数有哪些呢？</h2>
 <p>下面的两个例子都是C语言代码 <code>&lt;unistd.h&gt;</code>中的函数，实现了调用<strong>操作系统</strong>管理进程。</p>
-<h3><code>fork()</code>： 让操作系统在内存里再开一块地，复制当前进程，分叉出一个新进程(子进程)</h3>
+<h3 id="s5"><code>fork()</code>： 让操作系统在内存里再开一块地，复制当前进程，分叉出一个新进程(子进程)</h3>
 <blockquote>
 <p><code>fork</code>单词的本意是叉子，分叉，函数给人一种，克隆了一个一模一样的进程，但这个进程与原来的进程，被处理改变的方式不同，走向可能不同，形成分叉。</p>
 </blockquote>
@@ -622,7 +809,7 @@ if (pid == 0) {
     // 父进程走这里（因为它拿到的是 16234(比方说)）
 }
 </code></pre>
-<h3><code>execve(路径,参数,environ)</code>让操作系统把当前进程的内存里的内容清掉，换成另一个程序的内容，从头开始执行的函数</h3>
+<h3 id="s6"><code>execve(路径,参数,environ)</code>让操作系统把当前进程的内存里的内容清掉，换成另一个程序的内容，从头开始执行的函数</h3>
 <p>❶函数的输入：如下三类参数</p>
 <p class="mc-indent">a.要<strong>运行的程序</strong>(目标程序)的<strong>路径</strong>，比如说：<code>&quot;/bin/ls&quot;</code><br>b.<strong>目标程序</strong>需要的<strong>参数</strong>，比如<code>&quot;-l&quot;</code>/<code>&quot;-d&quot;</code>,……<br>c.环境变量，一般存在<code>environ</code>这个全局变量里，所以直接写environ就可以。</p>
 <p>❷函数的处理：让操作系统执行：</p>

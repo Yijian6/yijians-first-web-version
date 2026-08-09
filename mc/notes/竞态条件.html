@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -582,13 +769,13 @@
             <p class="mca-meta">附页 · 约 3 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<h2>竞态条件(race condition)</h2>
+<h2 id="s1">竞态条件(race condition)</h2>
 <p>我们在之前的处理过程当中，都完全没有考虑一个问题：子进程和父进程的执行先后顺序，究竟谁快谁慢、谁先谁后。我们是这样做的：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804083624.png" alt="Pasted image 20260804083624" width="1126" height="578" loading="lazy" decoding="async" data-media-fit="natural"><br>有两件事情正在我们的程序中并行：<br>1️⃣子进程完成<code>execve()</code>，执行新程序，过一会后新程序终止，操作系统发送SIGCHLD给父进程。<br>2️⃣父进程完成<code>addjob()</code>工作。</p>
 <p>值得注意的是：这两个进程，是都存在的。那么，谁先跑呢？<br>如果子进程先跑完结束了，发送SIGINT，父进程先接收到<code>deletejob()</code>，但是因为父进程还没进行，没有<code>addjob()</code>，所以压根无可<code>delete()</code>，直接继续运行了。而过去了很久之后，父进程又执行<code>addjob()</code>，在进程中添加了一条“幽灵job”。因为不会接收到这条job永远不会被删除，占用着前台，导致<code>fgpid(jobs)=pid</code>陷入死循环，我们的终端始终在sleep(1),就会卡死终端界面。</p>
 <p>至于到底哪个进程先跑、先结束。这设计到Linux操作系统内核究竟如何调度。而调度器的状态受到很多环境条件的影响。可以看看这段Claude的解释，他回答了，为啥我们的调度器每一次执行的父、子进程的顺序不一定一样：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804084124.png" alt="Pasted image 20260804084124" width="1094" height="831" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(494px, 100%)"><br>如何解决这个问题呢？<br>我们一定要让父进程的<code>addjob()</code>发生在处理子进程结束SIGCHLD之前。<br>我们需要引入一个信号阻塞的新概念和信号阻塞函数<code>Sigpromask()</code></p>
-<h3>信号阻塞</h3>
+<h3 id="s2">信号阻塞</h3>
 <p>：暂时禁止某些信号被传递、处理。<br>这里，我们想要在子进程出现之前(<code>fork()</code>之前)阻塞 SIGCHLD信号，父进程<code>addjob()</code> 之后再解除阻塞。确保<code>addjob()</code>在<code>deletejob()</code>之前。</p>
-<h3>如何实现呢？使用<code>int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)</code>信号阻塞名单修改函数</h3>
+<h3 id="s3">如何实现呢？使用<code>int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)</code>信号阻塞名单修改函数</h3>
 <p>❶输入：</p>
 <p class="mc-indent">a.<code>how</code>修改的方式选项：<br>1、how = SIG_BLOCK，把 <code>set</code> 里的信号<strong>追加</strong>到阻塞名单（原来阻塞的不受影响）<br>2、how = SIG_UNBLOCK，把 <code>set</code> 里的信号<strong>从</strong>阻塞名单里<strong>移除</strong><br>3、how = SIG_SETMASK，把把阻塞名单<strong>直接替换</strong>成 <code>set</code> 的内容<br>b.<code>set</code>一个信号集合，需要修改阻塞的名单，类型是<code>sigset_t</code>。可以用这些函数来构造它：</p>
 <pre><code class="language-c">sigset_t set;
@@ -600,7 +787,7 @@ Sigaddset(&amp;set, SIGINT);    // 还可以加更多
 <p>❷处理：按照<code>how</code>的方式，对阻塞的信号名单进行修改。<br>❸输出(返回值)：</p>
 <p class="mc-indent">成功，返回0；<br>失败，返回-1；</p>
 <p>于是，我们用在实验中：<br>1️⃣在定义区定义阻塞信号集合：<img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804100007.png" alt="Pasted image 20260804100007" width="759" height="173" loading="lazy" decoding="async" data-media-fit="natural"><br>2️⃣<code>fork()</code>前加入阻塞这一句、子进程解除阻塞、父进程addjob后也解除阻塞。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804100555.png" alt="Pasted image 20260804100555" width="979" height="488" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<h2>补上了这一点之后，有没有觉得代码更尽善尽美了？</h2>
+<h2 id="s4">补上了这一点之后，有没有觉得代码更尽善尽美了？</h2>
 
             </div>
         </article>

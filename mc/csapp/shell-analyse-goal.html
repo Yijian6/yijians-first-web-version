@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -586,8 +773,8 @@
 <p>有了之前的内容作为基础，我们现在就已经可以进入Shell实验的分析流程，并一步一步完成Shell(tsh.c)代码的补全工作了</p>
 </blockquote>
 <p>完成任何一个确定性目标的最高效方式，就是盯准目标，确定起点，走直线。<br>解题也是如此。为了完成Shell实验，我们务必先要弄清楚自己的起点在哪里，目标是什么。</p>
-<h2>❶理清楚实验目标要做什么——通过Readme(名字都告诉你了，求求你阅读我!(Readme!))</h2>
-<h3>0️⃣回顾一下，Shell的工作原理：</h3>
+<h2 id="s1">❶理清楚实验目标要做什么——通过Readme(名字都告诉你了，求求你阅读我!(Readme!))</h2>
+<h3 id="s2">0️⃣回顾一下，Shell的工作原理：</h3>
 <p>Shell 本身是一个<strong>进程</strong>，它在自己的那块内存里跑着一个无限循环。</p>
 <p>每一轮循环做三件事：</p>
 <ol>
@@ -598,7 +785,7 @@
 <blockquote>
 <p>其中，命令可以是内置的命令，也可以是执行另一个程序文件。</p>
 </blockquote>
-<h3>1️⃣Readme告诉我们：<code>tsh.c(Tiny Shell.c)</code>就是我们要补全的Shell的程序文件。</h3>
+<h3 id="s3">1️⃣Readme告诉我们：<code>tsh.c(Tiny Shell.c)</code>就是我们要补全的Shell的程序文件。</h3>
 <p>补全之后，我们编译成<code>tsh</code>文件，就完成了目标，做成了一个<mark>t</mark>iny(极简的) <mark>sh</mark>ell，名为<code>tsh</code></p>
 <p>以及，<code>tsh.c</code>中有了一部分已经完成的辅助函数和我们需要完成的7个函数。<br>以及也告诉我们了那七个空函数分别的作用：</p>
 <pre><code class="language-C">* eval：解析和解释命令行的主例程。 【70行】
@@ -626,10 +813,10 @@
 <p>我们大概知道了要完成的事情。<br>哦还有一点提醒别忘了，这实际上提前说了<code>make</code>这个工具的用法：</p>
 <pre><code class="language-C">每次修改tsh.c文件后，输入make以重新编译它。
 </code></pre>
-<h3>2️⃣还有tsh实现规范，告诉我们最后要实现的标准、 特性</h3>
+<h3 id="s4">2️⃣还有tsh实现规范，告诉我们最后要实现的标准、 特性</h3>
 <p>这需要我们最后再看，逐一比对是否完成了要求，所以现在大概扫一眼即可。</p>
-<h2>❷弄清楚我们的背景、起点、工具——Readme、tsh.c的所有函数、注释</h2>
-<h3>1️⃣接着Readme还向我们解释了Shell在解析命令过程中的原理：</h3>
+<h2 id="s5">❷弄清楚我们的背景、起点、工具——Readme、tsh.c的所有函数、注释</h2>
+<h3 id="s6">1️⃣接着Readme还向我们解释了Shell在解析命令过程中的原理：</h3>
 <p><strong>命令行</strong>(Command Line)中的所有以空格为分隔的字符，会以<code>argv[](Argument vector)</code>这样一个数组的形式作为参数传如Shell程序的函数，并统计<code>argc</code>如：</p>
 <pre><code class="language-bash">tsh&gt;&quot;/bin/ls&quot; -l -d 
 </code></pre>
@@ -639,7 +826,7 @@ argv[0] = &quot;/bin/ls&quot;
 argv[1] = -l
 argv[2] = -d
 </code></pre>
-<h3>2️⃣还有Shell内置的一些命令的作用：</h3>
+<h3 id="s7">2️⃣还有Shell内置的一些命令的作用：</h3>
 <pre><code class="language-C"> jobs：列出正在运行、停止的作业
 
  bg &lt;job&gt;：将一个停止的后台作业更改为正在后台运行的作业。#background&lt;&gt;
@@ -649,7 +836,7 @@ argv[2] = -d
  kill &lt;job&gt;：终止一个作业。
  
 </code></pre>
-<h3>3️⃣Readme中最关键的部分来了，一些让我们检查工作的工具。</h3>
+<h3 id="s8">3️⃣Readme中最关键的部分来了，一些让我们检查工作的工具。</h3>
 <p>所谓，工欲善其事，必先利其器。理解清楚检查的工具，我们才有可能更大可能提高效率。所以这段要仔细读！有如下工具——<br>①参考实现：<code>tshref</code>(tsh reference)，是已经实现的tsh版本。我们的目标就是要让我们的<code>tsh.c</code>编译成<code>tsh</code>后实现一样的效果，(面对输入有同样的输出)</p>
 <p>②Shell driver：<code>sdriver.pl</code>，顾名思义，Shell 的驱动器。这是一个用Perl语言写成的脚本，可以操控、执行Shell。那怎么操作呢？Readme说： ./sdriver.pl -h给了我们使用说明：</p>
 <pre><code class="language-bash">linux&gt; ./sdriver.pl -h

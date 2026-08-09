@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -589,7 +776,7 @@
 </code></pre>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260730153943.png" alt="Pasted image 20260730153943" width="1723" height="1067" loading="lazy" decoding="async" data-media-fit="natural"></p>
 <p>我们先理清楚，这么大一个shelllab的文件夹里有哪些文件，他们分别负责做什么、有什么关系，过程中，我先会介绍一些相关的重要概念、专业名词。</p>
-<h2>文件名中的概念</h2>
+<h2 id="s1">文件名中的概念</h2>
 <div class="mc-table-wrap"><table>
 <thead>
 <tr>
@@ -639,7 +826,7 @@
 <td></td>
 </tr>
 </tbody></table></div>
-<h2>Shell的工作原理</h2>
+<h2 id="s2">Shell的工作原理</h2>
 <p>Shell 本身是一个<strong>进程</strong>，它在自己的那块内存里跑着一个无限循环。</p>
 <p>每一轮循环做三件事：</p>
 <ol>
@@ -647,33 +834,33 @@
 <li><strong>读取</strong>、并<strong>解析</strong>你输入的命令</li>
 <li>调用 <code>fork()</code> 让操作系统<strong>再开一个进程</strong>，然后子进程调用 <code>execve()</code> 把自己变成你要运行的程序</li>
 </ol>
-<h2>Shell程序运行中的相关概念</h2>
+<h2 id="s3">Shell程序运行中的相关概念</h2>
 <p>为了毫无歧义的描述Shell实验过程，我们需要理解清楚下面这些概念、以及概念的英文也<br>尤其重要(便于之后和代码相关联、建立联系)</p>
 <blockquote>
 <p>注意！这些概念的英文也同样重要！因为所有代码都只能使用英文来描述它们！理解这些英文更容易你理解代码！</p>
 </blockquote>
-<h3>终端(Terminal)</h3>
+<h3 id="s4">终端(Terminal)</h3>
 <p>终端是，<strong>提供文本输入、显示输出的窗口</strong>。<br>我们把<strong>指令</strong>输入在终端这个窗口上，Shell程序从终端读取、解析这个指令。<br>每条<strong>指令</strong>，一般占据终端的一行。所以<strong>指令</strong>也被称为<strong>命令行</strong>(Command Line)</p>
-<h3>进程 与 进程ID (PID)</h3>
+<h3 id="s5">进程 与 进程ID (PID)</h3>
 <p>进程是占用了一定的内存空间，正在运行中的程序。<br>在操作系统的程序中，为了便于管理和控制进程，我们需要为每一个进程“起一个”名字，这个名字就是<mark><strong>PID</strong></mark>(Process identity)，就像身份证、学号一样，pid是唯一标识某一进程的一串数字。</p>
-<h3>进程组 与 进程组ID (PGID)</h3>
+<h3 id="s6">进程组 与 进程组ID (PGID)</h3>
 <p>有些进程之间有着紧密的关系，这些进程构成了一个进程组(Process Group)。每一个进程组有一个组长。</p>
 <p>进程组也有名字，叫<mark><strong>PGID</strong></mark>(Process Group identity)，PGID = 该进程组组长的PID。</p>
 <p>比方说，微信朋友圈的进程和微信整体的进程。我们想要在关掉微信进程的时候，把它的子进程朋友圈也给关闭。于是，操作系统把这类相互存在关系的进程可以看成是一个进程组，只需要发送一次信号，就能让组内的所有进程终止。</p>
-<h3><code>fork()</code>函数与进程组的关系</h3>
+<h3 id="s7"><code>fork()</code>函数与进程组的关系</h3>
 <p><code>fork()</code>可以为一个(父)进程创建一个子进程。由于这个子进程和原来的父进程存在着绑定关系，即子进程由父进程复制、分支而产生，所以，操作系统会默认把子进程加入父进程所在的进程组中。</p>
 <p>如果父进程是最起始的那个进程(父进程不是别的进程的子进程)，那么父进程就是这个进程组的组长。</p>
-<h3>作业(jobs) 与作业ID</h3>
+<h3 id="s8">作业(jobs) 与作业ID</h3>
 <p>作业是指：由Shell创建，用来执行一条命令的所有子进程。唯一标识作业的名字，就是JID(Job identity)<br>举个例子<br>》你在Shell中输入：<code>sleep 100</code>指令(这会启动一个等待100s，啥也不做的程序)<br>》shell会创建<code>fork()</code>一个子进程，然后<code>execve(sleep,100,environ)</code>，让Sleep程序代替子进程。<br>这个进程组可以清晰的如下表示：</p>
 <pre><code class="language-C">shell                  ← Shell，本身不是 job
 └── sleep 100          ← job 是shell创建的所有子进程(该条命令就只有一个子进程)
 </code></pre>
-<h3>前台作业、后台作业</h3>
+<h3 id="s9">前台作业、后台作业</h3>
 <p>前台作业是指：<strong>占用着终端</strong>(让终端不能为别的程序服务了)，可以接受键盘输入、终端信号的作业。<br>后台作业是指：不占用终端，不能直接读取键盘输入的作业.</p>
 <p>用户在可以用&amp;来标识让Shell在后台执行这个命令。</p>
 <pre><code class="language-C">如：sleep 100 &amp;   # &amp;符号表示让这个指令的进程任务不占用前台(终端)。
 </code></pre>
-<h3>信号(Signal)</h3>
+<h3 id="s10">信号(Signal)</h3>
 <p>信号是<strong>操作系统内核</strong>给某一<strong>进程</strong>发送的信息<br>常见的信号有这些，可以先了解：</p>
 <div class="mc-table-wrap"><table>
 <thead>
@@ -727,9 +914,9 @@
 <td>通常导致关联进程终止</td>
 </tr>
 </tbody></table></div>
-<h3>进程接受到信号，怎么办？</h3>
+<h3 id="s11">进程接受到信号，怎么办？</h3>
 <p>当一个进程收到了来自操作系统的信号，有两种处理方式：<br>1️⃣默认处理：收到SIGINT就中断结束，收到SIGTSTP就暂停，……<br>2️⃣用户自定义处理(非默认处理)：执行用户自定义的<strong>信号处理函数</strong>(Signal_handler)。</p>
-<h3>用户自定义信号处理 与 信号处理函数(Singnal_handler)</h3>
+<h3 id="s12">用户自定义信号处理 与 信号处理函数(Singnal_handler)</h3>
 <p><code>kill(pid,sig)</code>是我们的程序中，可以调用操作系统发送信号的函数。<br>而<code>singal(sig,处理方式)</code>，是我们程序中，可以自定义一个进程收到某个信号后的处理方式的函数。他们都来自<code>&lt;signal.h&gt;</code><br>这里的处理方式，可以是忽略<code>SIG_IGN</code>，也可以是一个<strong>信号处理函数</strong>(singnal_handler)，告诉进程，在收到sig信号后，去执行相应的函数。</p>
 <p>暂时有点抽象，不理解没关系。接下来，我们会在<a href="shell-code.html">Shell实验代码层次的理解</a>深入讲解，在C代码中，我们如何调用这两个函数，以及他们的输入、处理、输出是什么。</p>
 

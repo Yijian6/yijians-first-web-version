@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -585,14 +772,14 @@
 <blockquote>
 <p>上一篇已经让你从概念上理清楚了Shell在解析命令之后，要控制进程、处理信号的过程的一些概念，而Shell本质是一个代码构成的程序。<br>要想要让程序真正实现其功能，要借助代码中，先辈为我们沉淀下来的函数工具、调用接口等……<br>所以，接下来，落到实处，我会介绍C代码中在这个过程需要用到的重要函数、他们的用法(输入、处理、输出)</p>
 </blockquote>
-<h3>信号发送函数——<code>kill(pid，sig)</code>的用法</h3>
+<h3 id="s1">信号发送函数——<code>kill(pid，sig)</code>的用法</h3>
 <p>和<code>fork()</code>/<code>execve()</code>类似，它是C代码可调用<code>&lt;signal.h&gt;</code>库中为程序提供的系统调用函数的一个。用法如下：<br>❶函数的输入：</p>
 <p class="mc-indent">a.pid：需要操作系统发送信号的进程名。若写成<code>-pid</code>，则表示对以该进程为组长的整个进程组发送信号<br>b.sig：需要发送的信号的信号名，上面7个都是</p>
 <p>❷函数的处理：让操作系统，给该pid对应的程序发送sig信号。<br>❸函数的输出：<br>若信号发送成功，返回0<br>若信号发送失败，返回<code>-1</code><br>❹例如：</p>
 <pre><code class="language-C">kill(114514,SIGINT)
 </code></pre>
 <p>执行该函数时，会请求操作系统，向pid = 114514的进程，发送SIGINT的信号，默认情况(指没有自定义处理方式的情况)下，代号为114514的进程就会终止。</p>
-<h3>信号接受、自定义处理函数—— <code>signal(sig,处理方式)</code>的用法</h3>
+<h3 id="s2">信号接受、自定义处理函数—— <code>signal(sig,处理方式)</code>的用法</h3>
 <p>❶函数的输入：</p>
 <p class="mc-indent">a.<code>sig</code>，想要自定义处理方式的信号<br>b.<code>处理方式</code>， 一种是：<code>sig_IGN</code>，忽略，另一种是，<code>singal_hander</code>，在这里填入另外一个函数。</p>
 <p>❷函数的处理：<br>当进程在收到<code>sig</code>信号时，会调用这个<code>singal_handler()</code>函数，而不是执行默认处理动作<br>❸函数的输出：<br>设置成功，无返回值<br>设置失败，返回<code>SIG_ERR</code><br>❹例如：</p>
@@ -606,14 +793,14 @@ int main(){
 signal(SIGINT,handle_sigint);//不会立刻调用，而是在收到SIGINT时，自动调用
 }
 </code></pre>
-<h3>子进程状态变化监听函数<code>waitpid(pid,*status,options)</code>的用法</h3>
+<h3 id="s3">子进程状态变化监听函数<code>waitpid(pid,*status,options)</code>的用法</h3>
 <p>❶函数的输入：</p>
 <p class="mc-indent">a.<code>pid</code>：指定需要监听的子进程对象。又可以分为以下情况<br>1、 pid = -1，表示任意一个子进程<br>2、 pid = 0 ,表示同一个进程组的任意一个子进程<br>3、 pid &gt; 0 ,表示PID =该值的哪个子进程<br>b.<code>*status</code>：状态指针，打包了子进程的所有状态信息。<br>为了获取状态中的信息，我们需要用到<strong>宏工具</strong>，其用法与函数相同，从打包的<code>status</code>中可以提取出来信息。<br>1、若status =NULL，表示我们不关注信息，常用于<code>waitpid(-1,NULL,WNOHANG)</code>回收任意僵尸进程<br>c.<code>options</code>：方式选择<br>1、options=0，表示：等待，直到一个进程被终止，回收它，然后返回。<br>2、options=WNOHANG(Wait No Hang)，表示：不等待，若已有一个子进程终止，则回收它并返回 PID；否则立刻返回 <code>0</code><br>3、options=WUNTRACED，等待，直到发生两种情况：<br>❶一个子进程终止，回收，然后返回。<br>❷或一个子进程被暂停，不回收，直接返回。<br>4、options=WCONTINUED，等待，直到发生两种情况：<br>❶一个子进程终止，回收，然后返回。<br>❷或一个暂停的子进程被恢复运行，不回收，直接返回。
 
 </p>
 <p>❷函数的处理：按照如上的options方式选择处理并返回<br>❸函数的输出(返回值)：</p>
 <p class="mc-indent">1.如果有子进程状态发生变化，就返回这个子进程的PID。<br>2.如果是<code>WNOHANG</code>选项，没有子进程状态发生变化时，返回0。<br>3.如果已经没有子进程了、或报错，返1。</p>
-<h3><strong>宏工具</strong>的使用</h3>
+<h3 id="s4"><strong>宏工具</strong>的使用</h3>
 <div class="mc-table-wrap"><table>
 <thead>
 <tr>

@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -582,7 +769,7 @@
             <p class="mca-meta">11F · 2026-08-03 · 约 4 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<h2>Trace06</h2>
+<h2 id="s1">Trace06</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803153237.png" alt="Pasted image 20260803153237" width="1292" height="490" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(525px, 100%)"><br>trace06要求：<code>#给前台job发送SIGINT，终止它</code><br>参考输出是：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803154006.png" alt="Pasted image 20260803154006" width="1152" height="392" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(531px, 100%)"><br>查阅sdriver.pl：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803153423.png" alt="Pasted image 20260803153423" width="862" height="281" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(389px, 100%)"><br>INT就是发送一个SIGINT终止信号给shell。所以我们要写的函数就是shell收到SIGINT之后，如何处理——<code>sigint_handler()</code> 函数<br>很简单：<br>❶获取现在的前台作业吧，<code>fgpid()</code>  = pid<br>❷直接把对应pid的作业终止了就好，借助信号发送函数<code>kill(pid,SIGINT)</code>：<br>代码就是：</p>
 <pre><code class="language-C">void sigint_handler(int sig)
 {
@@ -596,9 +783,9 @@
 }
 </code></pre>
 <p>kill发送信号之后，子进程收到了SIGINT的信号，会立刻终止。操作系统检测到了子进程的终止，又会发送SIGCHLD信号给父进程，接下来，我们又需要在sigchld_handler中获取这这个进程被信号终止的信息，打印输出！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803154922.png" alt="Pasted image 20260803154922" width="845" height="295" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(484px, 100%)"><br>所以这个函数：<br>❶首先不能用NULL了，因为收到信号要保存状态。<br>❷要定义status，然后使用宏工具解析它<br>改动后如下：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161105.png" alt="Pasted image 20260803161105" width="1218" height="647" loading="lazy" decoding="async" data-media-fit="natural"><br>make、测试！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161007.png" alt="Pasted image 20260803161007" width="1191" height="719" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(353px, 100%)"><br>通过！</p>
-<h2>Trace07</h2>
+<h2 id="s2">Trace07</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161311.png" alt="Pasted image 20260803161311" width="1403" height="747" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(371px, 100%)"><br>要求<code>#确保SIGINT只给前台发送终止</code><br>那我们上面的代码里，本身就写的是，对前台处理，压根不影响后台，如下：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161444.png" alt="Pasted image 20260803161444" width="1294" height="788" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(440px, 100%)"><br>所以直接测试、通过！</p>
-<h2>Trace08</h2>
+<h2 id="s3">Trace08</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803161926.png" alt="Pasted image 20260803161926" width="1269" height="733" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(317px, 100%)"><br>类比INT，现在要我们处理SIGTSTP信号。相对比较容易了。<br><code>sigtstp_handler()</code>直接复制粘贴，同理可得:<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803162919.png" alt="Pasted image 20260803162919" width="395" height="305" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(307px, 100%)"></p>
 <p>而在给子进程发送了暂停信号后，子进程的状态发生改变()。操作系统会发送SIGCHLD给父进程，于是又进入<code>sigchld_handler()</code>这个函数。而<code>sigchld_handler()</code>对于暂停(SIGTSTP)的处理和终止(SIGINT)的区别在于：<br>❶需要加入对被暂停的进程的监听：也就是加入<code>WUNTRACED</code>这个选项。<br>❷将解析中断状态的宏工具换成解析暂停状态的<code>WIFSTOPPED()</code>和<code>WSTOPSIG()</code><br>🌟❸还要另外处理：状态由运行变成暂停之后，需要设置、改变这个job的属性，而不能直接删除这个job。<br>呼之欲出，代码如下：</p>
 <pre><code class="language-C">
@@ -615,11 +802,11 @@
         }
 </code></pre>
 <p>嗯嗯，测试一下吧。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803170557.png" alt="Pasted image 20260803170557" width="1289" height="687" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>被卡死在了终端，无法正确终止退出。<br>？？？？？为什么？？？？</p>
-<h2>疑惑不解的时候，看提示</h2>
+<h2 id="s4">疑惑不解的时候，看提示</h2>
 <p>最开始的README有一部分注意、提示内容被我忽略掉了，因为当时对整个Shell的理解太浅，所以反而成为负担，但是现在就很有用了：<br>提示中有这样几句话，我们发现自己的代码中还没有用到：</p>
-<h3>第一：</h3>
+<h3 id="s5">第一：</h3>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804102158.png" alt="Pasted image 20260804102158" width="1211" height="167" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<h3><code>setpgid(0,0)</code>用法补充</h3>
+<h3 id="s6"><code>setpgid(0,0)</code>用法补充</h3>
 <p>英文对应是：set process group id ,用来为子进程设置新的进程组。<br>1️⃣用在<code>fork()</code>之后的子进程内：可将子进程单独设置一个进程组，该子进程作为组长，组名PGID = 这个子进程的pid。<br>2️⃣从而再使用<code>kill()</code>函数时候，将参数改成<code>-pid</code>，可以向该进程所在的进程组都发送SIGINT和SIGTSTP。<br>提示告诉我们：否则sdriver.pl会报错！！<br>所以我们修掉这个bug<br>1️⃣如图改动<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804102842.png" alt="Pasted image 20260804102842" width="531" height="172" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(405px, 100%)"><br>2️⃣检索所有的<code>kill(pid,sig)</code>，改成<code>kill(-pid,sig)</code><br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804103042.png" alt="Pasted image 20260804103042" width="600" height="802" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(413px, 100%)"><br>看看问题解决了吗？<br>终于，一切顺利！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804103253.png" alt="Pasted image 20260804103253" width="1141" height="1032" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(407px, 100%)"></p>
 <p>如果你仔细阅读提示还会注意到这样一个函数：<br>提示我们务必使用sigpromask来进行信号阻塞。<br>这个问题，在我的电脑环境当中没有发生。但随时可能发生在任何一台电脑上。<br>也是一个很严重的问题，我们单独用一篇文章讨论解决——<a href="../notes/竞态条件.html">竞态条件</a><br>由于它有点耽误主线，我就没把他放入整体的过程来。</p>
 <blockquote>

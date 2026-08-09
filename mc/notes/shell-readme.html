@@ -89,6 +89,188 @@
             color: var(--white-60);
         }
 
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -234,6 +416,8 @@
 
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
         html.mc-lightbox-open,
@@ -374,6 +558,9 @@
             .mca-stairs,
             .mca-export,
             .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
             .custom-cursor {
                 display: none !important;
             }
@@ -582,9 +769,9 @@
             <p class="mca-meta">附页 · 约 14 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<h2>实验目的</h2>
+<h2 id="s1">实验目的</h2>
 <p>更加熟悉进程控制和信号的概念。你将通过编写一个简单的Unix shell程序来实现这一目标，实现对作业的控制。</p>
-<h2>实验任务</h2>
+<h2 id="s2">实验任务</h2>
 <p>查看tsh.c（微型shell）文件，你会看到它包含一个简单Unix shell的功能骨架。为了帮助你快速上手，我们已经实现了一些较不重要的函数。你的任务是完成下面列出的剩余空函数。为了帮助你进行合理检查，我们已在我们的参考解决方案中列出了每个函数的代码行数的近似值（其中包含大量注释）。</p>
 <ul>
 <li><p>eval：解析和解释命令行的主例程。【70行】</p>
@@ -608,7 +795,7 @@ linux&gt; ./tsh
 
 tsh&gt; [命令]
 </code></pre>
-<h2>shell介绍</h2>
+<h2 id="s3">shell介绍</h2>
 <p>Shell是一个交互式命令行解释器，代表用户运行程序。Shell重复地打印提示符，等待stdin上输入的命令行，然后根据命令行的内容执行一些操作。</p>
 <p>命令行是一系列由空白分隔的ASCII文本单词。命令行中的第一个单词要么是内置命令的名称，要么是可执行文件的路径名。其余的单词是命令行参数。如果第一个单词是内置命令，Shell立即在当前进程中执行该命令。否则，该单词被假定为可执行程序的路径名。在这种情况下，Shell创建一个子进程，然后在子进程的上下文中加载并运行程序。作为解释单个命令行的结果创建的子进程总称为作业。一般来说，一个作业可以由通过Unix管道连接的多个子进程组成。</p>
 <p>如果命令行以一个 &quot;&amp;&quot; 结尾，那么作业在后台运行，这意味着Shell在打印提示并等待下一个命令行之前不等待作业终止。否则，作业在前台运行，这意味着Shell等待作业终止后才等待下一个命令行。因此，在任何时候，最多只能有一个作业在前台运行。但是，任意数量的作业可以在后台运行。</p>
@@ -649,7 +836,7 @@ tsh&gt; /bin/ls -l -d &amp;
 <li><p>kill <job>：终止一个作业。</p>
 </li>
 </ul>
-<h3>tsh实现规范</h3>
+<h3 id="s4">tsh实现规范</h3>
 <p>tsh规范应包括以下特性：</p>
 <ul>
 <li><p>提示符应为字符串&quot;tsh&gt;&quot;。</p>
@@ -674,7 +861,7 @@ tsh&gt; /bin/ls -l -d &amp;
 <ul>
 <li>tsh应收集所有僵尸子进程。如果任何作业因为接收到它没有捕获的信号而终止，那么tsh应识别此事件并打印一个带有作业的PID和有关号的描述的消息。</li>
 </ul>
-<h2>检查你的工作</h2>
+<h2 id="s5">检查你的工作</h2>
 <p>我们提供了一些工具来帮助检查你的工作。</p>
 <p>参考实现：Linux可执行文件tshref是shell的参考实现。运行此程序以解决你对shell应该如何工作的任何疑问。您的shell应该产生与参考实现拥有相同的输出（当然，除了PID，因为它们在每次运行时都会更改）。</p>
 <p>shell driver：sdriver.pl程序将shell作为子进程执行，按照跟踪文件的指示发送命令和信号，并捕获和显示shell的输出。</p>
@@ -778,7 +965,7 @@ tsh&gt; fg %1
 
 tsh&gt; q
 </code></pre>
-<h2>提示</h2>
+<h2 id="s6">提示</h2>
 <ul>
 <li><p>仔细阅读教材第8章（异常控制流）。</p>
 </li>
@@ -803,7 +990,7 @@ tsh&gt; q
 </li>
 </ul>
 <p>以下是解决方法：在fork之后但在execve之前，子进程应调用setpgid(0, 0)，将子进程放入一个新的进程组，其组ID与子进程的PID相同。这确保在前台进程组中只有一个进程，即您的shell。当您键入ctrl-c时，shell应该捕获产生的SIGINT，然后将其转发给相应的前台作业（更准确地说，包含前台作业的进程组）。</p>
-<h2>评价方法</h2>
+<h2 id="s7">评价方法</h2>
 <p>分数将根据以下比例计算，最大分数为90分：</p>
 <ul>
 <li><p>80分正确性：每个5分的16个跟踪文件。</p>
@@ -818,7 +1005,7 @@ tsh&gt; q
 <li><p>trace11.txt、trace12.txt和trace13.txt中/bin/ps命令的输出在每次运行时都会有所不同。然而，在/bin/ps命令输出中，任何mysplit进程的运行状态应该是相同的。</p>
 </li>
 </ul>
-<h2>实验代码包内容说明</h2>
+<h2 id="s8">实验代码包内容说明</h2>
 <p>文件：</p>
 <p>Makefile        # 编译脚本</p>
 <p>README.md       # 本文件</p>
