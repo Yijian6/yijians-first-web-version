@@ -103,8 +103,9 @@ window.MC_WORLD = {
         }
       ],
       "ghosts": [
-        "Malloc实验",
-        "Proxy实验",
+        "Malloc实验解析",
+        "Proxy实验完整代码",
+        "Proxy实验解析",
         "虚拟存储器……"
       ],
       "lastDate": "2026-08-19",
@@ -157,7 +158,7 @@ window.MC_WORLD = {
       "date": "2026-08-19",
       "title": "Malloc实验完整代码",
       "domainName": "计算机系统基础II",
-      "url": "mc/csapp/2026-08-19.html"
+      "url": "mc/csapp/malloc-answer.html"
     },
     {
       "date": "2026-08-17",

@@ -1,5 +1,7 @@
 ---
 日期: 2026-08-19
+网址: malloc-answer
+蓝图: Malloc实验完整代码
 ---
 
 # Malloc实验完整代码
