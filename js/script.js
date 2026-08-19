@@ -887,7 +887,9 @@
     $$('a[href]').forEach(function (link) {
       link.addEventListener('click', function (e) {
         var href = this.getAttribute('href');
-        if (!href || href === '#' || href.startsWith('http') || href.startsWith('mailto:')) return;
+        // 页内锚点（#s3 这类）不会离开当前页面，淡出再赋值 location.href 只会
+        // 把 #main 永久停在 opacity:0 —— 整页变黑且回不来。一律放行。
+        if (!href || href.charAt(0) === '#' || href.startsWith('http') || href.startsWith('mailto:')) return;
         if (this.hasAttribute('data-fullscreen-link')) return;
         if (this.hasAttribute('data-blackhole')) return;   // black hole runs its own swallow transition
 
