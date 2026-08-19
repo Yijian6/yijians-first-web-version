@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-08-09",
+  "builtAt": "2026-08-19",
   "domains": [
     {
       "name": "写在前面",
@@ -90,6 +90,16 @@ window.MC_WORLD = {
           "n": 12,
           "title": "Shell实验破解-5",
           "date": "2026-08-04"
+        },
+        {
+          "n": 13,
+          "title": "Shell实验完整代码",
+          "date": "2026-08-06"
+        },
+        {
+          "n": 14,
+          "title": "Malloc实验完整代码",
+          "date": "2026-08-19"
         }
       ],
       "ghosts": [
@@ -97,7 +107,7 @@ window.MC_WORLD = {
         "Proxy实验",
         "虚拟存储器……"
       ],
-      "lastDate": "2026-08-04",
+      "lastDate": "2026-08-19",
       "stale": false
     },
     {
@@ -109,10 +119,15 @@ window.MC_WORLD = {
           "n": 1,
           "title": "做AI时代的生产者，而非消费者",
           "date": "2026-07-15"
+        },
+        {
+          "n": 2,
+          "title": "一些他人的观点",
+          "date": "2026-08-17"
         }
       ],
       "ghosts": [],
-      "lastDate": "2026-07-15",
+      "lastDate": "2026-08-17",
       "stale": false
     },
     {
@@ -139,6 +154,24 @@ window.MC_WORLD = {
   ],
   "log": [
     {
+      "date": "2026-08-19",
+      "title": "Malloc实验完整代码",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/2026-08-19.html"
+    },
+    {
+      "date": "2026-08-17",
+      "title": "一些他人的观点",
+      "domainName": "AI",
+      "url": "mc/arti-intelligence/ai-view.html"
+    },
+    {
+      "date": "2026-08-06",
+      "title": "Shell实验完整代码",
+      "domainName": "计算机系统基础II",
+      "url": "mc/csapp/shell-answer.html"
+    },
+    {
       "date": "2026-08-04",
       "title": "Shell实验破解-5",
       "domainName": "计算机系统基础II",
@@ -149,24 +182,6 @@ window.MC_WORLD = {
       "title": "Shell实验破解-3",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/shell-over-3.html"
-    },
-    {
-      "date": "2026-08-03",
-      "title": "Shell实验破解-4",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-over-4.html"
-    },
-    {
-      "date": "2026-08-03",
-      "title": "数据结构期末考卷",
-      "domainName": "数据结构",
-      "url": "mc/data-structures/test.html"
-    },
-    {
-      "date": "2026-08-02",
-      "title": "Shell实验破解-2",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-over-2.html"
     }
   ]
 };

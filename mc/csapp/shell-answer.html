@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>Shell实验破解-5 — 觉的 Minecraft</title>
-    <meta name="description" content="计算机系统基础II · Shell实验破解-5">
+    <title>Shell实验完整代码 — 觉的 Minecraft</title>
+    <meta name="description" content="计算机系统基础II · Shell实验完整代码">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
@@ -760,103 +760,1348 @@
     </div>
 
     <div id="main" class="main">
-        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-over-5">
+        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-answer">
             <div class="mca-topbar">
                 <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title">Shell实验破解-5</h1>
-            <p class="mca-meta">12F · 2026-08-04 · 约 4 分钟</p>
+            <h1 class="mca-title">Shell实验完整代码</h1>
+            <p class="mca-meta">13F · 2026-08-06 · 约 32 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<p>话不多说，直接进trace09，我们争取这篇文章干完后面所有的！</p>
-<h2 id="s1">Trace09</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804104337.png" alt="Pasted image 20260804104337" width="932" height="868" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(287px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804105846.png" alt="Pasted image 20260804105846" width="942" height="696" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(366px, 100%)"><br>要求：<code>#处理bg内置命令</code>，这个%是啥意思来着？搜索！<img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804104918.png" alt="Pasted image 20260804104918" width="1294" height="197" loading="lazy" decoding="async" data-media-fit="natural"><br>在规范里看到这一句话，也就是说，我们要识别命令的第二个参数<code>argv[1]</code>，判定有没有%，从而判定，到底是由PID对应作业，还是JID，有%的是JID，没有的是PID。</p>
-<p>同样回顾README，bg内置命令让我们完成这样一件事情：<img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804104641.png" alt="Pasted image 20260804104641" width="673" height="74" loading="lazy" decoding="async" data-media-fit="natural"><br>❶先识别——<code>builtin_cmd()来完成</code><br>❷将停止的后台作业的状态改变，从ST改成BG——<code>do_fgbg()</code>函数完成<br>目标明确，直接行动。<br>❶识别：模仿quit、jobs<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804105339.png" alt="Pasted image 20260804105339" width="798" height="602" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(445px, 100%)"><br>❷构思如何用bg把后台暂停作业改变成运行：</p>
-<p class="mc-indent">1、给子进程组发送SIGCONT，让他们继续运行<br>2、修改作业列表中的状态，<code>job-&gt;state从ST变成BG</code><br>3、根据make rtest09，还要输出改变后的作业状态！！</p>
-<p>思路清晰，代码就清晰：</p>
-<p class="mc-indent">1、定义作业job<br>2、if else确认究竟是由JID确定job还是PID，确认job<br>3、内置命令修改对应参数，并打印情况！<img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804111935.png" alt="Pasted image 20260804111935" width="1194" height="658" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<p>make、test！通过！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804112125.png" alt="Pasted image 20260804112125" width="971" height="731" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(333px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804105846.png" alt="Pasted image 20260804105846" width="942" height="696" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(341px, 100%)"></p>
-<h2 id="s2">Trace10</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804112208.png" alt="Pasted image 20260804112208" width="924" height="966" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(321px, 100%)"><br>照猫画虎的前台内置命令！<br>在刚刚bg这段代码下面直接补充<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804112448.png" alt="Pasted image 20260804112448" width="922" height="377" loading="lazy" decoding="async" data-media-fit="natural"><br>补充完直接make测试：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804113126.png" alt="Pasted image 20260804113126" width="910" height="557" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(305px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804112700.png" alt="Pasted image 20260804112700" width="896" height="525" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(311px, 100%)"><br>一模一样吧？</p>
-<h2 id="s3">Trace11</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804113230.png" alt="Pasted image 20260804113230" width="1567" height="514" loading="lazy" decoding="async" data-media-fit="natural"><br>要求：<code>#验证能把SIGINT发送到前台进程整组</code>，这一条我们在之前<code>setpgid(0,0)</code>的时候，不就是做的这件事吗？OK啊？直接测试！<br>输出很长，是ps程序(process status)进程状态查看程序造成的。我们让Claude帮我们比对：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804113824.png" alt="Pasted image 20260804113824" width="1052" height="743" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<h2 id="s4">Trace12</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804113914.png" alt="Pasted image 20260804113914" width="1303" height="554" loading="lazy" decoding="async" data-media-fit="natural"><br>看到要求，相信你一眼也能知道，这个不用测也过了！</p>
-<h2 id="s5">Trace13</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804114018.png" alt="Pasted image 20260804114018" width="1042" height="733" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(401px, 100%)"><br>要求：<code>#重新启动进程组的每一个进程</code>，意思是说，让我们验证一个进程被暂停之后，fg能启动整个作业的进程组。<br>我们的代码中有kill(-pid,SIGCONT)，实际上就是发送了整组的信号，所以，完成！<br>make、测试、通过！</p>
-<h2 id="s6">Trace14</h2>
-<p>内容很长，我复制过来逐行解释，要我们处理一些错误情况</p>
-<pre><code class="language-bash">yijian@Jue:~/re-lab/shelllab$ cat trace14.txt
-#
-# trace14.txt - Simple error handling
-#
+<blockquote>
+<p>一千个读者有一千个哈姆雷特。以下的代码只是我的一种想法。仅供参考</p>
+</blockquote>
+<p><code>tsh.c</code>:</p>
+<pre><code class="language-C">/*
 
-1️⃣故意启动了一个没有的程序，我们直接execve()会报错，要判断
-/bin/echo tsh&gt; ./bogus  
-./bogus 
+ * tsh - A tiny shell program with job control
 
+ *
 
-/bin/echo -e tsh&gt; ./myspin 4 \046
-./myspin 4 &amp;
+ * &lt;Liu Yi Jian 666&gt;
 
-2️⃣fg、bg命令，没加参数！
-/bin/echo tsh&gt; fg
-fg
+ */
 
-/bin/echo tsh&gt; bg
-bg
-3️⃣参数错误，没有写成%数字，或数字
-/bin/echo tsh&gt; fg a
-fg a
+#include &lt;stdio.h&gt;
 
-/bin/echo tsh&gt; bg a
-bg a
+#include &lt;stdlib.h&gt;
 
-4️⃣PID、JID不存在！
-/bin/echo tsh&gt; fg 9999999
-fg 9999999
+#include &lt;unistd.h&gt;
 
-/bin/echo tsh&gt; bg 9999999
-bg 9999999
+#include &lt;string.h&gt;
 
-/bin/echo tsh&gt; fg %2
-fg %2
+#include &lt;ctype.h&gt;
 
-/bin/echo tsh&gt; fg %1
-fg %1
+#include &lt;signal.h&gt;
 
-SLEEP 2
-TSTP
+#include &lt;sys/types.h&gt;
 
-/bin/echo tsh&gt; bg %2
-bg %2
+#include &lt;sys/wait.h&gt;
 
-/bin/echo tsh&gt; bg %1
-bg %1
+#include &lt;errno.h&gt;
 
-/bin/echo tsh&gt; jobs
-jobs
+  
+
+/* Misc manifest constants */
+
+#define MAXLINE    1024   /* max line size */
+
+#define MAXARGS     128   /* max args on a command line */
+
+#define MAXJOBS      16   /* max jobs at any point in time */
+
+#define MAXJID    1&lt;&lt;16   /* max job ID */
+
+  
+
+/* Job states */
+
+#define UNDEF 0 /* undefined */
+
+#define FG 1    /* running in foreground */
+
+#define BG 2    /* running in background */
+
+#define ST 3    /* stopped */
+
+  
+
+/*
+
+ * Jobs states: FG (foreground), BG (background), ST (stopped)
+
+ * Job state transitions and enabling actions:
+
+ *     FG -&gt; ST  : ctrl-z
+
+ *     ST -&gt; FG  : fg command
+
+ *     ST -&gt; BG  : bg command
+
+ *     BG -&gt; FG  : fg command
+
+ * At most 1 job can be in the FG state.
+
+ */
+
+  
+
+/* Global variables */
+
+extern char **environ;      /* defined in libc */
+
+char prompt[] = &quot;tsh&gt; &quot;;    /* command line prompt (DO NOT CHANGE) */
+
+int verbose = 0;            /* if true, print additional output */
+
+int nextjid = 1;            /* next job ID to allocate */
+
+char sbuf[MAXLINE];         /* for composing sprintf messages */
+
+  
+
+struct job_t {              /* The job struct */
+
+    pid_t pid;              /* job PID */
+
+    int jid;                /* job ID [1, 2, ...] */
+
+    int state;              /* UNDEF, BG, FG, or ST */
+
+    char cmdline[MAXLINE];  /* command line */
+
+};
+
+struct job_t jobs[MAXJOBS]; /* The job list */
+
+/* End global variables */
+
+  
+  
+  
+
+/* Function prototypes */
+
+  
+
+/* Here are the functions that you will implement */
+
+void eval(char *cmdline);
+
+int builtin_cmd(char **argv);
+
+void do_bgfg(char **argv);
+
+void waitfg(pid_t pid);
+
+  
+
+void sigchld_handler(int sig);
+
+void sigtstp_handler(int sig);
+
+void sigint_handler(int sig);
+
+  
+
+/* Here are helper routines that we&#39;ve provided for you */
+
+int parseline(const char *cmdline, char **argv);
+
+void sigquit_handler(int sig);
+
+  
+
+void clearjob(struct job_t *job);
+
+void initjobs(struct job_t *jobs);
+
+int maxjid(struct job_t *jobs);
+
+int addjob(struct job_t *jobs, pid_t pid, int state, char *cmdline);
+
+int deletejob(struct job_t *jobs, pid_t pid);
+
+pid_t fgpid(struct job_t *jobs);
+
+struct job_t *getjobpid(struct job_t *jobs, pid_t pid);
+
+struct job_t *getjobjid(struct job_t *jobs, int jid);
+
+int pid2jid(pid_t pid);
+
+void listjobs(struct job_t *jobs);
+
+  
+
+void usage(void);
+
+void unix_error(char *msg);
+
+void app_error(char *msg);
+
+typedef void handler_t(int);
+
+handler_t *Signal(int signum, handler_t *handler);
+
+  
+
+/*
+
+ * main - The shell&#39;s main routine
+
+ */
+
+int main(int argc, char **argv)
+
+{
+
+    char c;
+
+    char cmdline[MAXLINE];
+
+    int emit_prompt = 1; /* emit prompt (default) */
+
+  
+
+    /* Redirect stderr to stdout (so that driver will get all output
+
+     * on the pipe connected to stdout) */
+
+    dup2(1, 2);
+
+  
+
+    /* Parse the command line */
+
+    while ((c = getopt(argc, argv, &quot;hvp&quot;)) != EOF) {
+
+        switch (c) {
+
+        case &#39;h&#39;:             /* print help message */
+
+            usage();
+
+        break;
+
+        case &#39;v&#39;:             /* emit additional diagnostic info */
+
+            verbose = 1;
+
+        break;
+
+        case &#39;p&#39;:             /* don&#39;t print a prompt */
+
+            emit_prompt = 0;  /* handy for automatic testing */
+
+        break;
+
+    default:
+
+            usage();
+
+    }
+
+    }
+
+  
+
+    /* Install the signal handlers */
+
+  
+
+    /* These are the ones you will need to implement */
+
+    Signal(SIGINT,  sigint_handler);   /* ctrl-c */
+
+    Signal(SIGTSTP, sigtstp_handler);  /* ctrl-z */
+
+    Signal(SIGCHLD, sigchld_handler);  /* Terminated or stopped child */
+
+  
+
+    /* This one provides a clean way to kill the shell */
+
+    Signal(SIGQUIT, sigquit_handler);
+
+  
+
+    /* Initialize the job list */
+
+    initjobs(jobs);
+
+  
+
+    /* Execute the shell&#39;s read/eval loop */
+
+    while (1) {
+
+  
+
+    /* Read command line */
+
+    if (emit_prompt) {
+
+        printf(&quot;%s&quot;, prompt);
+
+        fflush(stdout);
+
+    }
+
+    if ((fgets(cmdline, MAXLINE, stdin) == NULL) &amp;&amp; ferror(stdin))
+
+        app_error(&quot;fgets error&quot;);
+
+    if (feof(stdin)) { /* End of file (ctrl-d) */
+
+        fflush(stdout);
+
+        exit(0);
+
+    }
+
+  
+
+    /* Evaluate the command line */
+
+    eval(cmdline);
+
+    fflush(stdout);
+
+    fflush(stdout);
+
+    }
+
+  
+
+    exit(0); /* control never reaches here */
+
+}
+
+/*
+
+ * eval - Evaluate the command line that the user has just typed in
+
+ *
+
+ * If the user has requested a built-in command (quit, jobs, bg or fg)
+
+ * then execute it immediately. Otherwise, fork a child process and
+
+ * run the job in the context of the child. If the job is running in
+
+ * the foreground, wait for it to terminate and then return.  Note:
+
+ * each child process must have a unique process group ID so that our
+
+ * background children don&#39;t receive SIGINT (SIGTSTP) from the kernel
+
+ * when we type ctrl-c (ctrl-z) at the keyboard.  
+
+*/
+
+void eval(char *cmdline)
+
+{
+
+    char *argv[MAXARGS];//定义argv[]
+
+    int bg;  //后台、前台标志
+
+    pid_t pid; //进程id
+
+  
+
+    //信号阻塞定义、做好准备
+
+    sigset_t set, oldset;             // 声明两个信号集合
+
+    sigemptyset(&amp;set);              // 清空 mask
+
+    sigaddset(&amp;set, SIGCHLD);       // 把 SIGCHLD 加进去
+
+  
+  
+  
+
+    bg = parseline(cmdline,argv);
+
+  
+
+    if(argv[0] == NULL){
+
+        return;
+
+    }     //注意一点，因为trace里面有可能有空行，
+
+  
+
+    if(builtin_cmd(argv)){ //判定、并且处理内置命令
+
+        return;//处理完返回
+
+    }
+
+    sigprocmask(SIG_BLOCK, &amp;set, &amp;oldset);   // ① 子进程发生前阻塞信号
+
+    pid = fork();//创建子进程
+
+  
+
+    //子进程：走非内置命令，被替代
+
+    if(pid == 0){    
+
+        setpgid(0,0);
+
+        sigprocmask(SIG_SETMASK, &amp;oldset, NULL); // ② 子进程不阻塞sigprocmask(SIG_SETMASK, &amp;oldset, NULL); // ② 子进程不阻塞
+
+        if(execve(argv[0],argv,environ)&lt;0){
+
+            printf(&quot;%s: Command not found\n&quot;,argv[0]);
+
+            exit(0);//如果失败，打印错误信息，退出子进程
+
+        };
+
+    }
+
+    //父进程：
+
+  
+
+    //父进程前台作业的处理
+
+    if(bg == 0){
+
+        addjob(jobs,pid,FG,cmdline);
+
+        sigprocmask(SIG_SETMASK, &amp;oldset, NULL);   // ④ 在addjob之后父进程解除阻塞
+
+        waitfg(pid);
+
+    }
+
+  
+
+    //父进程后台作业的处理
+
+    if(bg == 1){
+
+        addjob(jobs,pid,BG,cmdline);//之前已经初始化了jobs清单，可以直接用,BG表示后台作业
+
+        printf(&quot;[%d] (%d) %s&quot;,pid2jid(pid),pid,cmdline);//输出到屏幕上
+
+        sigprocmask(SIG_SETMASK, &amp;oldset, NULL);   // ④ 在addjob之后父进程解除阻塞
+
+    }
+
+    return;
+
+}
+
+  
+
+/*
+
+ * parseline - Parse the command line and build the argv array.
+
+ *
+
+ * Characters enclosed in single quotes are treated as a single
+
+ * argument.  Return true if the user has requested a BG job, false if
+
+ * the user has requested a FG job.  
+
+ */
+
+int parseline(const char *cmdline, char **argv)
+
+{
+
+    static char array[MAXLINE]; /* holds local copy of command line */
+
+    char *buf = array;          /* ptr that traverses command line */
+
+    char *delim;                /* points to first space delimiter */
+
+    int argc;                   /* number of args */
+
+    int bg;                     /* background job? */
+
+  
+
+    strcpy(buf, cmdline);
+
+    buf[strlen(buf)-1] = &#39; &#39;;  /* replace trailing &#39;\n&#39; with space */
+
+    while (*buf &amp;&amp; (*buf == &#39; &#39;)) /* ignore leading spaces */
+
+    buf++;
+
+  
+
+    /* Build the argv list */
+
+    argc = 0;
+
+    if (*buf == &#39;\&#39;&#39;) {
+
+    buf++;
+
+    delim = strchr(buf, &#39;\&#39;&#39;);
+
+    }
+
+    else {
+
+    delim = strchr(buf, &#39; &#39;);
+
+    }
+
+  
+
+    while (delim) {
+
+    argv[argc++] = buf;
+
+    *delim = &#39;\0&#39;;
+
+    buf = delim + 1;
+
+    while (*buf &amp;&amp; (*buf == &#39; &#39;)) /* ignore spaces */
+
+           buf++;
+
+  
+
+    if (*buf == &#39;\&#39;&#39;) {
+
+        buf++;
+
+        delim = strchr(buf, &#39;\&#39;&#39;);
+
+    }
+
+    else {
+
+        delim = strchr(buf, &#39; &#39;);
+
+    }
+
+    }
+
+    argv[argc] = NULL;
+
+    if (argc == 0)  /* ignore blank line */
+
+    return 1;
+
+  
+
+    /* should the job run in the background? */
+
+    if ((bg = (*argv[argc-1] == &#39;&amp;&#39;)) != 0) {
+
+    argv[--argc] = NULL;
+
+    }
+
+    return bg;
+
+}
+
+  
+
+/*
+
+ * builtin_cmd - If the user has typed a built-in command then execute
+
+ *    it immediately.  
+
+ */
+
+int builtin_cmd(char **argv)
+
+{
+
+    /*quit内置命令，识别，并且处理*/
+
+    if(strcmp(argv[0],&quot;quit&quot;) == 0){
+
+        exit(0);
+
+        return 1;
+
+    }
+
+  
+
+    /*jobs内置命令，识别，并且处理*/
+
+    if(strcmp(argv[0],&quot;jobs&quot;) == 0){
+
+        listjobs(jobs);
+
+        return 1;
+
+    }
+
+    /*fgbg内置命令，识别，并且处理*/
+
+    if(strcmp(argv[0],&quot;fg&quot;) == 0||(strcmp(argv[0],&quot;bg&quot;))== 0){
+
+        do_bgfg(argv);
+
+        return 1;
+
+    }
+
+  
+
+    return 0;     /* not a builtin command */
+
+}
+
+  
+
+/*
+
+ * do_bgfg - Execute the builtin bg and fg commands
+
+ */
+
+void do_bgfg(char **argv)
+
+{
+
+    struct job_t *job; //定义job，然后，我们需要从JID或者PID中获取出来job，不管哪一个都有现成的函数
+
+  
+
+    //根据第二个参数的第一个字符是否是%来判定到底是JID还是PID，选择getjobjid()还是getjobpid()
+
+     //1、参数为空的情况
+
+    if(argv[1] == NULL){
+
+        printf(&quot;%s command requires PID or %%jobid argument\n&quot;,argv[0]);
+
+        return;
+
+    }
+
+  
+
+    //2、参数不为空，但参数不是%开头，并且不是数字的情况
+
+    else if(argv[1][0] != &#39;%&#39; &amp;&amp; !isdigit(argv[1][0])){
+
+        printf(&quot;%s: argument must be a PID or %%jobid\n&quot;,argv[0]);
+
+        return;
+
+  
+
+    }
+
+    //3、参数是%开头、或者是数字的情况
+
+    else{
+
+        if(argv[1][0] == &#39;%&#39;){
+
+            int jid = atoi(&amp;argv[1][1]);
+
+            job = getjobjid(jobs,jid);
+
+                //如果没有这个job，getjobjid会返回NULL，利用这一点，我们让其返回NULL的时候，表示没有找到这个job
+
+                if(job == NULL){
+
+                    printf(&quot;%s: No such job\n&quot;,argv[1]);
+
+                    return;
+
+                }
+
+            }
+
+            else {
+
+                pid_t pid =atoi(argv[1]);
+
+                job = getjobpid(jobs,pid);
+
+                //同理
+
+                if(job == NULL){
+
+                    printf(&quot;(%s): No such process\n&quot;,argv[1]);
+
+                    return;
+
+                }
+
+  
+
+            }
+
+  
+  
+
+        }
+
+  
+
+    //bg内置命令处理
+
+    if(strcmp(argv[0],&quot;bg&quot;) == 0){
+
+        kill(-job-&gt;pid,SIGCONT);
+
+        job-&gt;state = BG;
+
+        printf(&quot;[%d] (%d) %s&quot;, job-&gt;jid, job-&gt;pid, job-&gt;cmdline);
+
+    }
+
+    //fg
+
+    if(strcmp(argv[0],&quot;fg&quot;) == 0){
+
+        kill(-job-&gt;pid,SIGCONT);
+
+        job-&gt;state = FG;
+
+        waitfg(job-&gt;pid);
+
+    }
+
+    return;
+
+}
+
+  
+
+/*
+
+ * waitfg - Block until process pid is no longer the foreground process
+
+ */
+
+void waitfg(pid_t pid)
+
+{
+
+    while (fgpid(jobs) == pid){
+
+        sleep(1);
+
+    }
+
+    return;
+
+}
+
+  
+
+/*****************
+
+ * Signal handlers
+
+ *****************/
+
+  
+
+/*
+
+ * sigchld_handler - The kernel sends a SIGCHLD to the shell whenever
+
+ *     a child job terminates (becomes a zombie), or stops because it
+
+ *     received a SIGSTOP or SIGTSTP signal. The handler reaps all
+
+ *     available zombie children, but doesn&#39;t wait for any other
+
+ *     currently running children to terminate.  
+
+ */
+
+void sigchld_handler(int sig)
+
+{
+
+    pid_t pid; //定义pid，用来接受waitpid的返回值
+
+    int status;
+
+    //不等待，立刻回收所有被终止的进程/这里补上被暂停的进程也要
+
+    while ((pid = waitpid(-1,&amp;status,WNOHANG | WUNTRACED))&gt;0){ //WNOHANG和WUNTRACED搭配使用，有暂停、终止的就回收，没有就返回0
+
+  
+
+        //如果是正常退出的，直接删除，依旧没毛病
+
+        if(WIFEXITED(status)){
+
+            deletejob(jobs,pid);
+
+        }  
+
+  
+
+        //如果是被信号终止的，获取终止它的哪个信号信息，打印情况，再删除
+
+        if(WIFSIGNALED(status)){
+
+            printf(&quot;Job [%d] (%d) terminated by signal %d\n&quot;,pid2jid(pid),pid,WTERMSIG(status));
+
+            fflush(stdout);//刷新缓冲区，让输出直接打印。
+
+            deletejob(jobs,pid);
+
+        }
+
+  
+
+        //如果是被信号暂停的，获取暂停它的信号信息，打印情况，更改job的状态，不删除
+
+       if(WIFSTOPPED(status)){
+
+            printf(&quot;Job [%d] (%d) stopped by signal %d\n&quot;,pid2jid(pid),pid,WSTOPSIG(status));
+
+            fflush(stdout);
+
+  
+
+            struct job_t *job =getjobpid(jobs,pid); //根据工具库，getjob()函数可以帮助我们使用pid直接找到对应的哪个job
+
+            if(job != NULL){
+
+                job-&gt;state = ST;  //结构体使用-&gt;来访问并改变state。
+
+            }
+
+        }
+
+    }
+
+  
+
+    return;
+
+}
+
+  
+
+/*
+
+ * sigint_handler - The kernel sends a SIGINT to the shell whenver the
+
+ *    user types ctrl-c at the keyboard.  Catch it and send it along
+
+ *    to the foreground job.  
+
+ */
+
+void sigint_handler(int sig)
+
+{
+
+    pid_t pid;// 先定义pid，为了后续使用
+
+    pid = fgpid(jobs); //获取现在前台的作业(因为我们要终止它)
+
+  
+
+    if(pid != 0){
+
+        kill(-pid,sig);
+
+    }
+
+    return;
+
+}
+
+  
+
+/*
+
+ * sigtstp_handler - The kernel sends a SIGTSTP to the shell whenever
+
+ *     the user types ctrl-z at the keyboard. Catch it and suspend the
+
+ *     foreground job by sending it a SIGTSTP.  
+
+ */
+
+void sigtstp_handler(int sig)
+
+{
+
+    pid_t pid;
+
+    pid = fgpid(jobs);
+
+  
+
+    if(pid != 0){
+
+        kill(-pid,sig);
+
+    }
+
+    return;
+
+}
+
+  
+  
+
+/*********************
+
+ * End signal handlers
+
+ *********************/
+
+  
+
+/***********************************************
+
+ * Helper routines that manipulate the job list
+
+ **********************************************/
+
+  
+
+/* clearjob - Clear the entries in a job struct */
+
+void clearjob(struct job_t *job) {
+
+    job-&gt;pid = 0;
+
+    job-&gt;jid = 0;
+
+    job-&gt;state = UNDEF;
+
+    job-&gt;cmdline[0] = &#39;\0&#39;;
+
+}
+
+  
+
+/* initjobs - Initialize the job list */
+
+void initjobs(struct job_t *jobs) {
+
+    int i;
+
+  
+
+    for (i = 0; i &lt; MAXJOBS; i++)
+
+    clearjob(&amp;jobs[i]);
+
+}
+
+  
+
+/* maxjid - Returns largest allocated job ID */
+
+int maxjid(struct job_t *jobs)
+
+{
+
+    int i, max=0;
+
+  
+
+    for (i = 0; i &lt; MAXJOBS; i++)
+
+    if (jobs[i].jid &gt; max)
+
+        max = jobs[i].jid;
+
+    return max;
+
+}
+
+  
+
+/* addjob - Add a job to the job list */
+
+int addjob(struct job_t *jobs, pid_t pid, int state, char *cmdline)
+
+{
+
+    int i;
+
+    if (pid &lt; 1)
+
+    return 0;
+
+  
+
+    for (i = 0; i &lt; MAXJOBS; i++) {
+
+    if (jobs[i].pid == 0) {
+
+        jobs[i].pid = pid;
+
+        jobs[i].state = state;
+
+        jobs[i].jid = nextjid++;
+
+        if (nextjid &gt; MAXJOBS)
+
+        nextjid = 1;
+
+        strcpy(jobs[i].cmdline, cmdline);
+
+        if(verbose){
+
+            printf(&quot;Added job [%d] %d %s\n&quot;, jobs[i].jid, jobs[i].pid, jobs[i].cmdline);
+
+            }
+
+            return 1;
+
+    }
+
+    }
+
+    printf(&quot;Tried to create too many jobs\n&quot;);
+
+    return 0;
+
+}
+
+  
+
+/* deletejob - Delete a job whose PID=pid from the job list */
+
+int deletejob(struct job_t *jobs, pid_t pid)
+
+{
+
+    int i;
+
+  
+
+    if (pid &lt; 1)
+
+    return 0;
+
+  
+
+    for (i = 0; i &lt; MAXJOBS; i++) {
+
+    if (jobs[i].pid == pid) {
+
+        clearjob(&amp;jobs[i]);
+
+        nextjid = maxjid(jobs)+1;
+
+        return 1;
+
+    }
+
+    }
+
+    return 0;
+
+}
+
+  
+
+/* fgpid - Return PID of current foreground job, 0 if no such job */
+
+pid_t fgpid(struct job_t *jobs) {
+
+    int i;
+
+  
+
+    for (i = 0; i &lt; MAXJOBS; i++)
+
+    if (jobs[i].state == FG)
+
+        return jobs[i].pid;
+
+    return 0;
+
+}
+
+  
+
+/* getjobpid  - Find a job (by PID) on the job list */
+
+struct job_t *getjobpid(struct job_t *jobs, pid_t pid) {
+
+    int i;
+
+  
+
+    if (pid &lt; 1)
+
+    return NULL;
+
+    for (i = 0; i &lt; MAXJOBS; i++)
+
+    if (jobs[i].pid == pid)
+
+        return &amp;jobs[i];
+
+    return NULL;
+
+}
+
+  
+
+/* getjobjid  - Find a job (by JID) on the job list */
+
+struct job_t *getjobjid(struct job_t *jobs, int jid)
+
+{
+
+    int i;
+
+  
+
+    if (jid &lt; 1)
+
+    return NULL;
+
+    for (i = 0; i &lt; MAXJOBS; i++)
+
+    if (jobs[i].jid == jid)
+
+        return &amp;jobs[i];
+
+    return NULL;
+
+}
+
+  
+
+/* pid2jid - Map process ID to job ID */
+
+int pid2jid(pid_t pid)
+
+{
+
+    int i;
+
+  
+
+    if (pid &lt; 1)
+
+    return 0;
+
+    for (i = 0; i &lt; MAXJOBS; i++)
+
+    if (jobs[i].pid == pid) {
+
+            return jobs[i].jid;
+
+        }
+
+    return 0;
+
+}
+
+  
+
+/* listjobs - Print the job list */
+
+void listjobs(struct job_t *jobs)
+
+{
+
+    int i;
+
+    for (i = 0; i &lt; MAXJOBS; i++) {
+
+    if (jobs[i].pid != 0) {
+
+        printf(&quot;[%d] (%d) &quot;, jobs[i].jid, jobs[i].pid);
+
+        switch (jobs[i].state) {
+
+        case BG:
+
+            printf(&quot;Running &quot;);
+
+            break;
+
+        case FG:
+
+            printf(&quot;Foreground &quot;);
+
+            break;
+
+        case ST:
+
+            printf(&quot;Stopped &quot;);
+
+            break;
+
+        default:
+
+            printf(&quot;listjobs: Internal error: job[%d].state=%d &quot;,
+
+               i, jobs[i].state);
+
+        }
+
+        printf(&quot;%s&quot;, jobs[i].cmdline);
+
+    }
+
+    }
+
+}
+
+/******************************
+
+ * end job list helper routines
+
+ ******************************/
+
+  
+  
+
+/***********************
+
+ * Other helper routines
+
+ ***********************/
+
+  
+
+/*
+
+ * usage - print a help message
+
+ */
+
+void usage(void)
+
+{
+
+    printf(&quot;Usage: shell [-hvp]\n&quot;);
+
+    printf(&quot;   -h   print this message\n&quot;);
+
+    printf(&quot;   -v   print additional diagnostic information\n&quot;);
+
+    printf(&quot;   -p   do not emit a command prompt\n&quot;);
+
+    exit(1);
+
+}
+
+  
+
+/*
+
+ * unix_error - unix-style error routine
+
+ */
+
+void unix_error(char *msg)
+
+{
+
+    fprintf(stdout, &quot;%s: %s\n&quot;, msg, strerror(errno));
+
+    exit(1);
+
+}
+
+  
+
+/*
+
+ * app_error - application-style error routine
+
+ */
+
+void app_error(char *msg)
+
+{
+
+    fprintf(stdout, &quot;%s\n&quot;, msg);
+
+    exit(1);
+
+}
+
+  
+
+/*
+
+ * Signal - wrapper for the sigaction function
+
+ */
+
+handler_t *Signal(int signum, handler_t *handler)
+
+{
+
+    struct sigaction action, old_action;
+
+  
+
+    action.sa_handler = handler;  
+
+    sigemptyset(&amp;action.sa_mask); /* block sigs of type being handled */
+
+    action.sa_flags = SA_RESTART; /* restart syscalls if possible */
+
+  
+
+    if (sigaction(signum, &amp;action, &amp;old_action) &lt; 0)
+
+    unix_error(&quot;Signal error&quot;);
+
+    return (old_action.sa_handler);
+
+}
+
+  
+
+/*
+
+ * sigquit_handler - The driver program can gracefully terminate the
+
+ *    child shell by sending it a SIGQUIT signal.
+
+ */
+
+void sigquit_handler(int sig)
+
+{
+
+    printf(&quot;Terminating after receipt of SIGQUIT signal\n&quot;);
+
+    exit(1);
+
+}
 </code></pre>
-<p>再看一下应对这些错误情况标准的输出make rtest14<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804115047.png" alt="Pasted image 20260804115047" width="819" height="1052" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(510px, 100%)"></p>
-<h3 id="s7">逐一处理！</h3>
-<h3 id="s8">1️⃣启动错误程序，怎么办？我们利用<code>execve()</code>执行失败返回<code>-1</code>这一点，改动：</h3>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804115401.png" alt="Pasted image 20260804115401" width="571" height="195" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(287px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804115552.png" alt="Pasted image 20260804115552" width="626" height="244" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(259px, 100%)"></p>
-<h3 id="s9">2️⃣3️⃣4️⃣fg、bg命令，参数问题讨论</h3>
-<p class="mc-indent">可分如下类讨论：<br>1、没加参数(argv[1] == NULL)<br>2、加了参数，参数不是<code>%数字</code>或<code>数字</code>()<br>3、参数是<code>%数字</code>或<code>数字</code>，<br>❶但不是正确的JID、PID<br>❷参数正确，可以找到对应PID、JID的job<br>全都是do_bgfg()函数获取job时候的处理。我们用<br>1、if<br>2、else if<br>3、else<br>来分别处理三种情况</p>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804120843.png" alt="Pasted image 20260804120843" width="1339" height="980" loading="lazy" decoding="async" data-media-fit="natural"><br>OK啊，直接测试。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804121059.png" alt="Pasted image 20260804121059" width="954" height="937" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(298px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804121059.png" alt="Pasted image 20260804121059" width="954" height="937" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(292px, 100%)"><br>逐行比对，通过！</p>
-<h2 id="s10">Trace15、16</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804121345.png" alt="Pasted image 20260804121345" width="677" height="110" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(596px, 100%)"><br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804121336.png" alt="Pasted image 20260804121336" width="852" height="132" loading="lazy" decoding="async" data-media-fit="natural"><br>看名字，你会发现，最后的这两，是综合类的测试。通常，前面的过了，这两也都能过。我们直接简单make test、make rtest ，比对。发现，果然如此。</p>
-<h1>祝贺你，勇士！完成了考验！</h1>
-<p>Shell实验，到此结束。</p>
 
             </div>
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="shell-over-4.html" class="mca-stair">↓ 11F Shell实验破解-4</a>
+            <a href="shell-over-5.html" class="mca-stair">↓ 12F Shell实验破解-5</a>
             <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <a href="shell-answer.html" class="mca-stair mca-stair--next">13F Shell实验完整代码 ↑</a>
+            <a href="2026-08-19.html" class="mca-stair mca-stair--next">14F Malloc实验完整代码 ↑</a>
         </nav>
 
         <footer class="footer">

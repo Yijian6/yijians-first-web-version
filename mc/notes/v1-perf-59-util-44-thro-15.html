@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>Shell实验破解-5 — 觉的 Minecraft</title>
-    <meta name="description" content="计算机系统基础II · Shell实验破解-5">
+    <title>v1隐式链表 首次适配 Perf 59(util 44 +thro 15) — 觉的 Minecraft</title>
+    <meta name="description" content="v1隐式链表 首次适配 Perf 59(util 44 +thro 15)">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
     <style>
@@ -760,103 +760,639 @@
     </div>
 
     <div id="main" class="main">
-        <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-over-5">
+        <article class="mca-wrap" data-source="yijian6.com/mc/notes/v1-perf-59-util-44-thro-15">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
+                <a href="../../minecraft.html" class="mca-crumb">← 回到世界</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title">Shell实验破解-5</h1>
-            <p class="mca-meta">12F · 2026-08-04 · 约 4 分钟</p>
+            <h1 class="mca-title">v1隐式链表 首次适配 Perf 59(util 44 +thro 15)</h1>
+            <p class="mca-meta">附页 · 约 15 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<p>话不多说，直接进trace09，我们争取这篇文章干完后面所有的！</p>
-<h2 id="s1">Trace09</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804104337.png" alt="Pasted image 20260804104337" width="932" height="868" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(287px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804105846.png" alt="Pasted image 20260804105846" width="942" height="696" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(366px, 100%)"><br>要求：<code>#处理bg内置命令</code>，这个%是啥意思来着？搜索！<img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804104918.png" alt="Pasted image 20260804104918" width="1294" height="197" loading="lazy" decoding="async" data-media-fit="natural"><br>在规范里看到这一句话，也就是说，我们要识别命令的第二个参数<code>argv[1]</code>，判定有没有%，从而判定，到底是由PID对应作业，还是JID，有%的是JID，没有的是PID。</p>
-<p>同样回顾README，bg内置命令让我们完成这样一件事情：<img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804104641.png" alt="Pasted image 20260804104641" width="673" height="74" loading="lazy" decoding="async" data-media-fit="natural"><br>❶先识别——<code>builtin_cmd()来完成</code><br>❷将停止的后台作业的状态改变，从ST改成BG——<code>do_fgbg()</code>函数完成<br>目标明确，直接行动。<br>❶识别：模仿quit、jobs<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804105339.png" alt="Pasted image 20260804105339" width="798" height="602" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(445px, 100%)"><br>❷构思如何用bg把后台暂停作业改变成运行：</p>
-<p class="mc-indent">1、给子进程组发送SIGCONT，让他们继续运行<br>2、修改作业列表中的状态，<code>job-&gt;state从ST变成BG</code><br>3、根据make rtest09，还要输出改变后的作业状态！！</p>
-<p>思路清晰，代码就清晰：</p>
-<p class="mc-indent">1、定义作业job<br>2、if else确认究竟是由JID确定job还是PID，确认job<br>3、内置命令修改对应参数，并打印情况！<img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804111935.png" alt="Pasted image 20260804111935" width="1194" height="658" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<p>make、test！通过！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804112125.png" alt="Pasted image 20260804112125" width="971" height="731" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(333px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804105846.png" alt="Pasted image 20260804105846" width="942" height="696" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(341px, 100%)"></p>
-<h2 id="s2">Trace10</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804112208.png" alt="Pasted image 20260804112208" width="924" height="966" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(321px, 100%)"><br>照猫画虎的前台内置命令！<br>在刚刚bg这段代码下面直接补充<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804112448.png" alt="Pasted image 20260804112448" width="922" height="377" loading="lazy" decoding="async" data-media-fit="natural"><br>补充完直接make测试：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804113126.png" alt="Pasted image 20260804113126" width="910" height="557" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(305px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804112700.png" alt="Pasted image 20260804112700" width="896" height="525" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(311px, 100%)"><br>一模一样吧？</p>
-<h2 id="s3">Trace11</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804113230.png" alt="Pasted image 20260804113230" width="1567" height="514" loading="lazy" decoding="async" data-media-fit="natural"><br>要求：<code>#验证能把SIGINT发送到前台进程整组</code>，这一条我们在之前<code>setpgid(0,0)</code>的时候，不就是做的这件事吗？OK啊？直接测试！<br>输出很长，是ps程序(process status)进程状态查看程序造成的。我们让Claude帮我们比对：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804113824.png" alt="Pasted image 20260804113824" width="1052" height="743" loading="lazy" decoding="async" data-media-fit="natural"></p>
-<h2 id="s4">Trace12</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804113914.png" alt="Pasted image 20260804113914" width="1303" height="554" loading="lazy" decoding="async" data-media-fit="natural"><br>看到要求，相信你一眼也能知道，这个不用测也过了！</p>
-<h2 id="s5">Trace13</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804114018.png" alt="Pasted image 20260804114018" width="1042" height="733" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(401px, 100%)"><br>要求：<code>#重新启动进程组的每一个进程</code>，意思是说，让我们验证一个进程被暂停之后，fg能启动整个作业的进程组。<br>我们的代码中有kill(-pid,SIGCONT)，实际上就是发送了整组的信号，所以，完成！<br>make、测试、通过！</p>
-<h2 id="s6">Trace14</h2>
-<p>内容很长，我复制过来逐行解释，要我们处理一些错误情况</p>
-<pre><code class="language-bash">yijian@Jue:~/re-lab/shelllab$ cat trace14.txt
-#
-# trace14.txt - Simple error handling
-#
+<pre><code class="language-C">/*
 
-1️⃣故意启动了一个没有的程序，我们直接execve()会报错，要判断
-/bin/echo tsh&gt; ./bogus  
-./bogus 
+ * mm.c v1:隐式链表 首次适配
 
+ */
 
-/bin/echo -e tsh&gt; ./myspin 4 \046
-./myspin 4 &amp;
+#include &lt;stdio.h&gt;
 
-2️⃣fg、bg命令，没加参数！
-/bin/echo tsh&gt; fg
-fg
+#include &lt;stdlib.h&gt;
 
-/bin/echo tsh&gt; bg
-bg
-3️⃣参数错误，没有写成%数字，或数字
-/bin/echo tsh&gt; fg a
-fg a
+#include &lt;assert.h&gt;
 
-/bin/echo tsh&gt; bg a
-bg a
+#include &lt;unistd.h&gt;
 
-4️⃣PID、JID不存在！
-/bin/echo tsh&gt; fg 9999999
-fg 9999999
+#include &lt;string.h&gt;
 
-/bin/echo tsh&gt; bg 9999999
-bg 9999999
+  
 
-/bin/echo tsh&gt; fg %2
-fg %2
+#include &quot;mm.h&quot;
 
-/bin/echo tsh&gt; fg %1
-fg %1
+#include &quot;memlib.h&quot;
 
-SLEEP 2
-TSTP
+  
 
-/bin/echo tsh&gt; bg %2
-bg %2
+/*********************************************************
 
-/bin/echo tsh&gt; bg %1
-bg %1
+ * NOTE TO STUDENTS: Before you do anything else, please
 
-/bin/echo tsh&gt; jobs
-jobs
+ * provide your team information in the following struct.
+
+ ********************************************************/
+
+team_t team = {
+
+    /* Team name */
+
+    &quot;TJU-JK-No.1&quot;,
+
+    /* First member&#39;s full name */
+
+    &quot;Yijian Liu&quot;,
+
+    /* First member&#39;s email address */
+
+    &quot;3025244167@tju.edu.cn&quot;,
+
+    /* Second member&#39;s full name (leave blank if none) */
+
+    &quot;&quot;,
+
+    /* Second member&#39;s email address (leave blank if none) */
+
+    &quot;&quot;
+
+};
+
+  
+
+#define MAX(a,b) (((a) &gt; (b)) ?  (a):(b))
+
+  
+  
+
+/*新的对齐，需要我们加上头部和脚部，所以我们直接舍弃这个旧的对齐部分*/
+
+/* single word (4) or double word (8) alignment */
+
+//#define ALIGNMENT DSIZE
+
+/* rounds up to the nearest multiple of ALIGNMENT */
+
+//#define ALIGN(size) (((size) + (ALIGNMENT-1)) &amp; ~(ALIGNMENT-1))
+
+  
+  
+  
+
+/*由于HEADER、FOOTER存储内存块的大小size，不会超过4GB，所以4个字节就够了，而size_t在Linux中是8字节，浪费了，
+
+我们直接删掉SIZE_T_SIZE这个宏的定义，换成书上的宏的WSIZE、DSIZE的定义*/
+
+//#define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
+
+  
+
+#define WSIZE 4   //header的大小  =  footer的大小 = word(4个字节)
+
+#define DSIZE 8   //double word size (8个字节)
+
+#define CHUNKSIZE ( 1 &lt;&lt; 12 ) //每一次mem_sbrk()的大小设定为4096,每次扩展4096字节(一个内存页)的堆的大小
+
+  
+  
+
+#define PACK(size,alloc) ((size)|(alloc))//打包size大小和分配位alloc
+
+  
+  
+
+/*读取、写入一个位于p指针所对应的地址的word(4个字节)的内容*/
+
+#define GET(p) (*(unsigned int * )(p))
+
+#define PUT(p,val) (*(unsigned int * )(p) = (val))
+
+  
+
+/*从header和footer的指针中读取size和alloc的信息*/
+
+#define GET_SIZE(p) (GET(p) &amp; ~0x7)
+
+#define GET_ALLOC(p) (GET(p) &amp; 0x1)
+
+  
+
+/*根据块的载荷所对应的指针地址，来得出块header和footer所对应的指针地址*/
+
+#define HDRP(bp) ((char *)(bp) - WSIZE)
+
+#define FTRP(bp) ((char *)(bp) + GET_SIZE(HDRP(bp))  - DSIZE )
+
+  
+
+/*根据当前块的指针地址，计算得出前一个块和后一个块分别的指针地址，以便于我们合并*/
+
+#define PREV_BLKP(bp) ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE)))
+
+#define NEXT_BLKP(bp) ((char *)(bp) + GET_SIZE(HDRP(bp)))
+
+  
+  
+
+static char *heap_listp;    /* 永远指向序言块的0载荷位置 */
+
+  
+  
+
+/*辅助我们完成函数的一些小函数*/
+
+static void *extend_heap(size_t words);//扩展heap
+
+static void *coalesce(void *bp);//合并空闲块
+
+static void *find_fit(size_t asize);//找到一个合适的空闲块
+
+static void  place(void *bp, size_t asize);//分配合适大小的空闲块
+
+  
+
+/*
+
+*1️⃣extend_heap(),扩展堆的空间，来存放用户使用的空闲块
+
+*/
+
+static void *extend_heap(size_t words){
+
+  
+
+    char *bp;//新增的空闲块的载荷指针
+
+    size_t size;//要sbrk的块的大小
+
+  
+
+    /*size 一定要凑成偶数个字，才能实现对齐，让整体大小成为8的倍数*/
+
+    size = (words % 2) ? (words+1) * WSIZE :  words * WSIZE;
+
+  
+
+    if((bp = mem_sbrk(size)) == (void *)-1){
+
+        return NULL;
+
+    }
+
+  
+
+    PUT(HDRP(bp),PACK(size,0)); //把旧结尾快的位置覆盖，变成新的空闲块的头部
+
+    PUT(FTRP(bp),PACK(size,0));//增加空闲块的脚部
+
+    PUT(HDRP(NEXT_BLKP(bp)),PACK(0,1));//新的结尾块
+
+  
+
+    return coalesce(bp); //新增空闲块之后，如果前面也有空闲块，进行一次合并
+
+  
+
+}
+
+  
+  
+
+/*
+
+*
+
+*/
+
+static void *coalesce(void *bp){
+
+    //得知两边的占用情况
+
+    size_t prev_alloc = GET_ALLOC(FTRP(PREV_BLKP(bp)));//前一个块的占用情况
+
+    size_t next_alloc = GET_ALLOC(HDRP(NEXT_BLKP(bp)));//后一个块的占用情况
+
+    //得知自己的块的大小，便于往后跳 bp + size
+
+    size_t size  =GET_SIZE(HDRP(bp));
+
+  
+
+    //1️⃣两侧都占用，不合并，直接返回bp
+
+    if(prev_alloc &amp;&amp; next_alloc){
+
+        return bp;
+
+    }
+
+  
+
+    //2️⃣前占用，后空闲，合并后侧块，改写HDRP、FTRP
+
+    if(prev_alloc &amp;&amp; !next_alloc){
+
+  
+
+        size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
+
+  
+
+        PUT(HDRP(bp) , PACK(size,0));
+
+        PUT(FTRP(bp) , PACK(size,0));
+
+    }
+
+  
+
+    //3️⃣前空闲，后占用，让前侧块合并后侧快，改写HDRP、FTRP
+
+    if(!prev_alloc &amp;&amp; next_alloc){
+
+  
+
+        size += GET_SIZE(HDRP(PREV_BLKP(bp)));
+
+  
+
+        PUT(HDRP(PREV_BLKP(bp)),PACK(size,0)); //新的HDRP变成了前一个块的HDRP
+
+        PUT(FTRP(bp),PACK(size,0)); //新的FTRP仍然是现在块的FTRP，里面内容size要改
+
+        bp = PREV_BLKP(bp);
+
+    }
+
+  
+
+    //4️⃣两侧都空
+
+    if(!prev_alloc &amp;&amp; !next_alloc){
+
+        size  = size + GET_SIZE(FTRP(PREV_BLKP(bp))) + GET_SIZE(HDRP(NEXT_BLKP(bp)));
+
+        PUT(HDRP(PREV_BLKP(bp)),PACK(size , 0)); // 头部变成原来前一块的头部
+
+        PUT(FTRP(NEXT_BLKP(bp)),PACK(size , 0)); // 尾部变成原来后一块的尾部
+
+  
+
+        bp = PREV_BLKP(bp);
+
+    }  
+
+  
+
+    return bp;
+
+  
+  
+  
+
+}
+
+  
+  
+  
+  
+  
+  
+
+/*
+
+ * mm_init - initialize the malloc package.
+
+ */
+
+int mm_init(void)
+
+{
+
+    //初始化heap的组织方式：包括填充字、序言块、结尾块
+
+    if((heap_listp = mem_sbrk(4 * WSIZE)) ==(void *)-1)return -1;
+
+  
+
+    PUT(heap_listp,0); /*填充字*/
+
+    PUT(heap_listp + (1*WSIZE) , PACK(DSIZE,1));/*序言头*/
+
+    PUT(heap_listp + (2*WSIZE) , PACK(DSIZE,1));/*序言脚*/
+
+    PUT(heap_listp + (3*WSIZE) , PACK(0,1));/*结尾快*/
+
+    heap_listp += 2*WSIZE;//指向序言块的0载荷位置
+
+  
+
+    if(extend_heap(CHUNKSIZE/WSIZE) == NULL){
+
+        return -1;
+
+    }
+
+  
+  
+  
+
+    return 0;
+
+}
+
+  
+  
+  
+
+ /*3️⃣find_fit()：
+
+ *      输出：合适大小的块的载荷开头的地址指针
+
+ */
+
+ static void *find_fit(size_t asize){
+
+    void *bp;//定义输出
+
+    for(bp = heap_listp ; GET_SIZE(HDRP(bp)) &gt; 0; bp = NEXT_BLKP(bp) ){
+
+        if(!GET_ALLOC(HDRP(bp)) &amp;&amp;  GET_SIZE(HDRP(bp)) &gt;= asize ){
+
+            return bp; //逐个寻找，如果找到了合适的块，就返回这个块的地址
+
+        }
+
+    }
+
+    return NULL; /*没有找到合适的块，需要extend_heap*/
+
+ }
+
+  
+  
+
+/*4️⃣place()：
+
+*       从堆中切割出相应大小的内存，分配给用户
+
+*/
+
+static void  place(void *bp, size_t asize){
+
+    size_t csize = GET_SIZE(HDRP(bp)); //当前块的大小
+
+  
+
+    if(csize - asize &gt;= (2*DSIZE)){//剩余的足够大，超过了最小的16字节，还能被利用，切下来
+
+        PUT(HDRP(bp),PACK(asize,1));
+
+        PUT(FTRP(bp),PACK(asize,1));
+
+        bp =NEXT_BLKP(bp);
+
+        //切下来c-a大小的一片内存区域，
+
+        PUT(HDRP(bp),PACK(csize - asize, 0));//切下来的头部
+
+        PUT(FTRP(bp),PACK(csize - asize, 0));//切下来的脚部
+
+    }
+
+    else{
+
+        PUT(HDRP(bp),PACK(csize,1));
+
+        PUT(FTRP(bp),PACK(csize,1));
+
+    }
+
+  
+
+  
+
+}
+
+  
+  
+  
+  
+  
+  
+
+ /*
+
+ * mm_malloc - Allocate a block by incrementing the brk pointer.
+
+ *     Always allocate a block whose size is a multiple of the alignment.
+
+ *     1️⃣find_fit()为size大小的内存找到一块合适的内存
+
+ *     2️⃣place()切出相应大小的内存，分配给它
+
+ * ❗️如果超出了当前的堆的内存，需要extended heap
+
+ * 返回值：
+
+ * 分配到那块内存的地址的指针
+
+ */
+
+  
+
+void *mm_malloc(size_t size)
+
+{
+
+    //int newsize = ALIGN(size + DSIZE);
+
+  
+
+    size_t newsize;//需要的size
+
+    size_t extendsize;//如果堆空间不够要扩展的大小
+
+    char * bp;
+
+  
+  
+
+    if(size == 0)return NULL;
+
+    //块最小最小得是DSIZE，因为要包括头部和脚步
+
+    if(size &lt;= DSIZE){
+
+        newsize = 2 * DSIZE;
+
+    }else{
+
+        newsize = ((size + DSIZE + (DSIZE-1))/DSIZE)*DSIZE;
+
+    }
+
+  
+
+    //接下来，在空闲的链表中找，看是否有
+
+  
+
+    //如果有，那就直接分配，返回
+
+    if((bp = find_fit(newsize)) != NULL){
+
+        place(bp,newsize);
+
+        return bp;
+
+    }
+
+  
+
+    //如果没有，那就扩展堆空间，分配，返回
+
+    extendsize = MAX(newsize, CHUNKSIZE);
+
+    if((bp = extend_heap(extendsize/WSIZE)) == NULL){
+
+        return NULL;
+
+    }
+
+    place(bp,newsize);
+
+    return bp;
+
+}
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+
+/*
+
+ * mm_free - Freeing a block:
+
+ *1️⃣将block的头部、脚步的占用标记位alloc改写成0，释放这个块
+
+ *2️⃣合并释放之后可能的两侧的空闲块
+
+ */
+
+void mm_free(void *ptr)
+
+{
+
+    size_t size = GET_SIZE(HDRP(ptr));
+
+  
+
+    PUT(HDRP(ptr) , PACK(size,0)) ;//将头部标记为空闲
+
+    PUT(FTRP(ptr) , PACK(size,0)) ;//将脚部标记为空闲
+
+  
+
+    coalesce(ptr); //合并可能的空闲块
+
+  
+
+}
+
+  
+  
+  
+  
+  
+  
+  
+
+/*
+
+ * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
+
+ */
+
+void *mm_realloc(void *ptr, size_t size)
+
+{
+
+    void *oldptr = ptr;
+
+    void *newptr;
+
+    size_t copySize;
+
+  
+
+    if (ptr == NULL)                    /* 边界条件 1 */
+
+        return mm_malloc(size);
+
+  
+
+    if (size == 0) {                    /* 边界条件 2 */
+
+        mm_free(ptr);
+
+        return NULL;
+
+    }
+
+  
+  
+
+    newptr = mm_malloc(size);
+
+    if (newptr == NULL)
+
+      return NULL;
+
+  
+
+    copySize = GET_SIZE(HDRP(oldptr)) - DSIZE;
+
+  
+
+    if (size &lt; copySize)
+
+      copySize = size;
+
+  
+
+    memcpy(newptr, oldptr, copySize);
+
+    mm_free(oldptr);
+
+    return newptr;
+
+}
 </code></pre>
-<p>再看一下应对这些错误情况标准的输出make rtest14<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804115047.png" alt="Pasted image 20260804115047" width="819" height="1052" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(510px, 100%)"></p>
-<h3 id="s7">逐一处理！</h3>
-<h3 id="s8">1️⃣启动错误程序，怎么办？我们利用<code>execve()</code>执行失败返回<code>-1</code>这一点，改动：</h3>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804115401.png" alt="Pasted image 20260804115401" width="571" height="195" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(287px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804115552.png" alt="Pasted image 20260804115552" width="626" height="244" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(259px, 100%)"></p>
-<h3 id="s9">2️⃣3️⃣4️⃣fg、bg命令，参数问题讨论</h3>
-<p class="mc-indent">可分如下类讨论：<br>1、没加参数(argv[1] == NULL)<br>2、加了参数，参数不是<code>%数字</code>或<code>数字</code>()<br>3、参数是<code>%数字</code>或<code>数字</code>，<br>❶但不是正确的JID、PID<br>❷参数正确，可以找到对应PID、JID的job<br>全都是do_bgfg()函数获取job时候的处理。我们用<br>1、if<br>2、else if<br>3、else<br>来分别处理三种情况</p>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804120843.png" alt="Pasted image 20260804120843" width="1339" height="980" loading="lazy" decoding="async" data-media-fit="natural"><br>OK啊，直接测试。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804121059.png" alt="Pasted image 20260804121059" width="954" height="937" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(298px, 100%)"><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804121059.png" alt="Pasted image 20260804121059" width="954" height="937" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(292px, 100%)"><br>逐行比对，通过！</p>
-<h2 id="s10">Trace15、16</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804121345.png" alt="Pasted image 20260804121345" width="677" height="110" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(596px, 100%)"><br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260804121336.png" alt="Pasted image 20260804121336" width="852" height="132" loading="lazy" decoding="async" data-media-fit="natural"><br>看名字，你会发现，最后的这两，是综合类的测试。通常，前面的过了，这两也都能过。我们直接简单make test、make rtest ，比对。发现，果然如此。</p>
-<h1>祝贺你，勇士！完成了考验！</h1>
-<p>Shell实验，到此结束。</p>
 
             </div>
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="shell-over-4.html" class="mca-stair">↓ 11F Shell实验破解-4</a>
-            <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <a href="shell-answer.html" class="mca-stair mca-stair--next">13F Shell实验完整代码 ↑</a>
+            <a href="../../minecraft.html" class="mca-stair mca-stair--home">▤ 回到世界</a>
         </nav>
 
         <footer class="footer">
