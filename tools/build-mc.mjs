@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import matter from 'gray-matter';
 import { marked } from 'marked';
 import { imageSize } from 'image-size';
+import katex from 'katex';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT_DIR = path.join(ROOT, 'content', 'minecraft');
@@ -192,9 +193,26 @@ function imageHtml(abs, alt, widthHint) {
   return `<img src="${esc(srcRel)}" alt="${esc(altText)}" width="${dims.width}" height="${dims.height}" loading="lazy" decoding="async" data-media-fit="natural"${sizeStyle}>`;
 }
 
-// 内链解析：[[文章名]] / [[文章名|显示文字]] → 站内链接
+// 小节锚点：[[文章#小节标题]] → 文章.html#sN。
+// 渲染器给 h2/h3 按出现顺序编号（s1、s2……），这里用同样的顺序预扫一遍正文，
+// 得到「标题原文 → 锚点」的对照表。围栏代码块里的 # 不是标题，先剔掉。
+function headingAnchors(body) {
+  const map = new Map();
+  const clean = body.replace(/^```[\s\S]*?^```/gm, '');
+  let n = 0;
+  for (const m of clean.matchAll(/^(#{1,3})\s+(.+?)\s*$/gm)) {
+    n += 1;
+    const key = m[2].replace(/\s+/g, ' ').trim();
+    if (!map.has(key)) map.set(key, `s${n}`);
+  }
+  return map;
+}
+
+// 内链解析：[[文章名]] / [[文章名|显示文字]] / [[文章名#小节]] → 站内链接
 function resolveWikiLink(targetRaw, label) {
-  const base = targetRaw.split('#')[0].trim();
+  const hashAt = targetRaw.indexOf('#');
+  const base = (hashAt < 0 ? targetRaw : targetRaw.slice(0, hashAt)).trim();
+  const section = hashAt < 0 ? '' : targetRaw.slice(hashAt + 1).replace(/\s+/g, ' ').trim();
   const text = esc(label || base);
   if (!base) {
     errors.push(`✗ ${relDisplay(ctx.mdFile)}\n  内链「[[${targetRaw}]]」是空的。`);
@@ -208,7 +226,12 @@ function resolveWikiLink(targetRaw, label) {
       (e) => e.title === base || e.slug === base || e.basename === base || e.nameSlug === base
     );
     if (hit) {
-      const href = hit.domainSlug === currentSlug ? `${hit.slug}.html` : `../${hit.domainSlug}/${hit.slug}.html`;
+      let href = hit.domainSlug === currentSlug ? `${hit.slug}.html` : `../${hit.domainSlug}/${hit.slug}.html`;
+      if (section) {
+        const anchor = hit.headings.get(section);
+        if (anchor) href += `#${anchor}`;
+        else warnings.push(`⚠ ${relDisplay(ctx.mdFile)} 的内链「[[${targetRaw}]]」找不到小节「${section}」，已链到文章开头。`);
+      }
       // 没写别名时显示文章标题——Obsidian 的 [[ 补全插进来的是带日期前缀的文件名，
       // 直接显示会很难看
       const linkText = label ? esc(label) : esc(hit.title);
@@ -221,9 +244,70 @@ function resolveWikiLink(targetRaw, label) {
     const href = domainHit.slug === currentSlug ? 'index.html' : `../${domainHit.slug}/index.html`;
     return `<a href="${esc(href)}">${text}</a>`;
   }
-  errors.push(`✗ ${relDisplay(ctx.mdFile)}\n  内链「[[${targetRaw}]]」找不到目标。检查文字是否和目标文章的标题（或文件名去掉日期的部分）完全一致；如果目标还是草稿，先发布它。`);
+  // 和 Obsidian 一样：指不到东西的内链就是一段普通文字，不该挡住发布。
+  // 但要报出来，免得真写错标题的链接悄悄变成白字。
+  warnings.push(`⚠ ${relDisplay(ctx.mdFile)} 的内链「[[${targetRaw}]]」找不到目标，已按纯文字显示。\n  （想让它变成链接：文字要和目标文章的标题或文件名完全一致；目标还是草稿的话，先发布它。）`);
   return text;
 }
+
+// ---------- 数学公式 ----------
+
+const PIPE_SENTINEL = String.fromCharCode(0xe000); // Unicode 私用区，正文里不会出现
+
+// 公式必须在 markdown 碰它之前就被整块吃掉：LaTeX 里的 \\[4pt](1-a) 会被
+// markdown 当成链接、_下标_ 当成斜体、\\ 当成转义反斜杠。这里先截获再交给
+// KaTeX 在构建时渲染成 HTML，页面上不需要任何 JS。
+function renderMath(rawTex, displayMode) {
+  // 表格行里被临时替换掉的竖线，交给 KaTeX 之前换回来
+  const tex = rawTex.split(PIPE_SENTINEL).join('|');
+  try {
+    return katex.renderToString(tex, {
+      displayMode,
+      throwOnError: true,
+      strict: false,
+      output: 'html',
+    });
+  } catch (err) {
+    // 公式写错不该挡住发布，但要让人看得见是哪一条
+    warnings.push(`⚠ ${relDisplay(ctx.mdFile)} 有一条公式 KaTeX 读不懂，已按原文显示：${tex.trim().slice(0, 60)}\n  （${err.message.replace(/\s+/g, ' ').slice(0, 120)}）`);
+    return `<code>${esc(displayMode ? `$$${tex}$$` : `$${tex}$`)}</code>`;
+  }
+}
+
+// 独占一行的 $$…$$ — 行间公式
+const mathBlockExt = {
+  name: 'mathBlock',
+  level: 'block',
+  start(src) { const m = /(^|\n)\$\$/.exec(src); return m ? m.index + (m[1] ? 1 : 0) : undefined; },
+  tokenizer(src) {
+    const m = /^\$\$([\s\S]+?)\$\$[ \t]*(?:\n+|$)/.exec(src);
+    if (m) return { type: 'mathBlock', raw: m[0], tex: m[1] };
+  },
+  renderer(token) {
+    return `<div class="mc-math-block">${renderMath(token.tex, true)}</div>\n`;
+  },
+};
+
+// $…$ — 行内公式。
+// 三条约束把「文字里的美元符号 / shell 提示符 $」挡在外面：
+// 开定界符后不跟空白、闭定界符前不是空白、闭定界符后不跟数字，且不跨行。
+const mathInlineExt = {
+  name: 'mathInline',
+  level: 'inline',
+  start(src) { const i = src.indexOf('$'); return i < 0 ? undefined : i; },
+  tokenizer(src) {
+    const m = /^\$\$([^\n]+?)\$\$/.exec(src);
+    if (m) return { type: 'mathInline', raw: m[0], tex: m[1], display: true };
+    const inline = /^\$(?![\s$])([^\n$]*[^\s$])\$(?!\d)/.exec(src);
+    if (inline) return { type: 'mathInline', raw: inline[0], tex: inline[1], display: false };
+  },
+  renderer(token) {
+    // 段落中间写的 $$…$$ 同样是行间公式，也要给它滚动容器（这里得用 span，
+    // 因为它出现在 <p> 里面）
+    if (token.display) return `<span class="mc-math-block">${renderMath(token.tex, true)}</span>`;
+    return renderMath(token.tex, false);
+  },
+};
 
 // ---------- Obsidian 方言扩展 ----------
 
@@ -305,7 +389,7 @@ const indentedTextExt = {
 marked.use({
   gfm: true,
   breaks: true, // 和 Obsidian 一致：单次换行就是换行
-  extensions: [wikiEmbedExt, wikiLinkExt, highlightExt, indentedTextExt],
+  extensions: [mathBlockExt, wikiEmbedExt, wikiLinkExt, mathInlineExt, highlightExt, indentedTextExt],
   renderer: {
     image({ href, text }) {
       const abs = resolveImage(href, ctx.mdFile);
@@ -314,24 +398,48 @@ marked.use({
     },
     // 给小标题按顺序编号做锚点，供大纲跳转。
     // 用序号而不是标题文字：中文 id 分享出去会变成一长串编码。
+    // 正文里的 h1 也算一级小标题——第一个 h1 已经被当成文章标题摘走了，
+    // 剩下的都是作者用来分大段的（试卷讲解里的「五、计算题」就是这么写的）。
     heading({ tokens, depth }) {
       const text = this.parser.parseInline(tokens);
-      if (depth !== 2 && depth !== 3) return `<h${depth}>${text}</h${depth}>\n`;
+      if (depth > 3) return `<h${depth}>${text}</h${depth}>\n`;
       ctx.headingCount += 1;
       return `<h${depth} id="s${ctx.headingCount}">${text}</h${depth}>\n`;
     },
   },
 });
 
+// 表格里的公式常带竖线（|X|、P(A|B)），而表格的单元格也是用 | 分的，
+// markdown 会先按 | 切格子再轮到公式扩展，公式就被劈成两半。
+// 解决办法：进 markdown 之前把表格行里公式内部的 | 换成一个占位字符，
+// 交给 KaTeX 之前再换回来。
+function protectTablePipes(body) {
+  return body
+    .split('\n')
+    .map((line) => {
+      if (!/^\s*\|/.test(line)) return line;
+      return line.replace(/\$(?![\s$])([^\n$]*[^\s$])\$(?!\d)/g, (m) => m.split('|').join(PIPE_SENTINEL));
+    })
+    .join('\n');
+}
+
 function renderMarkdown(body, mdFile, domain, domains, index) {
   ctx = { mdFile, domain, domains, index, headingCount: 0 };
-  let html = marked.parse(body);
+  let html = marked.parse(protectTablePipes(body));
   ctx = null;
+  // 没被当成公式的占位字符（比如那段 $ 其实不是公式）还原成普通竖线
+  html = html.split(PIPE_SENTINEL).join('|');
   // 表格包滚动容器，防手机端溢出
   html = html
     .replace(/<table>/g, '<div class="mc-table-wrap"><table>')
     .replace(/<\/table>/g, '</table></div>');
   return html;
+}
+
+// 公式样式表只在真有公式的页面上引，没公式的文章不用为它多花一次请求
+function mathAssets(bodyHtml) {
+  if (!bodyHtml.includes('class="katex')) return '';
+  return '\n    <link rel="stylesheet" href="../../css/katex.css">';
 }
 
 function readMinutes(html) {
@@ -472,6 +580,7 @@ function buildArticlePage(domain, article, floorNum, articleTpl, domains, linkIn
   }
 
   return fill(articleTpl, {
+    HEAD_EXTRA: mathAssets(bodyHtml),
     TITLE: esc(article.title),
     TITLE_ESC: esc(article.title),
     SUMMARY_ESC: esc(article.summary || `${domain.name} · ${article.title}`),
@@ -567,6 +676,7 @@ function buildNotePage(note, articleTpl, domains, linkIndex) {
   const pseudoDomain = { slug: NOTES_SLUG, name: '附页' };
   const bodyHtml = renderMarkdown(note.body, note.mdFile, pseudoDomain, domains, linkIndex);
   return fill(articleTpl, {
+    HEAD_EXTRA: mathAssets(bodyHtml),
     TITLE: esc(note.title),
     TITLE_ESC: esc(note.title),
     SUMMARY_ESC: esc(note.summary || note.title),
@@ -613,6 +723,7 @@ function main() {
         basename: a.basename,
         nameSlug: a.nameSlug,
         title: a.title,
+        headings: headingAnchors(a.body),
       });
     }
   }
@@ -623,6 +734,7 @@ function main() {
       basename: n.basename,
       nameSlug: n.nameSlug,
       title: n.title,
+      headings: headingAnchors(n.body),
     });
   }
 

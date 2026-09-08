@@ -65,7 +65,14 @@
   // ---------- 大纲：本层房间 ----------
   // 按钮固定在视口上，因为大纲最有用的时刻是读到文章中间的时候。
   // 少于两个小标题就什么都不建——短文章不需要目录。
-  var heads = body ? body.querySelectorAll('h2[id], h3[id]') : [];
+  var heads = body ? body.querySelectorAll('h1[id], h2[id], h3[id]') : [];
+  // 每篇文章的分级习惯不一样：有的从 ## 起，有的正文里就用 #。
+  // 用「本文出现过的最浅一级」当作大纲的顶层，比一刀切按 h2 判断更贴合作者的结构。
+  var topLevel = 6;
+  Array.prototype.forEach.call(heads, function (h) {
+    var level = parseInt(h.tagName.charAt(1), 10);
+    if (level < topLevel) topLevel = level;
+  });
   if (heads.length >= 2) {
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var isMobile = function () { return window.matchMedia('(max-width: 768px)').matches; };
@@ -91,7 +98,7 @@
     var items = [];
     Array.prototype.forEach.call(heads, function (h) {
       var a = document.createElement('a');
-      a.className = 'mco-item' + (h.tagName === 'H3' ? ' mco-item--sub' : '');
+      a.className = 'mco-item' + (parseInt(h.tagName.charAt(1), 10) > topLevel ? ' mco-item--sub' : '');
       a.href = '#' + h.id;
       a.textContent = h.textContent.trim();
       a.addEventListener('click', function (e) {

@@ -6,7 +6,7 @@
     <title>{{TITLE_ESC}} — 觉的 Minecraft</title>
     <meta name="description" content="{{SUMMARY_ESC}}">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/style.css">{{HEAD_EXTRA}}
     <style>
         :root {
             --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
@@ -90,6 +90,7 @@
         }
 
         /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h1,
         .mca-body h2,
         .mca-body h3 {
             scroll-margin-top: calc(var(--nav-offset) + 16px);
@@ -269,6 +270,24 @@
                 opacity: 1;
                 visibility: visible;
             }
+        }
+
+        /* 正文里的 h1：文章标题之外，作者用来分大段的那一级（「五、计算题…」）。
+           加一条上边线把大段之间断开，比单纯放大字号更清楚。 */
+        .mca-body h1 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 64px 0 20px;
+            padding-top: 24px;
+            border-top: 1px solid var(--white-10);
+        }
+
+        .mca-body h1:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
         }
 
         .mca-body h2 {
@@ -507,6 +526,26 @@
             border-left: 2px solid var(--white-05);
         }
 
+        /* ===== 数学公式（KaTeX 在构建时渲染好，页面不加载任何脚本） =====
+           公式是正文的主干而不是注解，比周围文字亮一档。 */
+        .mca-body .katex {
+            color: var(--white-90);
+        }
+
+        /* 行间公式在手机上一定会有撑破屏幕的长式子，给它自己的横向滚动条。
+           段落中间的行间公式只能用 span 承载，所以显式声明 display */
+        .mca-body .mc-math-block {
+            display: block;
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin: 24px 0;
+            padding: 2px 0;
+        }
+
+        .mca-body .mc-math-block .katex-display {
+            margin: 0;
+        }
+
         .mc-table-wrap {
             overflow-x: auto;
             margin: 24px 0;
@@ -683,11 +722,18 @@
                 line-height: 1.75;
             }
 
+            .mca-body h1,
             .mca-body h2,
             .mca-body h3 {
                 color: #111 !important;
                 break-after: avoid;
                 margin-top: 20px;
+            }
+
+            .mca-body h1 {
+                font-size: 15pt;
+                padding-top: 12px;
+                border-top-color: #ddd !important;
             }
 
             .mca-body strong {
@@ -746,6 +792,20 @@
 
             .mca-body .mc-indent {
                 border-left-color: #ddd !important;
+            }
+
+            /* 纸上没有滚动条：公式改为换行显示，宁可挤也不能被裁掉 */
+            .mca-body .katex {
+                color: #111 !important;
+            }
+
+            .mca-body .mc-math-block {
+                overflow-x: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body .mc-math-block .katex-display > .katex {
+                white-space: normal;
             }
 
             /* max-height + width:auto 已经等比缩放，不用 object-fit（也就不会裁切） */
