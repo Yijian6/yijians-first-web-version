@@ -125,14 +125,23 @@
         }
 
         .mcw-building {
+            /* 几何常量：.mcw-hit 靠它们算出「实心楼体 + 铭牌带」的范围 */
+            --mcw-scaffold-h: 16px;
+            --mcw-ghost-h: 0px;
+            /* 楼名 + 层数所在的铭牌带高度，取到 .mcw-stat 底边以内，
+               这样命中层不会让 .mcw-strip 的纵向溢出变大。改铭牌定位时同步 */
+            --mcw-label-band: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-end;
             text-decoration: none;
             position: relative;
+            /* 楼体自身不接受指针：脚手架和幽灵层只有虚线框，不该算可点区域 */
+            pointer-events: none;
             transition: transform 0.5s var(--ease-out-expo);
-            animation: mcwRise 0.9s var(--ease-out-expo) both;
+            /* backwards 而非 both：动画结束后把 transform 交还给上面那条 transition */
+            animation: mcwRise 0.9s var(--ease-out-expo) backwards;
         }
 
         .mcw-building:hover {
@@ -145,7 +154,7 @@
 
         .mcw-scaffold {
             width: 88px;
-            height: 16px;
+            height: var(--mcw-scaffold-h);
             border: 2px dashed rgba(200, 169, 110, 0.45);
             border-bottom: none;
             position: relative;
@@ -161,9 +170,27 @@
 
         .mcw-ghost {
             width: 88px;
+            height: var(--mcw-ghost-h);
             border: 2px dashed rgba(168, 204, 136, 0.22);
             border-bottom: none;
             display: block;
+        }
+
+        /* 整栋楼唯一的命中区：实心楼体 + 下方铭牌带。
+           父元素 hover 时上移 5px，这里反向补偿 5px，
+           命中盒在屏幕上原地不动，光标不会在命中/脱离之间反复翻转。 */
+        .mcw-hit {
+            position: absolute;
+            top: calc(var(--mcw-scaffold-h) + var(--mcw-ghost-h));
+            left: 0;
+            right: 0;
+            bottom: calc(-1 * var(--mcw-label-band));
+            pointer-events: auto;
+            transition: transform 0.5s var(--ease-out-expo);
+        }
+
+        .mcw-building:hover .mcw-hit {
+            transform: translateY(5px);
         }
 
         .mcw-body {
@@ -206,6 +233,7 @@
             font-size: 11px;
             letter-spacing: 0.1em;
             color: var(--white-90);
+            pointer-events: none;
             z-index: 1;
         }
 
@@ -219,6 +247,7 @@
             font-size: 9px;
             letter-spacing: 0.08em;
             color: rgba(228, 224, 216, 0.45);
+            pointer-events: none;
             z-index: 1;
         }
 

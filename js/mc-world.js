@@ -28,7 +28,8 @@
     // 蓝图幽灵段（未认领的规划层）
     if (domain.ghosts && domain.ghosts.length) {
       var ghost = el('span', 'mcw-ghost');
-      ghost.style.height = Math.min(domain.ghosts.length, 8) * 14 + 'px';
+      // 高度写成 CSS 变量：幽灵层自己用，.mcw-hit 也要靠它算命中区的顶边
+      building.style.setProperty('--mcw-ghost-h', Math.min(domain.ghosts.length, 8) * 14 + 'px');
       ghost.setAttribute('aria-hidden', 'true');
       building.appendChild(ghost);
     }
@@ -51,6 +52,13 @@
     building.appendChild(
       el('span', 'mcw-stat', floors + ' 层' + (domain.ghosts && domain.ghosts.length ? ' / 规划 ' + (floors + domain.ghosts.length) : ''))
     );
+
+    // 命中层：整栋楼唯一可点的区域（实心楼体 + 下方铭牌带）。
+    // 楼体 hover 时整栋 translateY(-5px)，这一层反向补偿回来，
+    // 命中盒在屏幕上不动，光标不会在命中/脱离之间自激振荡。
+    var hit = el('span', 'mcw-hit');
+    hit.setAttribute('aria-hidden', 'true');
+    building.appendChild(hit);
 
     row.appendChild(building);
   });
