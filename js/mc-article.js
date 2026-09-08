@@ -62,6 +62,119 @@
     });
   }
 
+  // ---------- 返回上一页 ----------
+  // 「有没有上一页」看 referrer：它是这次导航真实的来源，刷新和 bfcache 恢复都不会错乱，
+  // 比自己维护一套访问栈可靠。跳转用 history.back()：保留滚动位置、走 bfcache，
+  // 回去正好落在读者点内链的那一行；location 赋值做不到这件事。
+  var TITLE_KEY = 'mc-nav-titles';
+  var TITLE_MAX = 40;
+
+  function sessionApi() {
+    return window.JueCompat && window.JueCompat.session ? window.JueCompat.session : null;
+  }
+
+  function readTitles() {
+    var store = sessionApi();
+    if (!store) return null;
+    try {
+      var raw = store.get(TITLE_KEY, '');
+      var map = raw ? JSON.parse(raw) : null;
+      return map && typeof map === 'object' ? map : {};
+    } catch (err) {
+      return {};
+    }
+  }
+
+  // 不用 new URL：老一点的微信内置浏览器上不一定有。<a> 解析是最稳的写法。
+  // 同一个页面会以两种形式出现：站内链接写的是 xxx.html，而 Pages 的干净网址
+  // 会把它重定向成不带后缀的 /xxx —— referrer 拿到的是重定向后那个。
+  // 不抹平这层差异，「来路是不是面包屑那一页」永远判不出来。
+  function pathOf(url) {
+    var probe = document.createElement('a');
+    probe.href = url;
+    var path = probe.pathname || '';
+    if (path.charAt(0) !== '/') path = '/' + path;
+    try {
+      path = decodeURIComponent(path);
+    } catch (err) {}
+    path = path.replace(/\.html$/i, '').replace(/\/index$/i, '').replace(/\/+$/, '');
+    return { host: probe.host, path: path || '/' };
+  }
+
+  // referrer 只给 URL 不给标题，所以每页把自己的标题记进一张会话级的表，
+  // 下一页的返回按钮靠它显示「回到 《上一篇》」。
+  function rememberTitle(titles, here) {
+    var titleEl = document.querySelector('.mca-title');
+    if (!titles || !titleEl) return;
+    var keys = Object.keys(titles);
+    while (keys.length >= TITLE_MAX) {
+      delete titles[keys.shift()];
+    }
+    delete titles[here.path];
+    titles[here.path] = titleEl.textContent.trim();
+    var store = sessionApi();
+    if (store) store.set(TITLE_KEY, JSON.stringify(titles));
+  }
+
+  function buildBack(href, title) {
+    // 正文里的目录锚点（mc/notes 下有几篇有）点一次就往历史里压一条，
+    // 那之后 history.back() 只会退回本页上一个滚动位置。发生过就改用直接赋值 location。
+    var hashJumps = 0;
+    window.addEventListener('hashchange', function () {
+      hashJumps += 1;
+    });
+
+    var back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'mca-back';
+    back.setAttribute('aria-label', title ? '返回上一页：' + title : '返回上一页');
+    if (title) back.title = title;
+
+    var arrow = document.createElement('span');
+    arrow.setAttribute('aria-hidden', 'true');
+    arrow.textContent = '←';
+
+    var brief = document.createElement('span');
+    brief.className = 'mca-back-text';
+    brief.textContent = '返回';
+
+    var full = document.createElement('span');
+    full.className = 'mca-back-title';
+    full.textContent = title ? '回到 ' + title : '返回上一页';
+
+    back.appendChild(arrow);
+    back.appendChild(brief);
+    back.appendChild(full);
+
+    back.addEventListener('click', function () {
+      if (hashJumps) {
+        window.location.href = href;
+      } else {
+        window.history.back();
+      }
+    });
+
+    document.body.appendChild(back);
+  }
+
+  var here = pathOf(window.location.href);
+  var titles = readTitles();
+  rememberTitle(titles, here);
+
+  var ref = document.referrer;
+  if (ref) {
+    var from = pathOf(ref);
+    var crumb = document.querySelector('.mca-crumb');
+    var crumbPath = crumb ? pathOf(crumb.href).path : '';
+    // 站外进来的、自链接、以及「面包屑已经在做同一件事」这三种情况都不建按钮——
+    // 多一个作用重复的控件就是噪音。
+    var skip =
+      from.host !== window.location.host ||
+      from.path === here.path ||
+      from.path === crumbPath;
+    if (!skip) buildBack(ref, titles ? titles[from.path] : '');
+  }
+
   // ---------- 大纲：本层房间 ----------
   // 按钮固定在视口上，因为大纲最有用的时刻是读到文章中间的时候。
   // 少于两个小标题就什么都不建——短文章不需要目录。

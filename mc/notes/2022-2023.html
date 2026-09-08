@@ -196,6 +196,51 @@
             display: none;
         }
 
+        /* ============ 返回上一页 ============
+           内链是构建时解析成的普通链接，点一次就是一次整页跳转。跨领域跳过去之后，
+           页顶的面包屑指的是新页面所属的那栋楼，不是读者刚才待的那一层。
+           位置和右侧大纲左右对称，用的是同一套 chip 语言，不新造视觉。 */
+        .mca-back {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            left: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            max-width: 240px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            text-align: left;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mca-back:hover {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mca-back-text,
+        .mca-back-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 窄桌面只留「返回」两个字，标题留给放得下的宽屏 */
+        .mca-back-title {
+            display: none;
+        }
+
         /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
         @media (max-width: 1199px) {
             .mco-btn,
@@ -206,6 +251,11 @@
 
         /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
         @media (max-width: 768px) {
+            /* 手机有系统手势和微信自带的返回，首屏不再加一层浮层 */
+            .mca-back {
+                display: none;
+            }
+
             .mco-btn {
                 top: auto;
                 right: max(18px, var(--safe-right));
@@ -437,6 +487,7 @@
         @supports not (backdrop-filter: blur(1px)) {
             .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
             .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mca-back { background: rgba(20, 24, 18, 0.97); }
             .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
@@ -446,6 +497,27 @@
         @media (min-width: 1200px) {
             .mco-btn {
                 display: none;
+            }
+
+            /* 左页边跟右侧导轨对齐：都是无框文字，同一条水平线 */
+            .mca-back {
+                top: calc(var(--nav-offset) + 44px);
+                left: max(20px, calc((100vw - 720px) / 2 - 230px));
+                max-width: 200px;
+                padding: 0;
+                background: none;
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+                border: none;
+                border-radius: 0;
+            }
+
+            .mca-back-text {
+                display: none;
+            }
+
+            .mca-back-title {
+                display: block;
             }
 
             .mco-panel {
@@ -660,6 +732,7 @@
             .footer,
             .mca-stairs,
             .mca-export,
+            .mca-back,
             .mc-lightbox,
             .mco-btn,
             .mco-panel,
