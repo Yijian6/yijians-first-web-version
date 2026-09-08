@@ -90,6 +90,7 @@
         }
 
         /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h1,
         .mca-body h2,
         .mca-body h3 {
             scroll-margin-top: calc(var(--nav-offset) + 16px);
@@ -271,6 +272,24 @@
             }
         }
 
+        /* 正文里的 h1：文章标题之外，作者用来分大段的那一级（「五、计算题…」）。
+           加一条上边线把大段之间断开，比单纯放大字号更清楚。 */
+        .mca-body h1 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 64px 0 20px;
+            padding-top: 24px;
+            border-top: 1px solid var(--white-10);
+        }
+
+        .mca-body h1:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -420,6 +439,69 @@
             .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
+        /* 宽屏：大纲常驻，不用点按钮。
+           常驻之后就不该再是一块浮层——去掉盒子，只留页边的一条细导轨，
+           让它读起来是页面的一部分。放在 @supports 之后，靠源码顺序覆盖背景。 */
+        @media (min-width: 1200px) {
+            .mco-btn {
+                display: none;
+            }
+
+            .mco-panel {
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                transition: none;
+                top: calc(var(--nav-offset) + 44px);
+                /* 贴着正文右缘约 40px，让大纲读起来属于这篇文章而不是飘在屏幕角落；
+                   窄一点的宽屏用 max() 保底，不至于顶到屏幕边上 */
+                right: max(20px, calc((100vw - 720px) / 2 - 230px));
+                width: 190px;
+                max-height: calc(100vh - var(--nav-offset) - 96px);
+                padding: 0;
+                background: none;
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+                border: none;
+                border-radius: 0;
+                scrollbar-width: thin;
+            }
+
+            .mco-label {
+                padding: 0 0 8px 14px;
+                border-bottom: none;
+                margin-bottom: 4px;
+            }
+
+            /* 每个条目的左边框连起来就是那条导轨；当前节只换颜色不换宽度，不会有布局跳动 */
+            .mco-item {
+                padding: 7px 0 7px 14px;
+                font-size: 12.5px;
+                color: var(--white-30);
+                border-left: 2px solid var(--white-05);
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .mco-item:hover {
+                color: var(--white-90);
+                background: none;
+            }
+
+            .mco-item--sub {
+                padding-left: 26px;
+                font-size: 12px;
+            }
+
+            .mco-item.active {
+                color: var(--gold);
+                border-left-color: var(--gold);
+                background: none;
+            }
+        }
+
         html.mc-lightbox-open,
         html.mc-lightbox-open body {
             overflow: hidden;
@@ -442,6 +524,26 @@
         .mca-body .mc-indent {
             padding-left: 20px;
             border-left: 2px solid var(--white-05);
+        }
+
+        /* ===== 数学公式（KaTeX 在构建时渲染好，页面不加载任何脚本） =====
+           公式是正文的主干而不是注解，比周围文字亮一档。 */
+        .mca-body .katex {
+            color: var(--white-90);
+        }
+
+        /* 行间公式在手机上一定会有撑破屏幕的长式子，给它自己的横向滚动条。
+           段落中间的行间公式只能用 span 承载，所以显式声明 display */
+        .mca-body .mc-math-block {
+            display: block;
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin: 24px 0;
+            padding: 2px 0;
+        }
+
+        .mca-body .mc-math-block .katex-display {
+            margin: 0;
         }
 
         .mc-table-wrap {
@@ -620,11 +722,18 @@
                 line-height: 1.75;
             }
 
+            .mca-body h1,
             .mca-body h2,
             .mca-body h3 {
                 color: #111 !important;
                 break-after: avoid;
                 margin-top: 20px;
+            }
+
+            .mca-body h1 {
+                font-size: 15pt;
+                padding-top: 12px;
+                border-top-color: #ddd !important;
             }
 
             .mca-body strong {
@@ -683,6 +792,20 @@
 
             .mca-body .mc-indent {
                 border-left-color: #ddd !important;
+            }
+
+            /* 纸上没有滚动条：公式改为换行显示，宁可挤也不能被裁掉 */
+            .mca-body .katex {
+                color: #111 !important;
+            }
+
+            .mca-body .mc-math-block {
+                overflow-x: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body .mc-math-block .katex-display > .katex {
+                white-space: normal;
             }
 
             /* max-height + width:auto 已经等比缩放，不用 object-fit（也就不会裁切） */
@@ -789,7 +912,7 @@
 <blockquote>
 <p>例子：这是一段“微信发送消息”时候，计算机所运行的程序的自然语言版本。</p>
 </blockquote>
-<p><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723151611.png" alt="Pasted image 20260723151611" width="513" height="432" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"></p>
+<p><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723151611.png" alt="Pasted image 20260723151611" width="513" height="432" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"></p>
 <p>你会发现<mark>一切程序或者说流程，有且仅有三个模块构成：<strong>顺序、判断分支、和循环</strong></mark>(这一定理被称为：Böhm-Jacopini定理，于1966年被计算机科学家Corrado Böhm和Giuseppe Jacopini证明)。</p>
 <ul>
 <li>顺序就是，12345依次执行指令。</li>
@@ -801,23 +924,23 @@
 <h2 id="s2">计算机的组成部件</h2>
 <p>计算机构成部分大概可以分为两个层次：硬件和软件。</p>
 <h3 id="s3">1️⃣计算机的硬件层次</h3>
-<p>硬件层大概由这几类功能部件组成，都是看的见，摸得着的：<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723150716.png" alt="Pasted image 20260723150716" width="1147" height="613" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(400px, 100%)"></p>
-<p class="mc-indent">其中最为核心的是：CPU，它是执行<strong>程序</strong>的<strong>机器指令</strong>的工具。<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723160804.png" alt="Pasted image 20260723160804" width="616" height="308" loading="lazy" decoding="async" data-media-fit="natural"><br>(如图是一块CPU，金色的点是“引脚”或者触点)</p>
+<p>硬件层大概由这几类功能部件组成，都是看的见，摸得着的：<br><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723150716.png" alt="Pasted image 20260723150716" width="1147" height="613" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(400px, 100%)"></p>
+<p class="mc-indent">其中最为核心的是：CPU，它是执行<strong>程序</strong>的<strong>机器指令</strong>的工具。<br><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723160804.png" alt="Pasted image 20260723160804" width="616" height="308" loading="lazy" decoding="async" data-media-fit="natural"><br>(如图是一块CPU，金色的点是“引脚”或者触点)</p>
 <p><strong>机器指令</strong>你还记得吗？就是机器(CPU)能直接理解的理解、执行的指令。又由于，我们说，机器能做到的，不过是，感知电路通断的0和1。所以机器指令实际上，就是一串由0和1构成的数字。</p>
 <p>在《hello.c的一生》中，我们知道了，我们用C语言或者Python语言写成的代码指令，借助<strong>编译器</strong>一系列复杂的处理之下，就可以转化为机器指令，从而，我们实现了自然语言-代码语言-机器指令的转化过程，也成功将我们的任务交给了计算机来处理。</p>
 <blockquote>
 <p>我们可以用一个简单的例子，回顾熟悉这个过程。</p>
 </blockquote>
-<p>首先，这是用自然语言告诉机器执行的流程步骤。<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723162118.png" alt="Pasted image 20260723162118" width="971" height="758" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"><br>用C语言表达出来同样的意思大概是这样：<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723162214.png" alt="Pasted image 20260723162214" width="1152" height="690" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"><br>经过编译器自动处理，会变成：<br>左侧就是机器指令(十六进制的表示，因为二进制位数太长了不方便)<br>右侧<strong>汇编语言</strong>。(汇编语言和机器指令具有一一对应的关系)<br>(由于这种一一对应关系，汇编语言和机器指令具有等价性)<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723162320.png" alt="Pasted image 20260723162320" width="1484" height="1008" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"><br>你还记得十六进制怎么对应二进制的吗？展开就是这样<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723162517.png" alt="Pasted image 20260723162517" width="1709" height="838" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"><br>这下，CPU看到这段代码之后，控制计算机内部电路的通(1)，断(0)。<br>就把你的代码中的任务，完成了。</p>
+<p>首先，这是用自然语言告诉机器执行的流程步骤。<br><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723162118.png" alt="Pasted image 20260723162118" width="971" height="758" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"><br>用C语言表达出来同样的意思大概是这样：<br><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723162214.png" alt="Pasted image 20260723162214" width="1152" height="690" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"><br>经过编译器自动处理，会变成：<br>左侧就是机器指令(十六进制的表示，因为二进制位数太长了不方便)<br>右侧<strong>汇编语言</strong>。(汇编语言和机器指令具有一一对应的关系)<br>(由于这种一一对应关系，汇编语言和机器指令具有等价性)<br><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723162320.png" alt="Pasted image 20260723162320" width="1484" height="1008" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"><br>你还记得十六进制怎么对应二进制的吗？展开就是这样<br><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723162517.png" alt="Pasted image 20260723162517" width="1709" height="838" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(300px, 100%)"><br>这下，CPU看到这段代码之后，控制计算机内部电路的通(1)，断(0)。<br>就把你的代码中的任务，完成了。</p>
 <p>说到这，你大概理解了计算机硬件中最重要的部分，比较具体，对吧？接下来进入一个看不见摸不着的、抽象一点的层次——软件</p>
 <h3 id="s4">2️⃣计算机的软件层次</h3>
-<p>同样的，我们用一幅图，来表示软件的组成部件。包括数据&amp;配置和程序两个部分<br><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723163934.png" alt="Pasted image 20260723163934" width="1472" height="640" loading="lazy" decoding="async" data-media-fit="natural"><br>数据呢，是程序要用来做运算的数据。<br>配置呢，是程序运行要用的参数<br>所以他们都服务与同一个核心——程序<br>所以软件层次的介绍，就一句话：<br><strong><mark>软件的核心是程序</mark></strong></p>
+<p>同样的，我们用一幅图，来表示软件的组成部件。包括数据&amp;配置和程序两个部分<br><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723163934.png" alt="Pasted image 20260723163934" width="1472" height="640" loading="lazy" decoding="async" data-media-fit="natural"><br>数据呢，是程序要用来做运算的数据。<br>配置呢，是程序运行要用的参数<br>所以他们都服务与同一个核心——程序<br>所以软件层次的介绍，就一句话：<br><strong><mark>软件的核心是程序</mark></strong></p>
 <p>那这软件和硬件，总不能独立工作啊？软件的每一条指令都需要CPU、等等的硬件来执行。<br>所以还需要有一个能连接、交换这两个层次、以及硬件与之间的信息的东西啊？<br>那硬件是死的，不可能长出触手。软件是活的啊，软件的本质就是程序，多写几条程序，让CPU通过这些程序来调控、管理硬件吧——这就是操作系统。</p>
 <h3 id="s5">操作系统的本质还是程序</h3>
-<p>这么多程序，那我们把程序分分类吧。<br>一部分是负责完成用户的具体任务的，叫做<strong>用户程序</strong><br>另一部分是负责管理硬件，服务于用户程序的，叫做<strong>操作系统程序</strong><img src="../../content/minecraft/计算机系统基础2/assets/Pasted image 20260723170649.png" alt="Pasted image 20260723170649" width="2799" height="751" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<p>这么多程序，那我们把程序分分类吧。<br>一部分是负责完成用户的具体任务的，叫做<strong>用户程序</strong><br>另一部分是负责管理硬件，服务于用户程序的，叫做<strong>操作系统程序</strong><img src="../../content/minecraft/计算机系统基础2：2/assets/Pasted image 20260723170649.png" alt="Pasted image 20260723170649" width="2799" height="751" loading="lazy" decoding="async" data-media-fit="natural"></p>
 <p>有时候，我们也把操作系统归为硬件和软件之间的层次，“操作系统层次”，因为它连接了软件和硬件。</p>
 <h2 id="s6">总结</h2>
-<p>我们用一张图来总结和回顾一下今天的所有知识把<br>好的，那么，有了这些前置的基础知识，我们就可以进一步深入计算机系统基础II的学习了<br><img src="../../content/minecraft/计算机系统基础2/assets/download.svg" alt="download" width="1400" height="920" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<p>我们用一张图来总结和回顾一下今天的所有知识把<br>好的，那么，有了这些前置的基础知识，我们就可以进一步深入计算机系统基础II的学习了<br><img src="../../content/minecraft/计算机系统基础2：2/assets/download.svg" alt="download" width="1400" height="920" loading="lazy" decoding="async" data-media-fit="natural"></p>
 <h2 id="s7">引子</h2>
 <p>我们知道了程序的本质是流程，它在CPU眼里就是一条一条机器指令的序列。<br>我们会在<strong>用户程序</strong>中用C语言的代码，告诉CPU，请你按照……这个步骤做事情。<br>再补充一个定义吧。一个听着吓人，实际上，很简单的东西——</p>
 <h3 id="s8"><strong>函数</strong></h3>

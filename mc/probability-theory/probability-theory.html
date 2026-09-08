@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
-    <title>为什么想要分享知识 — 觉的 Minecraft</title>
-    <meta name="description" content="写在前面 · 为什么想要分享知识">
+    <title>类型一、随机变量的数字特征计算 — 觉的 Minecraft</title>
+    <meta name="description" content="概率论与数理统计 · 类型一、随机变量的数字特征计算">
     <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/katex.css">
     <style>
         :root {
             --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
@@ -883,28 +884,41 @@
     </div>
 
     <div id="main" class="main">
-        <article class="mca-wrap" data-source="yijian6.com/mc/preword/knowledge-area">
+        <article class="mca-wrap" data-source="yijian6.com/mc/probability-theory/probability-theory">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">← 回到 写在前面</a>
+                <a href="index.html" class="mca-crumb">← 回到 概率论与数理统计</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
-            <h1 class="mca-title">为什么想要分享知识</h1>
-            <p class="mca-meta">2F · 2026-07-30 · 约 1 分钟</p>
+            <h1 class="mca-title">类型一、随机变量的数字特征计算</h1>
+            <p class="mca-meta">1F · 2026-09-08 · 约 1 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
-<p>古人云：教学相长。教是最好的学——如果只学不教，学习的乐趣和深度至少要打个对折。</p>
-<p>所以我想把自己学习和思考的东西，以教学文章的形式沉淀在这里。既加深自己的理解，也希望能帮到更多想了解这些知识的人。</p>
-<p>这里所有文章的读者，不是专业学者，而是零基础的&quot;小白&quot;。我会尽可能用最通俗的语言，让每个人都能看懂。哪怕你的专业和这些内容毫不相干，我也希望你能从中有所收获。</p>
-<p>欢迎大家多多指教，有不对、不严谨的地方请严厉批评。</p>
-<p>刘奕健</p>
+<p><a href="../notes/题型规律.html">天津大学《概率论与数理统计 1》期末真题 · 题型规律分析</a>  </p>
+<p class="mc-indent">——(Authored by 觉)</p>
+<p>以下是我自己对题型的理解「逐渐更新ing」</p>
+<h2 id="s1">数字特征包括：</h2>
+<ul>
+<li>期望E(X)：反映对随机变量的值的合理预期</li>
+<li>方差D(X)：反映随机变量的值的离散程度</li>
+<li>协方差Cov(X,Y): ？不知</li>
+<li>相关系数 <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ρ</span></span></span></span>：反映线性相关程度， | <span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">ρ</span></span></span></span> | 靠近 0 表示不线性相关， 靠近1表示线性相关程度高</li>
+</ul>
+<p>只需要背下来几个关键的公式，以及一些应试的思维方法，我觉得这类问题相当容易拿捏。<br>知识点、公式如下页：<a href="../notes/随机变量的数字特征.html">随机变量的数字特征</a></p>
+<p>直接上手：</p>
+<h2 id="s2">T1</h2>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260908094333.png" alt="Pasted image 20260908094333" width="1833" height="1076" loading="lazy" decoding="async" data-media-fit="natural"></p>
+<h3 id="s3">这道题，从目的结论出发，我们分析“变元”的构成，反推和已知需要搭建的桥梁：</h3>
+<p>1、我们知道的是“等式”(所有的公式)，但是要我们得到不等式，我们只能先得到等式，放缩才可以。<br>2、等式的分析里，我们想要得到D(X)，D(Y)，但我们的条件，都是E(X)、E(Y)，我们需要找到公式，能消去E，更多保留D，所以想到用方差计算公式消去E的部分:<br><span class="katex"><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0278em;">D</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0785em;">X</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0785em;">X</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="katex-base"><span class="katex-strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.0785em;">X</span><span class="mclose">)</span><span class="mclose"><span class="mclose">]</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>顺利成章的得出结论。</p>
+<h2 id="s4">T2</h2>
 
             </div>
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="meaning.html" class="mca-stair">↓ 1F 这里存在的意义</a>
+            <span class="mca-stair mca-stair--empty"></span>
             <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <a href="thoughts-area.html" class="mca-stair mca-stair--next">3F 为什么想要分享思考 ↑</a>
+            <span class="mca-stair mca-stair--empty"></span>
         </nav>
 
         <footer class="footer">

@@ -90,6 +90,7 @@
         }
 
         /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h1,
         .mca-body h2,
         .mca-body h3 {
             scroll-margin-top: calc(var(--nav-offset) + 16px);
@@ -271,6 +272,24 @@
             }
         }
 
+        /* 正文里的 h1：文章标题之外，作者用来分大段的那一级（「五、计算题…」）。
+           加一条上边线把大段之间断开，比单纯放大字号更清楚。 */
+        .mca-body h1 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 64px 0 20px;
+            padding-top: 24px;
+            border-top: 1px solid var(--white-10);
+        }
+
+        .mca-body h1:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
         .mca-body h2 {
             font-family: var(--font-display-mc);
             font-size: clamp(22px, 3.5vw, 28px);
@@ -420,6 +439,69 @@
             .mco-panel { background: rgba(20, 24, 18, 0.99); }
         }
 
+        /* 宽屏：大纲常驻，不用点按钮。
+           常驻之后就不该再是一块浮层——去掉盒子，只留页边的一条细导轨，
+           让它读起来是页面的一部分。放在 @supports 之后，靠源码顺序覆盖背景。 */
+        @media (min-width: 1200px) {
+            .mco-btn {
+                display: none;
+            }
+
+            .mco-panel {
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                transition: none;
+                top: calc(var(--nav-offset) + 44px);
+                /* 贴着正文右缘约 40px，让大纲读起来属于这篇文章而不是飘在屏幕角落；
+                   窄一点的宽屏用 max() 保底，不至于顶到屏幕边上 */
+                right: max(20px, calc((100vw - 720px) / 2 - 230px));
+                width: 190px;
+                max-height: calc(100vh - var(--nav-offset) - 96px);
+                padding: 0;
+                background: none;
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+                border: none;
+                border-radius: 0;
+                scrollbar-width: thin;
+            }
+
+            .mco-label {
+                padding: 0 0 8px 14px;
+                border-bottom: none;
+                margin-bottom: 4px;
+            }
+
+            /* 每个条目的左边框连起来就是那条导轨；当前节只换颜色不换宽度，不会有布局跳动 */
+            .mco-item {
+                padding: 7px 0 7px 14px;
+                font-size: 12.5px;
+                color: var(--white-30);
+                border-left: 2px solid var(--white-05);
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .mco-item:hover {
+                color: var(--white-90);
+                background: none;
+            }
+
+            .mco-item--sub {
+                padding-left: 26px;
+                font-size: 12px;
+            }
+
+            .mco-item.active {
+                color: var(--gold);
+                border-left-color: var(--gold);
+                background: none;
+            }
+        }
+
         html.mc-lightbox-open,
         html.mc-lightbox-open body {
             overflow: hidden;
@@ -442,6 +524,26 @@
         .mca-body .mc-indent {
             padding-left: 20px;
             border-left: 2px solid var(--white-05);
+        }
+
+        /* ===== 数学公式（KaTeX 在构建时渲染好，页面不加载任何脚本） =====
+           公式是正文的主干而不是注解，比周围文字亮一档。 */
+        .mca-body .katex {
+            color: var(--white-90);
+        }
+
+        /* 行间公式在手机上一定会有撑破屏幕的长式子，给它自己的横向滚动条。
+           段落中间的行间公式只能用 span 承载，所以显式声明 display */
+        .mca-body .mc-math-block {
+            display: block;
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin: 24px 0;
+            padding: 2px 0;
+        }
+
+        .mca-body .mc-math-block .katex-display {
+            margin: 0;
         }
 
         .mc-table-wrap {
@@ -620,11 +722,18 @@
                 line-height: 1.75;
             }
 
+            .mca-body h1,
             .mca-body h2,
             .mca-body h3 {
                 color: #111 !important;
                 break-after: avoid;
                 margin-top: 20px;
+            }
+
+            .mca-body h1 {
+                font-size: 15pt;
+                padding-top: 12px;
+                border-top-color: #ddd !important;
             }
 
             .mca-body strong {
@@ -683,6 +792,20 @@
 
             .mca-body .mc-indent {
                 border-left-color: #ddd !important;
+            }
+
+            /* 纸上没有滚动条：公式改为换行显示，宁可挤也不能被裁掉 */
+            .mca-body .katex {
+                color: #111 !important;
+            }
+
+            .mca-body .mc-math-block {
+                overflow-x: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body .mc-math-block .katex-display > .katex {
+                white-space: normal;
             }
 
             /* max-height + width:auto 已经等比缩放，不用 object-fit（也就不会裁切） */
@@ -819,7 +942,7 @@ printf(&quot;l&quot;);   →  buf: [h e l l . .]     没写
 printf(&quot;o&quot;);   →  buf: [h e l l o .]     没写
 fflush(stdout);→  write(1, buf, 5);      ← 这一刻才真正写出去
 </code></pre>
-<h1><code>exit(status)</code>函数</h1>
+<h1 id="s4"><code>exit(status)</code>函数</h1>
 <p>❶函数的输入：退出状态码<br>❷函数的处理：做清理工作 → 请求内核终止本进程 → 把 <code>status</code> 留给父进程<br>❸函数的输出：无返回值(因为已经退出)<br>❹例子：</p>
 <pre><code class="language-C">printf(&quot;hello&quot;); // 无 \n，卡在缓冲区 
 exit(0); // ✅ 输出 hello,退出程序

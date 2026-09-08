@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-08-19",
+  "builtAt": "2026-09-08",
   "domains": [
     {
       "name": "写在前面",
@@ -151,9 +151,53 @@ window.MC_WORLD = {
       ],
       "lastDate": "2026-08-03",
       "stale": false
+    },
+    {
+      "name": "概率论与数理统计",
+      "nameEn": "probability-theory",
+      "slug": "probability-theory",
+      "floors": [
+        {
+          "n": 1,
+          "title": "类型一、随机变量的数字特征计算",
+          "date": "2026-09-08"
+        }
+      ],
+      "ghosts": [],
+      "lastDate": "2026-09-08",
+      "stale": false
+    },
+    {
+      "name": "观点随机漫步",
+      "nameEn": "randomness",
+      "slug": "randomness",
+      "floors": [
+        {
+          "n": 1,
+          "title": "未命名",
+          "date": "2026-09-08"
+        }
+      ],
+      "ghosts": [
+        "梦到啥说啥"
+      ],
+      "lastDate": "2026-09-08",
+      "stale": false
     }
   ],
   "log": [
+    {
+      "date": "2026-09-08",
+      "title": "类型一、随机变量的数字特征计算",
+      "domainName": "概率论与数理统计",
+      "url": "mc/probability-theory/probability-theory.html"
+    },
+    {
+      "date": "2026-09-08",
+      "title": "未命名",
+      "domainName": "观点随机漫步",
+      "url": "mc/randomness/2026-09-08.html"
+    },
     {
       "date": "2026-08-19",
       "title": "Malloc实验完整代码",
@@ -171,18 +215,6 @@ window.MC_WORLD = {
       "title": "Shell实验完整代码",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/shell-answer.html"
-    },
-    {
-      "date": "2026-08-04",
-      "title": "Shell实验破解-5",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-over-5.html"
-    },
-    {
-      "date": "2026-08-03",
-      "title": "Shell实验破解-3",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-over-3.html"
     }
   ]
 };
