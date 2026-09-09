@@ -324,6 +324,82 @@
 }
 
 /* =========================================================
+   跨文档转场（View Transitions）
+
+   这个站是纯 MPA：每个链接都是整页跳转。以前靠 initPageTransition
+   拦下点击、淡出、再赋值 location.href —— 那 350ms 里浏览器根本还没
+   开始下载，已经删掉了。现在把「从旧页到新页」这段交给浏览器自己做，
+   它能在真正换页的那一刻做连续变形，是 JS 补不出来的。
+
+   一行 @view-transition 覆盖 50 个页面（11 个根页面 + 39 个 mc 页），
+   零 JS、零 HTML 改动。两侧文档都要声明才生效，而它们共用这一份
+   css/style.css，所以自动成立。universe.html 不加载这份样式表，
+   进出它的跳转不走转场 —— 它本来就有自己的黑洞 / 全屏叙事效果。
+
+   不支持的浏览器（Firefox、老内核）完全忽略这个 at-rule，行为与今天
+   一致，没有降级分支要写。配套的 pagereveal 处理见 js/script.js。
+========================================================= */
+
+@view-transition { navigation: auto; }
+
+/* 屏上元素 A→B，两端都要收 */
+::view-transition-group(*) {
+  animation-duration: var(--mo-long);
+  animation-timing-function: var(--ease-both);
+}
+/* 新旧内容交叉淡入淡出。这是「到达」，用加强版 ease-out */
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: var(--mo-short);
+  animation-timing-function: var(--ease-arrive);
+}
+/* 整页的根转场：外框在飞的时候，内容做一次短交叉淡入即可，不要再叠位移 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--mo-short);
+}
+
+/* 导航栏在每一页都在同一个位置。给它一个名字，它就不再参与整页的
+   淡入淡出，而是原地留着 —— 这是「连续性」最便宜的一处。
+   .navbar 在 11 个根页面和两个 mc 模板里都存在，且每页只有一个
+   （同一时刻同名元素只能有一个，否则整个转场被跳过），
+   所以写在 CSS 里就够，不用改 HTML。 */
+.navbar { view-transition-name: navbar; }
+
+/* 转场期间让 .main 直接呈现终态。
+
+   这一条是整个跨页转场能不能用的关键。.main 的初始态是 opacity: 0，
+   由 initPageEnter() 点亮 —— 而浏览器给新页拍快照的时机是「首次渲染
+   机会之前」，defer 脚本不是渲染阻塞资源，所以那时 initPageEnter
+   很可能还没跑。快照拍到的是一张空白页，接着 420ms 进场动画再播一遍：
+   旧页淡出 → 空白 → 内容淡入，比不开转场还难看。
+
+   一开始是在 pagereveal 里补 .no-entrance，实测赢不了这个竞争
+   （首帧 className 就是光秃秃的 "main"）。改成 CSS 就没有竞争可言：
+   :active-view-transition 在转场进行期间匹配根元素，此时强制终态，
+   快照拿到的就是有内容的页面。转场结束时 DCL 早已发生、.visible
+   已经在了，值没有变化，所以不会再触发一次过渡。
+
+   支持窗口与跨文档转场本身一致（Chrome 125+ / Safari 18.2+），
+   不支持的浏览器两边都不生效，行为与今天一样。 */
+html:active-view-transition .main {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* 文件末尾那条 *{animation-duration:.01ms!important} 匹配不到
+     ::view-transition-* 这些伪元素，得单独写。
+     缩短而不是关掉：转场承载着「你换页了」这条信息。 */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 100ms;
+  }
+}
+
+/* =========================================================
    RESET & BASE
 ========================================================= */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
