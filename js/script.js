@@ -6,6 +6,14 @@
 (function () {
   'use strict';
 
+  /* 「script.js 确实解析成功并开始执行了」的标记。css/style.css 的
+     FAILSAFE 段用它决定要不要在 6 秒后强行点亮那些初始 opacity:0 的
+     .reveal 元素。必须留在最前面 —— 它的全部意义就是「执行到这里了」，
+     往后挪一行都会把它变成「某段代码没抛异常」，那是另一回事。
+     className += 与 index.html <head> 里开屏判定脚本同一个写法，
+     不会覆盖它已经挂上的 boot-armed / boot-hold。 */
+  document.documentElement.className += ' js-live';
+
   var $ = function (sel, ctx) { return (ctx || document).querySelector(sel); };
   var $$ = function (sel, ctx) { return Array.prototype.slice.call((ctx || document).querySelectorAll(sel)); };
   var compat = window.JueCompat || null;

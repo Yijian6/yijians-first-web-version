@@ -1060,6 +1060,66 @@ img[data-media-fit="contain"] {
 .no-entrance { transition: none; }
 
 /* =========================================================
+   FAILSAFE —— JS 没跑起来时，别把页面变成一片空白
+
+   .main 的初始态是 opacity: 0，全站唯一点亮它的是 js/script.js 的
+   initPageEnter()。于是下面三种情况页面是全白的：
+     · 用户禁用了 JS
+     · script.js（126KB）没加载完
+     · 在老内核上解析失败
+   而这种故障不横向溢出、不报 console 错误、图片照常解码 —— 冒烟测试
+   那条 #main 断言只能在 JS 正常时防回归，防不住脚本根本没到。
+
+   index.html 和 work.html 有 <noscript> 兜底，其余 9 个根页面和 39 个
+   mc 页面一个都没有。这一段是给它们的：写在 CSS 里，52 个页面同时覆盖，
+   不用改任何 HTML，也不用重建 mc。
+
+   两条互补的路子：
+   1. @media (scripting: none) —— 用户主动禁用 JS。立刻生效不用等，
+      但老 X5 内核不认这个媒体特性。
+   2. 定时兜底动画 —— 6 秒后强行显示。覆盖「JS 开着但脚本挂了」，
+      也覆盖不认 (scripting: none) 的老内核。6s 与 index.html <head>
+      里开屏那条 CSS 兜底对齐。
+
+   两个开关是分开挂的，不是图省事：
+     .main 挂在 :not(.visible) 上 —— .visible 直接等于「页面真的显示
+       出来了」，所以连 initPageEnter 自己抛异常也能兜住。
+     .reveal* 挂在 html:not(.js-live) 上 —— 要是挂在 .revealed 上，
+       6 秒后会把还没滚到的元素全部点亮，等于把滚动出现动画整个废掉。
+   用 :not() 而不是「先挂再取消」，是为了让正常情况下根本不注册这些
+   动画 —— 一个页面上 .reveal 有几十个，白挂着没必要。
+========================================================= */
+
+@media (scripting: none) {
+  .main { opacity: 1; transform: none; }
+  .reveal, .reveal-left, .reveal-scale { opacity: 1; transform: none; }
+  .reveal-clip { clip-path: none; }
+  .kinetic-text .char { opacity: 1; transform: none; }
+  .typewriter { border-right: 0; padding-right: 0; }
+  .typewriter::after { content: attr(data-text); }
+}
+
+.main:not(.visible) {
+  animation: jueFailsafeShow 1ms linear 6s forwards;
+}
+
+html:not(.js-live) .reveal,
+html:not(.js-live) .reveal-left,
+html:not(.js-live) .reveal-scale {
+  animation: jueFailsafeShow 1ms linear 6s forwards;
+}
+html:not(.js-live) .reveal-clip {
+  animation: jueFailsafeClip 1ms linear 6s forwards;
+}
+
+@keyframes jueFailsafeShow {
+  to { opacity: 1; transform: none; }
+}
+@keyframes jueFailsafeClip {
+  to { clip-path: none; }
+}
+
+/* =========================================================
    SECTION: EPIC HERO (Home)
 ========================================================= */
 .hero-section {

@@ -226,6 +226,23 @@ def run(engine_names, quick):
                                     )
                                 )
 
+                            # 上面那条问的是「用户最终看得见吗」，css/style.css 的
+                            # FAILSAFE 段 6 秒后会把页面强行点亮，所以它现在也会
+                            # 放过「initPageEnter 坏了但兜底救回来」。这条补上被
+                            # 让出去的那一半：正常路径到底有没有走通。
+                            # .visible 只由 initPageEnter 添加，JS 正常时 1 秒内就到。
+                            class_probe = (
+                                "() => { var el = document.getElementById('main');"
+                                " return !el || el.classList.contains('visible'); }"
+                            )
+                            try:
+                                page.wait_for_function(class_probe, timeout=8_000)
+                            except Exception:
+                                visibility_issues.append(
+                                    "#main never got .visible — initPageEnter did not run"
+                                    " (page may still be readable via the CSS failsafe)"
+                                )
+
                             wechat_issues = []
                             if mode_name == "wechat":
                                 wechat_ctx = page.evaluate(
