@@ -299,6 +299,18 @@
     window.setTimeout(render, 1500);
   }
 
+  /* iOS Safari 只在文档上存在 touchstart 监听时，才让非交互元素
+     （div / li / span 这类）进入 :active。没有它，css/style.css 的
+     MOTION 段给卡片、列表行挂的按压反馈在 iPhone 上一律不生效 ——
+     而 iPhone 正是主战场。空监听即可，passive 保证不影响滚动。 */
+  function installPressActivation() {
+    try {
+      document.addEventListener('touchstart', function () {}, { passive: true });
+    } catch (err) {
+      try { document.addEventListener('touchstart', function () {}, false); } catch (ignore) {}
+    }
+  }
+
   var api = {
     storage: storage,
     session: session,
@@ -319,4 +331,5 @@
   installVisualViewport();
   installImageRecovery();
   installImageDiagnostics();
+  installPressActivation();
 })(window, document);

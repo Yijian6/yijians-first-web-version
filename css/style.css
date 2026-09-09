@@ -247,6 +247,83 @@
 }
 
 /* =========================================================
+   MOTION — 运动语言（移植自 fluid-motion-kit / 肌智 v8）
+
+   一条总原则：曲线与时长收在这一段里，页面不得自由取值。
+   「流畅」不是动效多，是全站共用同一套物理。一旦允许每个组件各写各的
+   ease 0.3s，页与页之间的手感就对不上 —— 那正是不流畅的来源。
+
+   本站在套件的三档之外多一档「编排层」，因为这里有一层刻意的慢电影
+   语言（.reveal 0.9s / .reveal-clip 1.2s）。分界线不是「多久」，是
+   **这次位移是不是用户刚才那个动作的直接结果**：
+     是 → 交互层，必须快，只能取三档之一
+     否 → 编排层，是叙事节奏，保留现有手感
+   BOOT 段（开屏 3.5s 时间轴）不属于任何一层，它和 js/script.js 的
+   BOOT 常量逐帧对齐，改动必须两处同步 —— 见 AGENTS.md。
+========================================================= */
+
+:root {
+  /* ---- 交互层：只有三档，不加第四档 ---------------------------------- */
+  --mo-micro: 120ms;  /* 按下去了：按压、开关、变色、chip 高亮 */
+  --mo-short: 220ms;  /* 东西到位了：悬浮、提示、菜单展开、tab 切换 */
+  --mo-long:  420ms;  /* 换了一屏：覆盖页、灯箱、整块重排、页面进场 */
+
+  /* ---- 编排层：滚动叙事，数值沿用现状，只是收进变量 ------------------ */
+  --mo-ambient:    900ms;   /* .reveal / .reveal-left / .reveal-scale */
+  --mo-ambient-x: 1200ms;   /* .reveal-clip */
+
+  /* ---- 时间曲线 ------------------------------------------------------ */
+  /* 到达。系统内置 ease-out 偏软，缺少「做过」的力度；这条是加强版。
+     绝不在「到达」上用 ease-in / ease-in-out —— 它们起步慢，而起步那一刻
+     正是用户盯得最紧的时候。同样 220ms，起步慢的读起来就是更慢。 */
+  --ease-arrive: cubic-bezier(0.23, 1, 0.32, 1);
+  /* 双向。已经在屏上的元素从 A 移到 B，两端都要收 */
+  --ease-both: cubic-bezier(0.77, 0, 0.175, 1);
+  /* 匀速。只给 marquee、进度条这类恒定运动。界面元素一律不用 */
+  --ease-linear: linear;
+
+  /* ---- 弹簧曲线（无 @supports 时的兜底值） --------------------------- */
+  /* 见下方 @supports 块。老内核不支持 linear() 时，一个无效的
+     timing-function 会让**整条 transition 声明作废** —— 元素直接变成
+     瞬时跳变。所以默认值必须是老内核认得的贝塞尔。 */
+  --spring-settle-dur: var(--mo-long);   --spring-settle: var(--ease-arrive);
+  --spring-fling-dur:  var(--mo-long);   --spring-fling:  var(--ease-arrive);
+  --spring-sheet-dur:  var(--mo-long);   --spring-sheet:  var(--ease-arrive);
+
+  /* ---- 按压反馈的量 -------------------------------------------------- */
+  /* 缩小是「物体被按下去了」的物理隐喻，任何底色上都成立；变亮在深色底上
+     容易和「选中态」「强调色」混淆。
+     0.97 是刻意保守的值 —— 再小就从「按下去了」变成「弹了一下」。
+     --press-dim 取 0.78 而不是套件的 0.72：本站底色 #0c0e0b 已经很深，
+     再压到 0.72 会读成「变灰了」；0.78 也是站里原有的既定值。 */
+  --press-scale: 0.97;   /* 卡片、chip、按钮、头像：有明确边界的东西 */
+  --press-icon:  0.92;   /* 小图标钮：20–24px 上 0.97 根本看不出来 */
+  --press-dim:   0.78;   /* 整宽的东西：列表行、满宽条 */
+}
+
+/* linear() 需要 Chrome 113+ / Safari 17.2+。微信 Android 老 X5/XWeb 拿不到，
+   所以弹簧曲线只在支持时才覆盖上面的贝塞尔兜底。
+   参数用 Apple 的 response / dampingFraction 模型（鸿蒙 springMotion 同款），
+   曲线是解析解等时采样出来的，不是手调贝塞尔。要改参数用
+   fluid-motion-kit/fling.js 的 springToLinear(response, damping) 重新生成。 */
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    /* SETTLE  response .40 / damping 1.00 —— 离手回吸。临界阻尼，不过冲 */
+    --spring-settle-dur: 563ms;
+    --spring-settle: linear(0, 0.0156, 0.0553, 0.1104, 0.1743, 0.2425, 0.3116, 0.3792, 0.4439, 0.5047, 0.561, 0.6126, 0.6593, 0.7015, 0.7392, 0.7727, 0.8024, 0.8286, 0.8517, 0.8718, 0.8895, 0.9048, 0.9181, 0.9297, 0.9397, 0.9483, 0.9558, 0.9622, 0.9677, 0.9724, 0.9765, 0.98, 0.983, 0.9855, 0.9877, 0.9895, 0.9911, 0.9925, 0.9936, 0.9946, 0.9954, 0.9961, 0.9967, 0.9972, 0.9976, 0.998, 0.9983, 0.9986);
+
+    /* FLING   response .35 / damping 0.80 —— 手势本身带了动量时。
+       轻微过冲是对的，因为用户确实甩了它一下。过冲只在有动量时给 */
+    --spring-fling-dur: 459ms;
+    --spring-fling: linear(0, 0.0209, 0.0745, 0.1489, 0.2353, 0.3265, 0.4177, 0.5052, 0.5866, 0.6605, 0.7262, 0.7835, 0.8325, 0.8738, 0.908, 0.9358, 0.958, 0.9753, 0.9886, 0.9984, 1.0054, 1.0101, 1.0131, 1.0146, 1.0152, 1.0149, 1.0142, 1.0131, 1.0118, 1.0104, 1.009, 1.0077, 1.0064, 1.0053, 1.0043, 1.0034, 1.0026, 1.002, 1.0015);
+
+    /* SHEET   response .30 / damping 0.80 —— 抽屉 / 半模态 */
+    --spring-sheet-dur: 396ms;
+    --spring-sheet: linear(0, 0.0276, 0.0964, 0.1891, 0.2931, 0.3993, 0.5013, 0.5954, 0.6793, 0.7519, 0.8134, 0.8642, 0.9051, 0.9375, 0.9623, 0.9809, 0.9943, 1.0036, 1.0096, 1.0131, 1.0148, 1.0152, 1.0146, 1.0135, 1.012, 1.0105, 1.0088, 1.0073, 1.0059, 1.0047, 1.0036, 1.0027, 1.0019, 1.0013);
+  }
+}
+
+/* =========================================================
    RESET & BASE
 ========================================================= */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -319,10 +396,10 @@ img[data-media-fit="contain"] {
   z-index: 99999;
   pointer-events: none;
   transform: translate(-50%, -50%);
-  transition: width 0.3s var(--ease-out-expo),
-              height 0.3s var(--ease-out-expo),
-              background 0.3s ease,
-              border-radius 0.3s ease;
+  transition: width var(--mo-short) var(--ease-out-expo),
+              height var(--mo-short) var(--ease-out-expo),
+              background var(--mo-short) var(--ease-arrive),
+              border-radius var(--mo-short) var(--ease-arrive);
   mix-blend-mode: difference;
 }
 
@@ -335,11 +412,11 @@ img[data-media-fit="contain"] {
   z-index: 99999;
   pointer-events: none;
   transform: translate(-50%, -50%);
-  transition: width 0.4s var(--ease-out-expo),
-              height 0.4s var(--ease-out-expo),
-              border-color 0.3s ease,
-              border-radius 0.3s ease,
-              opacity 0.3s ease;
+  transition: width var(--mo-long) var(--ease-out-expo),
+              height var(--mo-long) var(--ease-out-expo),
+              border-color var(--mo-short) var(--ease-arrive),
+              border-radius var(--mo-short) var(--ease-arrive),
+              opacity var(--mo-short) var(--ease-arrive);
   opacity: 0.4;
 }
 
@@ -376,7 +453,7 @@ img[data-media-fit="contain"] {
   height: 100%;
   width: 0;
   background: var(--gold);
-  transition: width 0.08s linear;
+  transition: width var(--mo-micro) linear;
 }
 
 /* =========================================================
@@ -407,7 +484,7 @@ img[data-media-fit="contain"] {
   text-transform: uppercase;
   color: var(--gold);
   text-decoration: none;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--mo-short) var(--ease-arrive);
 }
 
 .nav-brand:hover {
@@ -434,7 +511,7 @@ img[data-media-fit="contain"] {
   color: var(--white-60);
   position: relative;
   padding: 4px 0;
-  transition: color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive);
 }
 
 .nav-link::before {
@@ -455,7 +532,7 @@ img[data-media-fit="contain"] {
   width: 0;
   height: 1px;
   background: var(--gold);
-  transition: width 0.5s var(--ease-out-expo);
+  transition: width var(--mo-long) var(--ease-out-expo);
 }
 
 .nav-link:hover,
@@ -476,7 +553,7 @@ img[data-media-fit="contain"] {
   gap: 10px;
   padding: 0 14px;
   position: relative;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--mo-short) var(--ease-arrive);
 }
 
 .hamburger:hover { border-color: var(--gold); }
@@ -487,7 +564,7 @@ img[data-media-fit="contain"] {
   font-weight: 400;
   letter-spacing: 0.25em;
   color: var(--white-60);
-  transition: color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive);
 }
 
 .hamburger:hover .hamburger-label { color: var(--gold); }
@@ -505,7 +582,7 @@ img[data-media-fit="contain"] {
   width: 100%;
   height: 1.5px;
   background: var(--white);
-  transition: transform 0.4s var(--ease-out-expo), opacity 0.3s ease;
+  transition: transform var(--mo-long) var(--ease-out-expo), opacity var(--mo-short) var(--ease-arrive);
   transform-origin: center;
 }
 
@@ -558,7 +635,7 @@ img[data-media-fit="contain"] {
   padding: max(var(--safe-top), 20px) max(var(--side-pad), var(--safe-right)) max(var(--safe-bottom), 20px) max(var(--side-pad), var(--safe-left));
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s var(--ease-out-expo), visibility 0.5s;
+  transition: opacity var(--mo-long) var(--ease-out-expo), visibility var(--mo-long);
 }
 
 .mobile-menu.open { opacity: 1; visibility: visible; }
@@ -572,9 +649,9 @@ img[data-media-fit="contain"] {
   margin-bottom: 8px;
   opacity: 0;
   transform: translateX(60px);
-  transition: opacity 0.6s var(--ease-out-expo),
-              transform 0.6s var(--ease-out-expo),
-              color 0.3s ease;
+  transition: opacity var(--mo-long) var(--ease-out-expo),
+              transform var(--mo-long) var(--ease-out-expo),
+              color var(--mo-short) var(--ease-arrive);
 }
 
 .mobile-menu.open .mobile-link {
@@ -899,8 +976,8 @@ img[data-media-fit="contain"] {
 .reveal {
   opacity: 0;
   transform: translateY(60px);
-  transition: opacity 0.9s var(--ease-out-expo),
-              transform 0.9s var(--ease-out-expo);
+  transition: opacity var(--mo-ambient) var(--ease-out-expo),
+              transform var(--mo-ambient) var(--ease-out-expo);
 }
 
 .reveal.revealed { opacity: 1; transform: translateY(0); }
@@ -908,8 +985,8 @@ img[data-media-fit="contain"] {
 .reveal-left {
   opacity: 0;
   transform: translateX(-60px);
-  transition: opacity 0.9s var(--ease-out-expo),
-              transform 0.9s var(--ease-out-expo);
+  transition: opacity var(--mo-ambient) var(--ease-out-expo),
+              transform var(--mo-ambient) var(--ease-out-expo);
 }
 
 .reveal-left.revealed { opacity: 1; transform: translateX(0); }
@@ -917,15 +994,15 @@ img[data-media-fit="contain"] {
 .reveal-scale {
   opacity: 0;
   transform: scale(0.9);
-  transition: opacity 0.9s var(--ease-out-expo),
-              transform 0.9s var(--ease-out-expo);
+  transition: opacity var(--mo-ambient) var(--ease-out-expo),
+              transform var(--mo-ambient) var(--ease-out-expo);
 }
 
 .reveal-scale.revealed { opacity: 1; transform: scale(1); }
 
 .reveal-clip {
   clip-path: inset(0 50% 0 50%);
-  transition: clip-path 1.2s var(--ease-out-expo);
+  transition: clip-path var(--mo-ambient-x) var(--ease-out-expo);
 }
 
 .reveal-clip.revealed { clip-path: inset(0 0% 0 0%); }
@@ -946,8 +1023,8 @@ img[data-media-fit="contain"] {
   opacity: 0;
   transform: translateY(100%) rotateX(-80deg);
   transform-origin: bottom center;
-  transition: opacity 0.6s var(--ease-out-expo),
-              transform 0.6s var(--ease-out-expo);
+  transition: opacity var(--mo-long) var(--ease-out-expo),
+              transform var(--mo-long) var(--ease-out-expo);
 }
 
 .kinetic-text.revealed .char {
@@ -963,8 +1040,12 @@ img[data-media-fit="contain"] {
   padding-top: var(--nav-offset);
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.8s var(--ease-out-expo) 0.2s,
-              transform 0.8s var(--ease-out-expo) 0.2s;
+  /* 页面进场。曾经是 0.8s + 0.2s 延迟 = 整整一秒才读得出「到了」，
+     而离场那边还有 350ms 的 setTimeout 拦着不让浏览器开始请求 ——
+     一次导航自己给自己加了 1.35 秒。离场已删（见 js/script.js 的
+     PAGE TRANSITION 段），这里收进交互层的最长一档。 */
+  transition: opacity var(--mo-long) var(--ease-arrive),
+              transform var(--mo-long) var(--ease-arrive);
 }
 
 .main.visible { opacity: 1; transform: translateY(0); }
@@ -1049,7 +1130,7 @@ img[data-media-fit="contain"] {
   object-position: center 20%;
   display: block;
   filter: grayscale(20%) contrast(1.05);
-  transition: filter 0.6s ease;
+  transition: filter var(--mo-long) var(--ease-arrive);
 }
 
 .portrait-section:hover .portrait-img {
@@ -1189,8 +1270,8 @@ img[data-media-fit="contain"] {
   padding: 16px 32px;
   border: none;
   border-radius: 2px;
-  transition: transform 0.3s var(--ease-out-expo),
-              box-shadow 0.3s ease;
+  transition: transform var(--mo-short) var(--ease-out-expo),
+              box-shadow var(--mo-short) var(--ease-arrive);
 }
 
 .hero-cta:hover {
@@ -1202,7 +1283,7 @@ img[data-media-fit="contain"] {
 .hero-cta svg {
   width: 16px;
   height: 16px;
-  transition: transform 0.3s var(--ease-out-expo);
+  transition: transform var(--mo-short) var(--ease-out-expo);
 }
 
 .hero-cta:hover svg { transform: translateX(4px); }
@@ -1358,7 +1439,7 @@ img[data-media-fit="contain"] {
   color: var(--white-60);
   border: 1px solid var(--white-10);
   padding: 4px 10px;
-  transition: border-color 0.3s ease, color 0.3s ease;
+  transition: border-color var(--mo-short) var(--ease-arrive), color var(--mo-short) var(--ease-arrive);
 }
 
 .tag:hover {
@@ -1416,7 +1497,7 @@ img[data-media-fit="contain"] {
   padding: 13px 26px;
   margin-top: 4px;
   cursor: pointer;
-  transition: background 0.3s ease, gap 0.3s var(--ease-out-expo);
+  transition: background var(--mo-short) var(--ease-arrive), gap var(--mo-short) var(--ease-out-expo);
 }
 
 .timeline-cta::after { content: '→'; }
@@ -1439,7 +1520,7 @@ img[data-media-fit="contain"] {
   flex-direction: column;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.4s ease;
+  transition: opacity var(--mo-long) var(--ease-arrive);
 }
 
 .product-theater.open {
@@ -1494,7 +1575,7 @@ img[data-media-fit="contain"] {
   border: 1px solid var(--white-10);
   padding: 8px 14px;
   white-space: nowrap;
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive), border-color var(--mo-short) var(--ease-arrive);
 }
 
 .pt-open:hover {
@@ -1512,7 +1593,7 @@ img[data-media-fit="contain"] {
   background: none;
   border: 1px solid var(--white-10);
   cursor: pointer;
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive), border-color var(--mo-short) var(--ease-arrive);
 }
 
 .pt-close:hover {
@@ -1631,7 +1712,7 @@ img[data-media-fit="contain"] {
   align-items: flex-start;
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 0.17s ease, transform 0.17s ease;
+  transition: opacity var(--mo-short) var(--ease-arrive), transform var(--mo-short) var(--ease-arrive);
 }
 
 .stage-content.stage-out { opacity: 0; transform: translateY(8px); }
@@ -1717,7 +1798,7 @@ img[data-media-fit="contain"] {
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
-  transition: color 0.3s ease, border-color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive), border-color var(--mo-short) var(--ease-arrive);
   position: relative;
 }
 
@@ -1767,7 +1848,7 @@ img[data-media-fit="contain"] {
   box-shadow: 0 0 8px var(--gold), 0 0 20px var(--gold-glow);
   opacity: 0;
   transform: scale(0.4);
-  transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo);
+  transition: opacity var(--mo-long) var(--ease-arrive), transform var(--mo-long) var(--ease-out-expo);
 }
 
 .rings-caption.on .rc-dot {
@@ -1782,7 +1863,7 @@ img[data-media-fit="contain"] {
   font-size: clamp(13px, 1.5vw, 16px);
   color: var(--gold);
   opacity: 0;
-  transition: opacity 0.6s ease 0.15s;
+  transition: opacity var(--mo-long) var(--ease-arrive) 0.15s;
 }
 
 @media (max-width: 768px) {
@@ -1809,7 +1890,7 @@ img[data-media-fit="contain"] {
   background: var(--white-10);
   transform: scaleX(0);
   transform-origin: left center;
-  transition: transform 0.9s var(--ease-out-expo) 0.45s;
+  transition: transform var(--mo-ambient) var(--ease-out-expo) 0.45s;
 }
 
 .rc-since {
@@ -1819,7 +1900,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.12em;
   color: var(--white-30);
   opacity: 0;
-  transition: opacity 0.7s ease 0.8s;
+  transition: opacity var(--mo-ambient) var(--ease-arrive) 0.8s;
 }
 
 .rc-since em {
@@ -1878,7 +1959,7 @@ img[data-media-fit="contain"] {
   align-items: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.4s var(--ease-out-expo), visibility 0.4s;
+  transition: opacity var(--mo-long) var(--ease-out-expo), visibility var(--mo-long);
 }
 
 .project-lightbox-overlay.open {
@@ -1899,7 +1980,7 @@ img[data-media-fit="contain"] {
   display: block;
   border: 1px solid var(--white-10);
   transform: scale(0.94);
-  transition: transform 0.5s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
 }
 
 .project-lightbox-overlay.open .project-lightbox-inner img {
@@ -1927,7 +2008,7 @@ img[data-media-fit="contain"] {
   background: var(--bg);
   padding: clamp(32px, 5vw, 56px);
   position: relative;
-  transition: background 0.4s ease;
+  transition: background var(--mo-long) var(--ease-arrive);
   overflow: hidden;
 }
 
@@ -1951,7 +2032,7 @@ img[data-media-fit="contain"] {
   width: 0;
   height: 2px;
   background: var(--gold);
-  transition: width 0.6s var(--ease-out-expo);
+  transition: width var(--mo-long) var(--ease-out-expo);
 }
 
 .offer-card:hover { background: var(--bg-surface); }
@@ -1982,7 +2063,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.05em;
   padding-bottom: 2px;
   border-bottom: 1px solid transparent;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--mo-short) var(--ease-arrive);
 }
 
 .offer-link:hover {
@@ -2020,7 +2101,7 @@ img[data-media-fit="contain"] {
   border-radius: 50%;
   border: 1px solid var(--white-10);
   pointer-events: none;
-  transition: border-color 0.5s ease;
+  transition: border-color var(--mo-long) var(--ease-arrive);
 }
 
 /* 5-orb positions (pentagon layout) */
@@ -2034,7 +2115,7 @@ img[data-media-fit="contain"] {
   padding: 0;
   cursor: pointer;
   z-index: 2;
-  transition: transform 0.5s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
   -webkit-tap-highlight-color: transparent;
   will-change: transform;
 }
@@ -2074,7 +2155,7 @@ img[data-media-fit="contain"] {
   top: 0; right: 0; bottom: 0; left: 0;
   inset: 0;
   border-radius: 50%;
-  transition: filter 0.4s ease;
+  transition: filter var(--mo-long) var(--ease-arrive);
 }
 
 .ow-orb[data-cat="ai"] .ow-orb-fill {
@@ -2104,7 +2185,7 @@ img[data-media-fit="contain"] {
   inset: -4px;
   border-radius: 50%;
   border: 2.5px solid transparent;
-  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  transition: border-color var(--mo-long) var(--ease-arrive), box-shadow var(--mo-long) var(--ease-arrive);
 }
 
 .ow-orb.active .ow-orb-ring {
@@ -2119,7 +2200,7 @@ img[data-media-fit="contain"] {
   inset: -16px;
   border-radius: 50%;
   opacity: 0;
-  transition: opacity 0.5s ease;
+  transition: opacity var(--mo-long) var(--ease-arrive);
   filter: blur(16px);
   pointer-events: none;
 }
@@ -2142,7 +2223,7 @@ img[data-media-fit="contain"] {
   color: var(--white-30);
   white-space: nowrap;
   pointer-events: none;
-  transition: color 0.4s ease, transform 0.5s var(--ease-out-expo);
+  transition: color var(--mo-long) var(--ease-arrive), transform var(--mo-long) var(--ease-out-expo);
 }
 
 .ow-orb.active::after { color: var(--white-90); }
@@ -2205,7 +2286,7 @@ img[data-media-fit="contain"] {
   font-weight: 500;
   color: var(--white);
   letter-spacing: 0.06em;
-  transition: opacity 0.25s ease;
+  transition: opacity var(--mo-short) var(--ease-arrive);
 }
 
 .ow-center-sub {
@@ -2216,7 +2297,7 @@ img[data-media-fit="contain"] {
   text-transform: uppercase;
   color: var(--white-30);
   margin-top: 4px;
-  transition: opacity 0.25s ease;
+  transition: opacity var(--mo-short) var(--ease-arrive);
 }
 
 /* =========================================================
@@ -2233,7 +2314,7 @@ img[data-media-fit="contain"] {
 .ow-panel-wrapper {
   position: relative;
   overflow: hidden;
-  transition: height 0.5s var(--ease-out-expo);
+  transition: height var(--mo-long) var(--ease-out-expo);
   padding-top: clamp(40px, 6vh, 56px);
 }
 
@@ -2245,7 +2326,7 @@ img[data-media-fit="contain"] {
   transform: translateX(30px);
   pointer-events: none;
   visibility: hidden;
-  transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo), visibility 0s 0.4s;
+  transition: opacity var(--mo-long) var(--ease-arrive), transform var(--mo-long) var(--ease-out-expo), visibility 0s 0.4s;
   will-change: transform, opacity;
   padding-top: clamp(40px, 6vh, 56px);
 }
@@ -2256,11 +2337,11 @@ img[data-media-fit="contain"] {
   transform: translateX(0);
   pointer-events: auto;
   visibility: visible;
-  transition: opacity 0.45s ease 0.1s, transform 0.45s var(--ease-out-expo) 0.1s, visibility 0s;
+  transition: opacity var(--mo-long) var(--ease-arrive) 0.1s, transform var(--mo-long) var(--ease-out-expo) 0.1s, visibility 0s;
 }
 
 .ow-panel.leaving {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity var(--mo-short) var(--ease-arrive), transform var(--mo-short) var(--ease-arrive);
 }
 
 .ow-panel.leaving-left {
@@ -2365,7 +2446,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.05em;
   padding-bottom: 2px;
   border-bottom: 1px solid transparent;
-  transition: border-color 0.3s ease;
+  transition: border-color var(--mo-short) var(--ease-arrive);
 }
 
 .ow-panel-link:hover {
@@ -2417,7 +2498,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.08em;
   color: var(--gold);
   cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background var(--mo-short) var(--ease-arrive), color var(--mo-short) var(--ease-arrive);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -2440,7 +2521,7 @@ img[data-media-fit="contain"] {
 .ow-center {
   pointer-events: auto;
   cursor: pointer;
-  transition: transform 0.4s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
 }
 
 .ow-center:hover { transform: translate(-50%, -50%) scale(1.05); }
@@ -2481,7 +2562,7 @@ img[data-media-fit="contain"] {
   backdrop-filter: blur(8px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s ease;
+  transition: opacity var(--mo-long) var(--ease-arrive);
 }
 
 .od-overlay.open { opacity: 1; pointer-events: auto; }
@@ -2501,7 +2582,7 @@ img[data-media-fit="contain"] {
   font-size: 30px;
   line-height: 1;
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive);
   z-index: 2;
 }
 
@@ -2517,7 +2598,7 @@ img[data-media-fit="contain"] {
   width: var(--od-size);
   height: var(--od-size);
   touch-action: none;
-  transition: transform 0.5s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
   will-change: transform;
 }
 
@@ -2567,7 +2648,7 @@ img[data-media-fit="contain"] {
   transform: translate(-50%, -50%) translateY(calc(-1 * var(--od-r))) rotate(calc(-1 * (var(--wheel) + var(--a))));
 }
 
-.od-orb > span { transition: transform 0.3s var(--ease-out-expo), opacity 0.5s ease, filter 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease; }
+.od-orb > span { transition: transform var(--mo-short) var(--ease-out-expo), opacity var(--mo-long) var(--ease-arrive), filter var(--mo-long) var(--ease-arrive), border-color var(--mo-long) var(--ease-arrive), box-shadow var(--mo-long) var(--ease-arrive); }
 .od-arm.active .od-orb > span { transform: scale(1.15); }
 
 .od-orb-fill {
@@ -2626,7 +2707,7 @@ img[data-media-fit="contain"] {
   color: var(--white-30);
   white-space: nowrap;
   pointer-events: none;
-  transition: color 0.4s ease, opacity 0.3s ease;
+  transition: color var(--mo-long) var(--ease-arrive), opacity var(--mo-short) var(--ease-arrive);
 }
 
 /* 顶部球的标签让位给指示针与中央大字 */
@@ -2642,7 +2723,7 @@ img[data-media-fit="contain"] {
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
   border-top: 10px solid var(--gold);
-  transition: border-top-color 0.4s ease;
+  transition: border-top-color var(--mo-long) var(--ease-arrive);
   pointer-events: none;
 }
 
@@ -2673,7 +2754,7 @@ img[data-media-fit="contain"] {
   text-transform: uppercase;
   color: var(--gold);
   margin-top: 6px;
-  transition: color 0.4s ease;
+  transition: color var(--mo-long) var(--ease-arrive);
 }
 
 .od-lead {
@@ -2768,7 +2849,7 @@ img[data-media-fit="contain"] {
   opacity: 0;
   pointer-events: none;
   transform: scale(0.5);
-  transition: opacity 0.35s ease, transform 0.4s var(--ease-out-expo);
+  transition: opacity var(--mo-long) var(--ease-arrive), transform var(--mo-long) var(--ease-out-expo);
 }
 
 .ow-fab.visible {
@@ -2777,7 +2858,7 @@ img[data-media-fit="contain"] {
   transform: scale(1);
 }
 
-.ow-fab:active { transform: scale(0.9); }
+.ow-fab:active { transform: scale(var(--press-icon)); }
 
 .ow-fab-glow {
   position: absolute;
@@ -2863,7 +2944,7 @@ img[data-media-fit="contain"] {
   background: var(--bg);
   padding: clamp(32px, 5vw, 48px);
   position: relative;
-  transition: background 0.4s ease;
+  transition: background var(--mo-long) var(--ease-arrive);
   overflow: hidden;
 }
 
@@ -2877,7 +2958,7 @@ img[data-media-fit="contain"] {
   width: 0;
   height: 2px;
   background: var(--accent2);
-  transition: width 0.6s var(--ease-out-expo);
+  transition: width var(--mo-long) var(--ease-out-expo);
 }
 
 .me-card:hover::after { width: 100%; }
@@ -2890,7 +2971,7 @@ img[data-media-fit="contain"] {
   color: var(--white-30);
   letter-spacing: 0.1em;
   margin-bottom: 20px;
-  transition: color 0.4s var(--ease-out-expo);
+  transition: color var(--mo-long) var(--ease-out-expo);
 }
 
 .me-card:hover .me-card-num { color: var(--accent2); }
@@ -2938,7 +3019,7 @@ img[data-media-fit="contain"] {
   padding: 24px 0;
   border-bottom: 1px solid var(--white-10);
   align-items: start;
-  transition: padding-left 0.4s var(--ease-out-expo);
+  transition: padding-left var(--mo-long) var(--ease-out-expo);
 }
 
 .value-item:hover { padding-left: 8px; }
@@ -2950,7 +3031,7 @@ img[data-media-fit="contain"] {
   font-size: 14px;
   color: var(--gold);
   font-weight: 700;
-  transition: color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive);
 }
 
 .value-item:hover .value-marker { color: var(--accent2); }
@@ -2979,7 +3060,7 @@ img[data-media-fit="contain"] {
     linear-gradient(90deg, var(--white-05) 1px, transparent 1px);
   background-size: 24px 24px;
   opacity: 0;
-  transition: opacity 0.8s var(--ease-out-expo);
+  transition: opacity var(--mo-ambient) var(--ease-out-expo);
   pointer-events: none;
 }
 
@@ -2991,7 +3072,7 @@ img[data-media-fit="contain"] {
 .dc-char {
   display: inline-block;
   position: relative;
-  transition: transform 0.7s var(--ease-out-expo);
+  transition: transform var(--mo-ambient) var(--ease-out-expo);
 }
 
 /* leader line + part index above each char */
@@ -3006,7 +3087,7 @@ img[data-media-fit="contain"] {
   opacity: 0;
   transform: scaleY(0);
   transform-origin: bottom;
-  transition: opacity 0.5s ease, transform 0.5s var(--ease-out-expo);
+  transition: opacity var(--mo-long) var(--ease-arrive), transform var(--mo-long) var(--ease-out-expo);
 }
 
 .dc-char::after {
@@ -3021,7 +3102,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.1em;
   color: var(--gold);
   opacity: 0;
-  transition: opacity 0.5s ease 0.2s;
+  transition: opacity var(--mo-long) var(--ease-arrive) 0.2s;
 }
 
 /* 拆 = 扌 + 斥, two halves kerned together to read as one char */
@@ -3031,7 +3112,7 @@ img[data-media-fit="contain"] {
   font-style: normal;
   display: inline-block;
   position: relative;
-  transition: transform 0.7s var(--ease-out-expo);
+  transition: transform var(--mo-ambient) var(--ease-out-expo);
 }
 
 .dc-chai .chai-a { margin-right: -0.32em; }
@@ -3047,7 +3128,7 @@ img[data-media-fit="contain"] {
   width: 0;
   border-left: 1px dashed var(--accent2);
   opacity: 0;
-  transition: opacity 0.4s ease 0.25s;
+  transition: opacity var(--mo-long) var(--ease-arrive) 0.25s;
 }
 
 /* ---- exploded state (hover on desktop, .is-decomposed via JS on mobile) */
@@ -3120,7 +3201,7 @@ img[data-media-fit="contain"] {
   color: var(--accent2);
   letter-spacing: 0.08em;
   opacity: 0;
-  transition: opacity 1.2s ease;
+  transition: opacity var(--mo-ambient-x) var(--ease-arrive);
 }
 
 .compound-escape.visible { opacity: 0.9; }
@@ -3182,7 +3263,7 @@ img[data-media-fit="contain"] {
   flex-wrap: wrap;
   position: relative;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity var(--mo-long) var(--ease-arrive);
 }
 
 .terminal-input-row.active { opacity: 1; }
@@ -3236,7 +3317,8 @@ img[data-media-fit="contain"] {
   border: 1px solid var(--gold-dim);
   padding: 6px 12px;
   border-radius: 2px;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition: background var(--mo-micro) var(--ease-arrive),
+              border-color var(--mo-micro) var(--ease-arrive);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -3276,9 +3358,9 @@ img[data-media-fit="contain"] {
   opacity: 0.12;
   filter: blur(4px);
   transform: translate(var(--dx, 0px), var(--dy, 0px));
-  transition: transform 1.1s var(--ease-out-expo),
-              opacity 1.1s ease,
-              filter 1.1s ease;
+  transition: transform var(--mo-ambient) var(--ease-out-expo),
+              opacity var(--mo-ambient) var(--ease-arrive),
+              filter var(--mo-ambient) var(--ease-arrive);
   transition-delay: var(--dl, 0s);
   will-change: transform, filter, opacity;
 }
@@ -3297,7 +3379,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.08em;
   color: var(--white-30);
   opacity: 0;
-  transition: opacity 1.2s ease 0.8s;
+  transition: opacity var(--mo-ambient-x) var(--ease-arrive) 0.8s;
 }
 
 .me-whisper.noted .whisper-note { opacity: 0.7; }
@@ -3336,9 +3418,9 @@ img[data-media-fit="contain"] {
   color: var(--white);
   line-height: 1;
   opacity: 0.12;
-  transition: opacity 0.6s var(--ease-out-expo),
-              transform 0.6s var(--ease-out-expo),
-              color 0.6s ease;
+  transition: opacity var(--mo-long) var(--ease-out-expo),
+              transform var(--mo-long) var(--ease-out-expo),
+              color var(--mo-long) var(--ease-arrive);
 }
 
 .infp-letter:nth-child(1) > span { transform: translateY(0); }
@@ -3388,7 +3470,7 @@ img[data-media-fit="contain"] {
   color: var(--sc, var(--gold));
   opacity: 0;
   transform: translateY(4px);
-  transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo), color 0.4s ease;
+  transition: opacity var(--mo-long) var(--ease-arrive), transform var(--mo-long) var(--ease-out-expo), color var(--mo-long) var(--ease-arrive);
 }
 
 .infp-stage.active .infp-stage-word { opacity: 0.8; transform: translateY(0); }
@@ -3408,7 +3490,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.1em;
   color: var(--white-30);
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity var(--mo-ambient) var(--ease-arrive);
 }
 
 .infp-hint.visible { opacity: 0.7; }
@@ -3428,7 +3510,7 @@ img[data-media-fit="contain"] {
   width: 300px;
   height: 300px;
   display: block;
-  transition: transform 1s var(--ease-out-expo);
+  transition: transform var(--mo-ambient) var(--ease-out-expo);
 }
 
 .blackhole-link:hover { transform: scale(1.06); }
@@ -3445,7 +3527,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.14em;
   color: var(--white-30);
   opacity: 0;
-  transition: opacity 0.8s ease;
+  transition: opacity var(--mo-ambient) var(--ease-arrive);
 }
 
 .blackhole-caption.visible { opacity: 0.7; }
@@ -3460,14 +3542,14 @@ img[data-media-fit="contain"] {
   z-index: 99998;
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.7s var(--ease-in-out-circ);
+  transition: transform var(--mo-ambient) var(--ease-in-out-circ);
 }
 
 .blackhole-swallow.expand { transform: translate(-50%, -50%) scale(80); }
 
 /* page contents get pulled toward the hole during the swallow */
 .main.being-swallowed {
-  transition: transform 0.7s var(--ease-in-out-circ), opacity 0.7s ease;
+  transition: transform var(--mo-ambient) var(--ease-in-out-circ), opacity var(--mo-ambient) var(--ease-arrive);
   transform: scale(0.92) rotate(1.5deg);
   transform-origin: var(--bh-x, 50%) var(--bh-y, 80%);
   opacity: 0.4;
@@ -3644,7 +3726,7 @@ img[data-media-fit="contain"] {
     hue-rotate(-12deg)
     brightness(1)
     contrast(1.03);
-  transition: filter 0.8s var(--ease-out-expo);
+  transition: filter var(--mo-ambient) var(--ease-out-expo);
 }
 
 .home-portrait:hover .home-portrait-img {
@@ -3775,8 +3857,10 @@ img[data-media-fit="contain"] {
   text-decoration: none;
   position: relative;
   overflow: hidden;
-  transition: padding-left 0.6s var(--ease-out-expo),
-              background 0.5s var(--ease-out-expo);
+  /* hover 是桌面上刻意的慢揭示，保留；按压的 opacity 走 --mo-micro，
+     由文件末尾 PRESS 段接管 —— 按下去了要在 120ms 内看得见。 */
+  transition: padding-left var(--mo-long) var(--ease-out-expo),
+              background var(--mo-long) var(--ease-out-expo);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -3794,7 +3878,7 @@ img[data-media-fit="contain"] {
   background: var(--accent2);
   transform: scaleY(0);
   transform-origin: bottom;
-  transition: transform 0.5s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
 }
 
 .home-nav-item::after {
@@ -3804,14 +3888,13 @@ img[data-media-fit="contain"] {
   color: var(--accent2);
   opacity: 0;
   transform: translateX(-8px);
-  transition: opacity 0.4s var(--ease-out-expo),
-              transform 0.4s var(--ease-out-expo);
+  transition: opacity var(--mo-long) var(--ease-out-expo),
+              transform var(--mo-long) var(--ease-out-expo);
   position: absolute;
   right: 16px;
 }
 
-.home-nav-item:hover,
-.home-nav-item:active {
+.home-nav-item:hover {
   padding-left: 24px;
   background: rgba(212, 115, 74, 0.06);
 }
@@ -3846,7 +3929,7 @@ img[data-media-fit="contain"] {
   font-weight: 400;
   font-style: italic;
   color: var(--white);
-  transition: color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive);
 }
 
 .home-nav-item:hover .home-nav-name {
@@ -3859,7 +3942,7 @@ img[data-media-fit="contain"] {
   color: var(--white-30);
   font-weight: 300;
   margin-right: 32px;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--mo-short) var(--ease-arrive);
 }
 
 .home-nav-contact {
@@ -3872,7 +3955,7 @@ img[data-media-fit="contain"] {
   font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--white-30);
-  transition: color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive);
 }
 
 .home-nav-contact a:hover {
@@ -3905,7 +3988,8 @@ img[data-media-fit="contain"] {
     opacity: 1;
     transform: translateX(0);
     color: var(--white-30);
-    transition: color 0.2s ease, transform 0.2s ease;
+    transition: color var(--mo-micro) var(--ease-arrive),
+                transform var(--mo-micro) var(--ease-arrive);
   }
 
   .home-nav-item:active::after {
@@ -3947,12 +4031,11 @@ img[data-media-fit="contain"] {
 
   .home-nav-item {
     padding: 24px 24px;
-    transition: transform 0.6s var(--ease-out-expo),
-                background 0.5s var(--ease-out-expo);
+    transition: transform var(--mo-long) var(--ease-out-expo),
+                background var(--mo-long) var(--ease-out-expo);
   }
 
-  .home-nav-item:hover,
-  .home-nav-item:active {
+  .home-nav-item:hover {
     padding-left: 24px;
     transform: translateX(8px);
   }
@@ -4265,7 +4348,7 @@ img[data-media-fit="contain"] {
   height: auto;
   aspect-ratio: auto;
   object-fit: contain;
-  transition: transform 0.6s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
 }
 
 .pe-gallery-item:hover img {
@@ -4322,7 +4405,7 @@ img[data-media-fit="contain"] {
   border-radius: 4px;
   border: 1px solid var(--white-10);
   box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-  transition: transform 0.6s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
 }
 .pe-book-covers img:hover {
   transform: translateY(-4px);
@@ -4479,7 +4562,7 @@ img[data-media-fit="contain"] {
   letter-spacing: -0.05em;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 1.5s ease 0.1s;
+  transition: opacity 1.5s var(--ease-arrive) 0.1s;
   z-index: 0;
 }
 
@@ -4516,8 +4599,8 @@ img[data-media-fit="contain"] {
   margin-bottom: 20px;
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s var(--ease-out-expo) 0.05s,
-              transform 0.8s var(--ease-out-expo) 0.05s;
+  transition: opacity var(--mo-ambient) var(--ease-out-expo) 0.05s,
+              transform var(--mo-ambient) var(--ease-out-expo) 0.05s;
 }
 
 /* Title — large cinematic type */
@@ -4531,8 +4614,8 @@ img[data-media-fit="contain"] {
   color: var(--white);
   opacity: 0;
   transform: translateY(40px);
-  transition: opacity 1s var(--ease-out-expo) 0.15s,
-              transform 1s var(--ease-out-expo) 0.15s;
+  transition: opacity var(--mo-ambient) var(--ease-out-expo) 0.15s,
+              transform var(--mo-ambient) var(--ease-out-expo) 0.15s;
 }
 
 .statement-title em {
@@ -4549,8 +4632,8 @@ img[data-media-fit="contain"] {
   opacity: 0;
   transform: scaleX(0);
   transform-origin: left;
-  transition: opacity 0.8s var(--ease-out-expo) 0.3s,
-              transform 0.8s var(--ease-out-expo) 0.3s;
+  transition: opacity var(--mo-ambient) var(--ease-out-expo) 0.3s,
+              transform var(--mo-ambient) var(--ease-out-expo) 0.3s;
 }
 
 /* Body */
@@ -4561,8 +4644,8 @@ img[data-media-fit="contain"] {
   max-width: 580px;
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s var(--ease-out-expo) 0.4s,
-              transform 0.8s var(--ease-out-expo) 0.4s;
+  transition: opacity var(--mo-ambient) var(--ease-out-expo) 0.4s,
+              transform var(--mo-ambient) var(--ease-out-expo) 0.4s;
 }
 
 /* Revealed — staggered entrance */
@@ -4694,13 +4777,13 @@ img[data-media-fit="contain"] {
     font-size: 14px;
     letter-spacing: 0.08em;
     color: var(--white);
-    transition: color 0.3s ease;
+    transition: color var(--mo-short) var(--ease-arrive);
 }
 
 .footer-next-target::after {
     content: ' →';
     display: inline-block;
-    transition: transform 0.3s var(--ease-out-expo);
+    transition: transform var(--mo-short) var(--ease-out-expo);
 }
 
 .footer-next:hover .footer-next-target,
@@ -4731,7 +4814,7 @@ img[data-media-fit="contain"] {
     opacity: 0.55;
     filter: blur(1.2px);
     animation: ghostDrift 6s ease-in-out infinite;
-    transition: opacity 0.6s ease, filter 0.6s ease, color 0.3s ease;
+    transition: opacity var(--mo-long) var(--ease-arrive), filter var(--mo-long) var(--ease-arrive), color var(--mo-short) var(--ease-arrive);
     will-change: opacity, filter, transform;
 }
 
@@ -4810,7 +4893,7 @@ img[data-media-fit="contain"] {
   height: 1px;
   background: var(--white-10);
   transform: scaleX(0);
-  transition: transform 0.9s var(--ease-out-expo) 0.25s;
+  transition: transform var(--mo-ambient) var(--ease-out-expo) 0.25s;
 }
 
 /* Lines grow outward from the dot: left line anchors right, right line anchors left */
@@ -4826,7 +4909,7 @@ img[data-media-fit="contain"] {
   box-shadow: 0 0 8px var(--gold), 0 0 20px var(--gold-glow);
   opacity: 0;
   transform: scale(0.4);
-  transition: opacity 0.4s ease, transform 0.4s var(--ease-out-expo);
+  transition: opacity var(--mo-long) var(--ease-arrive), transform var(--mo-long) var(--ease-out-expo);
 }
 
 .work-status-text {
@@ -4837,7 +4920,7 @@ img[data-media-fit="contain"] {
   letter-spacing: 0.04em;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.8s ease 0.6s;
+  transition: opacity var(--mo-ambient) var(--ease-arrive) 0.6s;
 }
 
 .work-status-text em {
@@ -4931,7 +5014,7 @@ img[data-media-fit="contain"] {
 
 .footer-contact a {
   color: var(--white-60);
-  transition: color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive);
 }
 
 .footer-contact a:hover { color: var(--gold); }
@@ -4939,7 +5022,7 @@ img[data-media-fit="contain"] {
 .wechat-trigger {
   color: var(--white-60);
   cursor: pointer;
-  transition: color 0.3s ease;
+  transition: color var(--mo-short) var(--ease-arrive);
 }
 
 .wechat-trigger:hover { color: var(--gold); }
@@ -4963,7 +5046,7 @@ img[data-media-fit="contain"] {
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--white-90);
-  transition: color 0.4s ease;
+  transition: color var(--mo-long) var(--ease-arrive);
 }
 
 .lightbox-card.chat-on .chat-mode-text { color: var(--gold); }
@@ -4975,7 +5058,7 @@ img[data-media-fit="contain"] {
   border-radius: 999px;
   border: 1px solid var(--white-10);
   background: var(--white-10);
-  transition: background 0.55s ease, box-shadow 0.55s ease;
+  transition: background var(--mo-long) var(--ease-arrive), box-shadow var(--mo-long) var(--ease-arrive);
 }
 
 .chat-mode-knob {
@@ -4987,7 +5070,7 @@ img[data-media-fit="contain"] {
   border-radius: 50%;
   background: var(--white);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-  transition: transform 0.55s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
 }
 
 .lightbox-card.chat-on .chat-mode-toggle {
@@ -5006,10 +5089,10 @@ img[data-media-fit="contain"] {
   overflow: hidden;
   margin-top: 0;
   transform: translateY(10px);
-  transition: max-height 0.5s var(--ease-out-expo),
-              opacity 0.35s ease,
-              margin-top 0.5s var(--ease-out-expo),
-              transform 0.5s var(--ease-out-expo);
+  transition: max-height var(--mo-long) var(--ease-out-expo),
+              opacity var(--mo-long) var(--ease-arrive),
+              margin-top var(--mo-long) var(--ease-out-expo),
+              transform var(--mo-long) var(--ease-out-expo);
 }
 
 .lightbox-card.chat-on .lightbox-qr {
@@ -5039,8 +5122,8 @@ img[data-media-fit="contain"] {
   align-items: center;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.5s var(--ease-out-expo),
-              visibility 0.5s;
+  transition: opacity var(--mo-long) var(--ease-out-expo),
+              visibility var(--mo-long);
   cursor: pointer;
 }
 
@@ -5056,7 +5139,7 @@ img[data-media-fit="contain"] {
   padding: clamp(16px, 3vw, 32px);
   width: min(420px, 90vw);
   transform: scale(0.92) translateY(20px);
-  transition: transform 0.5s var(--ease-out-expo);
+  transition: transform var(--mo-long) var(--ease-out-expo);
 }
 
 .lightbox-overlay.open .lightbox-card {
@@ -5113,7 +5196,7 @@ img[data-media-fit="contain"] {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: border-color 0.3s ease, color 0.3s ease;
+  transition: border-color var(--mo-short) var(--ease-arrive), color var(--mo-short) var(--ease-arrive);
 }
 
 .lightbox-close:hover {
@@ -5125,7 +5208,7 @@ img[data-media-fit="contain"] {
    MAGNETIC HOVER EFFECT
 ========================================================= */
 .magnetic {
-  transition: transform 0.3s var(--ease-out-expo);
+  transition: transform var(--mo-short) var(--ease-out-expo);
 }
 
 /* =========================================================
@@ -5417,11 +5500,6 @@ img[data-media-fit="contain"] {
   .me-card-decompose:not(.is-decomposed):hover .dc-chai .chai-b::before {
     opacity: 0;
   }
-  a:active,
-  button:active,
-  [role="button"]:active {
-    opacity: 0.78;
-  }
 }
 
 /* Desktop gallery images are absolutely centred, so the reduced-motion
@@ -5484,9 +5562,172 @@ img[data-media-fit="contain"] {
 }
 
 /* =========================================================
+   PRESS — 按压反馈（MOTION 段的下半部分）
+
+   放在文件末尾是有意的：它要压过前面各组件自己写的 :active，
+   才能保证「任何可点区域按下 120ms 内有视觉响应」这一条真的成立。
+   紧接其后的 REDUCED MOTION 段再压过它。
+
+   选哪一档**看元素的尺寸与形状，不看它是什么组件**：
+     press-scale    有明确边界 —— 卡片、chip、按钮、头像
+     press-dim      整宽 —— 列表行、满宽条、纯文字链接
+     press-icon     小图标钮（20–24px）
+     press-primary  一屏唯一的主行动
+
+   为什么整宽的行不能缩放：满宽的行缩到 0.97 时两侧各露出一条缝，
+   读起来像布局出错，而不像被按下去了。
+   为什么小图标不能用 0.97：20px 上的 3% 根本看不见。
+========================================================= */
+
+/* ---- 兜底：任何可点元素按下都有响应 --------------------------------
+   原来这三条写在 @media (hover: none) 里，桌面端指针设备完全拿不到
+   按压反馈。挪出来全设备生效。
+   刻意不声明 transition：按下即刻变化、松开即刻复原，比 120ms 更快，
+   而且不会和各组件自己的 transition（color / background / transform）
+   打架 —— 那些属性各归各管。 */
+a:active,
+button:active,
+[role="button"]:active,
+summary:active {
+  opacity: var(--press-dim);
+}
+
+/* ---- 四个可复用的类：新组件直接挂类名 ------------------------------ */
+.press-scale,
+.press-dim,
+.press-icon,
+.press-primary {
+  transition: transform var(--mo-micro) var(--ease-arrive),
+              opacity   var(--mo-micro) var(--ease-arrive);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;   /* 去掉移动端 300ms 点击延迟 */
+}
+
+.press-scale:active   { transform: scale(var(--press-scale)); opacity: 1; }
+.press-icon:active    { transform: scale(var(--press-icon));  opacity: 1; }
+.press-dim:active     { opacity: var(--press-dim); }
+.press-primary:active { transform: scale(var(--press-scale)); opacity: 0.88; }
+
+/* 键盘可达性：按压态只在指针下成立，键盘用户拿到的是可见的焦点环 */
+.press-scale:focus-visible,
+.press-dim:focus-visible,
+.press-icon:focus-visible,
+.press-primary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ---- 既有组件的映射 --------------------------------------------------
+   用普通逗号选择器列表，不用 :is() —— 老 X5 内核不认 :is() 时会让
+   整条选择器列表失效，那是「一个不支持导致全都没有」的失败方式。
+   这样映射的好处：零 HTML 改动、零 mc 重建，JS 动态生成的元素
+   （灯箱、作品卡、mc 世界图）也自动覆盖，因为它们用的就是这些类名。 */
+
+/* press-scale —— 有明确边界的东西 */
+.timeline-cta,
+.terminal-chip,
+.blackhole-link,
+.ow-panel-link,
+.ow-opener-copy,
+.infp-letter,
+.wechat-trigger,
+.chat-mode,
+.pt-open {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* 拨盘内部的元素只拿 tap-highlight，不能拿 touch-action。
+   它们在 #odDial 里，而拨盘靠 touch-action: none 才能接管纵向拖拽做旋转；
+   在子元素上写 manipulation 会让浏览器重新把「从球上起手的拖拽」当成滚动，
+   拨盘就转不动了。 */
+.od-orb,
+.od-center,
+.ow-orb,
+.ow-center {
+  -webkit-tap-highlight-color: transparent;
+}
+.timeline-cta:active,
+.terminal-chip:active,
+.blackhole-link:active,
+.ow-panel-link:active,
+.ow-opener-copy:active,
+.infp-letter:active,
+.wechat-trigger:active,
+.chat-mode:active,
+.pt-open:active {
+  transform: scale(var(--press-scale));
+  transition: transform var(--mo-micro) var(--ease-arrive);
+}
+
+/* 轮盘 / 拨盘的中心块自带居中用的 transform，按压的 scale 必须接在它后面 ——
+   直接写 transform: scale() 会把定位一起抹掉，元素在按下那一刻就跳到别处。
+   至于 .ow-orb / .od-orb，干脆不给缩放：轮盘和拨盘各自有选中态的放大与
+   实时高亮，再叠一层按压缩放只会互相打架，读不出「按下去了」。 */
+.ow-center:active,
+.od-center:active {
+  transform: translate(-50%, -50%) scale(var(--press-scale));
+  transition: transform var(--mo-micro) var(--ease-arrive);
+}
+
+/* press-icon —— 小图标钮。20px 上 0.97 看不见，要 0.92 */
+.hamburger,
+.lightbox-close,
+.pt-close,
+.od-close,
+.rings-stepper button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.hamburger:active,
+.lightbox-close:active,
+.pt-close:active,
+.od-close:active,
+.rings-stepper button:active {
+  transform: scale(var(--press-icon));
+  transition: transform var(--mo-micro) var(--ease-arrive);
+}
+
+/* press-dim —— 整宽的行。缩放会在两侧露缝，只能压暗 */
+.home-nav-item,
+.mobile-link,
+.footer-next,
+.nav-link,
+.nav-brand {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.home-nav-item:active,
+.mobile-link:active,
+.footer-next:active,
+.nav-link:active,
+.nav-brand:active {
+  opacity: var(--press-dim);
+  transition: opacity var(--mo-micro) var(--ease-arrive);
+}
+
+/* press-primary —— 一屏唯一的主行动 */
+.hero-cta {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.hero-cta:active {
+  transform: scale(var(--press-scale));
+  opacity: 0.88;
+  transition: transform var(--mo-micro) var(--ease-arrive),
+              opacity   var(--mo-micro) var(--ease-arrive);
+}
+
+/* =========================================================
    REDUCED MOTION
 ========================================================= */
 @media (prefers-reduced-motion: reduce) {
+  /* 降级策略：去掉位移与缩放，保留压暗 —— 压暗不涉及运动，而它承载着
+     「你点到了」这条信息，全关掉会让界面退化成毫无反馈的瞬间跳变。 */
+  :root {
+    --press-scale: 1;
+    --press-icon: 1;
+  }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;

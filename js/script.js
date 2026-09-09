@@ -881,29 +881,24 @@
   }
 
   /* -------------------------------------------------------
-     10. PAGE TRANSITION
-  ------------------------------------------------------- */
-  function initPageTransition() {
-    $$('a[href]').forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        var href = this.getAttribute('href');
-        // 页内锚点（#s3 这类）不会离开当前页面，淡出再赋值 location.href 只会
-        // 把 #main 永久停在 opacity:0 —— 整页变黑且回不来。一律放行。
-        if (!href || href.charAt(0) === '#' || href.startsWith('http') || href.startsWith('mailto:')) return;
-        if (this.hasAttribute('data-fullscreen-link')) return;
-        if (this.hasAttribute('data-blackhole')) return;   // black hole runs its own swallow transition
+     10. PAGE TRANSITION —— 已删除，这里留说明
 
-        e.preventDefault();
-        var main = $('#main');
-        if (main) {
-          main.style.opacity = '0';
-          main.style.transform = 'translateY(-15px)';
-          main.style.transition = 'opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
-        }
-        setTimeout(function () { window.location.href = href; }, 350);
-      });
-    });
-  }
+     曾经这里有个 initPageTransition()：拦下每个站内 <a> 的点击、
+     preventDefault、给 #main 写一段 350ms 的淡出内联样式，再
+     setTimeout(350) 之后才赋值 location.href。
+
+     问题不在观感，在那 350 毫秒里**浏览器根本还没开始下载新页面**。
+     加上进场那边的 0.2s 延迟 + 0.8s 淡入，一次站内跳转自己给自己
+     加了约 1.35 秒，其中 350ms 是实打实的延迟而不是「感觉慢」。
+
+     删掉之后离场没有动画了。这个缺口由按压反馈补：css/style.css 的
+     MOTION 段让任何可点元素在 120ms 内给出视觉确认，比 350ms 的淡出
+     更早、也更准确地回答了「我点到了吗」。
+
+     两条自定义离场保留，它们是刻意的叙事效果、各有独立处理器：
+       [data-fullscreen-link] → initFullscreenUniverseLink()
+       [data-blackhole]       → initBlackhole()
+  ------------------------------------------------------- */
 
   /* -------------------------------------------------------
      11. FULLSCREEN UNIVERSE ENTRY
@@ -961,6 +956,14 @@
      12. WECHAT LIGHTBOX
   ------------------------------------------------------- */
   function initLightbox() {
+    /* 没有触发器就不建这个对话框。以前是无条件建的，于是首页和 39 个 mc
+       页面都会凭空多出一个谁也打不开的 dialog，并且真的去下载那张二维码。
+       mc 页面上更糟：src 是文档相对路径，在 /mc/<域>/ 下解析成
+       /mc/<域>/Wechat Photo.jpg —— 404，还会被 compat.js 的图片恢复重试一次，
+       每页两条失败请求。 */
+    var triggers = $$('.wechat-trigger');
+    if (!triggers.length) return;
+
     var overlay = document.createElement('div');
     overlay.className = 'lightbox-overlay';
     overlay.setAttribute('role', 'dialog');
@@ -975,7 +978,7 @@
           '<span class="chat-mode-toggle" aria-hidden="true"><span class="chat-mode-knob"></span></span>' +
         '</div>' +
         '<div class="lightbox-qr">' +
-          '<img src="Wechat Photo.jpg" alt="WeChat QR Code" width="820" height="1208" decoding="async" data-media-fit="contain">' +
+          '<img src="/Wechat Photo.jpg" alt="WeChat QR Code" width="820" height="1208" decoding="async" data-media-fit="contain">' +
           '<div class="lightbox-hint">Click anywhere to close</div>' +
         '</div>' +
       '</div>';
@@ -1019,7 +1022,7 @@
     }
 
     // Click on WeChat trigger
-    $$('.wechat-trigger').forEach(function (el) {
+    triggers.forEach(function (el) {
       el.addEventListener('click', openLightbox);
       el.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') openLightbox(e);
@@ -3404,7 +3407,7 @@
     if (reduce) {
       drawStatic();
       if (caption) caption.classList.add('visible');
-      return;   // click falls through to initPageTransition's normal fade
+      return;   // click falls through to a plain navigation
     }
 
     var rafId = null;
@@ -3484,7 +3487,7 @@
       initCursor, initKineticText, initReveal, initMagnetic,
       initProgress, initHamburger, initMenuHint,
       initActiveNav, initOfferWheel, initOfferDial, initOpenerCopy,
-      initPassionWheel, initTabs, initPageTransition,
+      initPassionWheel, initTabs,
       initFullscreenUniverseLink, initLightbox, initProjectLightbox,
       initProductTheater, initGrowthRings, initWorkStatus,
       initBecomingStatus, initMarquee, initTypewriter,
