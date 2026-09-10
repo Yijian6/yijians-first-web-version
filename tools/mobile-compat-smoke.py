@@ -34,6 +34,23 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *_args):
         pass
 
+    def translate_path(self, path):
+        """把干净网址映射回磁盘文件，模仿 Cloudflare Pages 的行为。
+
+        站内链接写的是 /work、/mc/csapp/，磁盘上是 work.html、
+        mc/csapp/index.html。不做这层映射，本地起服务点链接全是 404，
+        而线上是好的 —— 那种「本地坏线上好」最容易让人误判。
+        只在原路径不存在时才回退，不会遮住真正缺失的文件。
+        """
+        full = super().translate_path(path)
+        if os.path.isdir(full):
+            return full
+        if not os.path.exists(full) and not os.path.splitext(full)[1]:
+            candidate = full + ".html"
+            if os.path.isfile(candidate):
+                return candidate
+        return full
+
 
 class QuietServer(http.server.ThreadingHTTPServer):
     def handle_error(self, _request, _client_address):

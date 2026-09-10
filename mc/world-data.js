@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-09-08",
+  "builtAt": "2026-09-10",
   "domains": [
     {
       "name": "写在前面",
@@ -190,31 +190,31 @@ window.MC_WORLD = {
       "date": "2026-09-08",
       "title": "类型一、随机变量的数字特征计算",
       "domainName": "概率论与数理统计",
-      "url": "mc/probability-theory/probability-theory.html"
+      "url": "mc/probability-theory/probability-theory"
     },
     {
       "date": "2026-09-08",
       "title": "未命名",
       "domainName": "观点随机漫步",
-      "url": "mc/randomness/2026-09-08.html"
+      "url": "mc/randomness/2026-09-08"
     },
     {
       "date": "2026-08-19",
       "title": "Malloc实验完整代码",
       "domainName": "计算机系统基础II",
-      "url": "mc/csapp/malloc-answer.html"
+      "url": "mc/csapp/malloc-answer"
     },
     {
       "date": "2026-08-17",
       "title": "一些他人的观点",
       "domainName": "AI",
-      "url": "mc/arti-intelligence/ai-view.html"
+      "url": "mc/arti-intelligence/ai-view"
     },
     {
       "date": "2026-08-06",
       "title": "Shell实验完整代码",
       "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-answer.html"
+      "url": "mc/csapp/shell-answer"
     }
   ]
 };

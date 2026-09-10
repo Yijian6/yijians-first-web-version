@@ -935,30 +935,30 @@
     <div class="progress-track"><div class="progress-bar"></div></div>
 
     <nav class="navbar">
-        <a href="../../index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <a href="../../" class="nav-brand">觉 <span>|</span> Yijian</a>
         <div class="nav-links">
-            <a href="../../work.html" class="nav-link" data-index="01">Work</a>
-            <a href="../../me.html" class="nav-link" data-index="02">Me</a>
-            <a href="../../passion.html" class="nav-link" data-index="03">Passion</a>
-            <a href="../../prediction.html" class="nav-link" data-index="04">Becoming</a>
-            <a href="../../offer.html" class="nav-link" data-index="05">Offer</a>
+            <a href="../../work" class="nav-link" data-index="01">Work</a>
+            <a href="../../me" class="nav-link" data-index="02">Me</a>
+            <a href="../../passion" class="nav-link" data-index="03">Passion</a>
+            <a href="../../prediction" class="nav-link" data-index="04">Becoming</a>
+            <a href="../../offer" class="nav-link" data-index="05">Offer</a>
         </div>
         <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
     </nav>
 
     <div class="mobile-menu">
-        <a href="../../index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
-        <a href="../../work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
-        <a href="../../me.html" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
-        <a href="../../passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
-        <a href="../../prediction.html" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
-        <a href="../../offer.html" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+        <a href="../../" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="../../work" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="../../me" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="../../passion" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="../../prediction" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="../../offer" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
     </div>
 
     <div id="main" class="main">
         <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-over-1">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
+                <a href="./" class="mca-crumb">← 回到 计算机系统基础II</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">Shell实验破解-1</h1>
@@ -1010,7 +1010,7 @@ tracefile有这样四类行：
 </code></pre>
 <p>我们大概率要去改动tsh.c，直接打开看看吧——我天这是个好大的文件！<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260801210415.png" alt="Pasted image 20260801210415" width="132" height="137" loading="lazy" decoding="async" data-media-fit="natural"><br>510行。。。。看完不如杀了我吧。。<br>依旧，傻子才看完呢，我直接搜索，先看注释！😁搜啥？EOF呗。<br>0秒找到，不解释。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260801210637.png" alt="Pasted image 20260801210637" width="1246" height="663" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(481px, 100%)"></p>
 <blockquote>
-<p>补充两个知识点：<a href="../notes/c.html">常用C标准库函数分类</a><code>feof()</code>、<code>fflush()</code>和<code>exit()</code>的作用</p>
+<p>补充两个知识点：<a href="../notes/c">常用C标准库函数分类</a><code>feof()</code>、<code>fflush()</code>和<code>exit()</code>的作用</p>
 </blockquote>
 <p>这你一看，<code>main()</code>函数的“读取命令行”的代码里赫然写着一个判断语句：如果输入(stdin)是EOF，立刻刷新输出(stdout)，然后退出(exit(0))，这不就是我想要实现的吗？绝了，trace01原来是白给的。</p>
 <p>然后我们直接make test01(还记得这个指令吗？相当于执行了很长一串那个，把trace01.txt喂给sdriver.pl，运行我们的tsh，然后呈现输出。)<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260801211644.png" alt="Pasted image 20260801211644" width="1174" height="512" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(485px, 100%)"><br>再make rtest01比对两次输出的结果(如上)<br>一毛一样。可见就是白给。</p>
@@ -1026,9 +1026,9 @@ tracefile有这样四类行：
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="shell-analyse-goal.html" class="mca-stair">↓ 7F Shell实验目标、背景、工具分析</a>
-            <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <a href="shell-over-2.html" class="mca-stair mca-stair--next">9F Shell实验破解-2 ↑</a>
+            <a href="shell-analyse-goal" class="mca-stair">↓ 7F Shell实验目标、背景、工具分析</a>
+            <a href="./" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
+            <a href="shell-over-2" class="mca-stair mca-stair--next">9F Shell实验破解-2 ↑</a>
         </nav>
 
         <footer class="footer">

@@ -935,30 +935,30 @@
     <div class="progress-track"><div class="progress-bar"></div></div>
 
     <nav class="navbar">
-        <a href="../../index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <a href="../../" class="nav-brand">觉 <span>|</span> Yijian</a>
         <div class="nav-links">
-            <a href="../../work.html" class="nav-link" data-index="01">Work</a>
-            <a href="../../me.html" class="nav-link" data-index="02">Me</a>
-            <a href="../../passion.html" class="nav-link" data-index="03">Passion</a>
-            <a href="../../prediction.html" class="nav-link" data-index="04">Becoming</a>
-            <a href="../../offer.html" class="nav-link" data-index="05">Offer</a>
+            <a href="../../work" class="nav-link" data-index="01">Work</a>
+            <a href="../../me" class="nav-link" data-index="02">Me</a>
+            <a href="../../passion" class="nav-link" data-index="03">Passion</a>
+            <a href="../../prediction" class="nav-link" data-index="04">Becoming</a>
+            <a href="../../offer" class="nav-link" data-index="05">Offer</a>
         </div>
         <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
     </nav>
 
     <div class="mobile-menu">
-        <a href="../../index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
-        <a href="../../work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
-        <a href="../../me.html" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
-        <a href="../../passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
-        <a href="../../prediction.html" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
-        <a href="../../offer.html" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+        <a href="../../" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="../../work" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="../../me" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="../../passion" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="../../prediction" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="../../offer" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
     </div>
 
     <div id="main" class="main">
         <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-concept">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
+                <a href="./" class="mca-crumb">← 回到 计算机系统基础II</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">Shell实验：概念层次理解</h1>
@@ -966,7 +966,7 @@
             <div class="mca-rule"></div>
             <div class="mca-body">
 <blockquote>
-<p>Shell是解析命令、运行相关程序的工具程序，下面我们按照实验的题目，来攻克、完成题目要求我们实现的tsh(Tiny Shell)<br>这是实验的Readme文件：<a href="../notes/shell-readme.html">Shell实验</a><br>你也可以通过下载WSL之后，用VScode 安装WSL插件，打开Terminal运行下面的代码，获取全部的文件，自己运行、试着完成这个实验</p>
+<p>Shell是解析命令、运行相关程序的工具程序，下面我们按照实验的题目，来攻克、完成题目要求我们实现的tsh(Tiny Shell)<br>这是实验的Readme文件：<a href="../notes/shell-readme">Shell实验</a><br>你也可以通过下载WSL之后，用VScode 安装WSL插件，打开Terminal运行下面的代码，获取全部的文件，自己运行、试着完成这个实验</p>
 </blockquote>
 <pre><code class="language-shell">git clone https://gitee.com/tjuics/shelllab.git
 </code></pre>
@@ -1114,15 +1114,15 @@
 <p>当一个进程收到了来自操作系统的信号，有两种处理方式：<br>1️⃣默认处理：收到SIGINT就中断结束，收到SIGTSTP就暂停，……<br>2️⃣用户自定义处理(非默认处理)：执行用户自定义的<strong>信号处理函数</strong>(Signal_handler)。</p>
 <h3 id="s12">用户自定义信号处理 与 信号处理函数(Singnal_handler)</h3>
 <p><code>kill(pid,sig)</code>是我们的程序中，可以调用操作系统发送信号的函数。<br>而<code>singal(sig,处理方式)</code>，是我们程序中，可以自定义一个进程收到某个信号后的处理方式的函数。他们都来自<code>&lt;signal.h&gt;</code><br>这里的处理方式，可以是忽略<code>SIG_IGN</code>，也可以是一个<strong>信号处理函数</strong>(singnal_handler)，告诉进程，在收到sig信号后，去执行相应的函数。</p>
-<p>暂时有点抽象，不理解没关系。接下来，我们会在<a href="shell-code.html">Shell实验代码层次的理解</a>深入讲解，在C代码中，我们如何调用这两个函数，以及他们的输入、处理、输出是什么。</p>
+<p>暂时有点抽象，不理解没关系。接下来，我们会在<a href="shell-code">Shell实验代码层次的理解</a>深入讲解，在C代码中，我们如何调用这两个函数，以及他们的输入、处理、输出是什么。</p>
 
             </div>
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="before-shelllab.html" class="mca-stair">↓ 4F Shell实验引入</a>
-            <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <a href="shell-code.html" class="mca-stair mca-stair--next">6F Shell实验代码层次的理解 ↑</a>
+            <a href="before-shelllab" class="mca-stair">↓ 4F Shell实验引入</a>
+            <a href="./" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
+            <a href="shell-code" class="mca-stair mca-stair--next">6F Shell实验代码层次的理解 ↑</a>
         </nav>
 
         <footer class="footer">

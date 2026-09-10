@@ -226,7 +226,7 @@ function resolveWikiLink(targetRaw, label) {
       (e) => e.title === base || e.slug === base || e.basename === base || e.nameSlug === base
     );
     if (hit) {
-      let href = hit.domainSlug === currentSlug ? `${hit.slug}.html` : `../${hit.domainSlug}/${hit.slug}.html`;
+      let href = hit.domainSlug === currentSlug ? `${hit.slug}` : `../${hit.domainSlug}/${hit.slug}`;
       if (section) {
         const anchor = hit.headings.get(section);
         if (anchor) href += `#${anchor}`;
@@ -241,7 +241,7 @@ function resolveWikiLink(targetRaw, label) {
   // 匹配领域名 → 领域立面页
   const domainHit = ctx.domains.find((d) => d.name === base || d.nameEn === base);
   if (domainHit) {
-    const href = domainHit.slug === currentSlug ? 'index.html' : `../${domainHit.slug}/index.html`;
+    const href = domainHit.slug === currentSlug ? './' : `../${domainHit.slug}/`;
     return `<a href="${esc(href)}">${text}</a>`;
   }
   // 和 Obsidian 一样：指不到东西的内链就是一段普通文字，不该挡住发布。
@@ -567,14 +567,14 @@ function buildArticlePage(domain, article, floorNum, articleTpl, domains, linkIn
   const stairs = [];
   if (floorNum > 1) {
     const prev = domain.articles[floorNum - 2];
-    stairs.push(`            <a href="${esc(prev.slug)}.html" class="mca-stair">↓ ${floorNum - 1}F ${esc(prev.title)}</a>`);
+    stairs.push(`            <a href="${esc(prev.slug)}" class="mca-stair">↓ ${floorNum - 1}F ${esc(prev.title)}</a>`);
   } else {
     stairs.push('            <span class="mca-stair mca-stair--empty"></span>');
   }
-  stairs.push(`            <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>`);
+  stairs.push(`            <a href="./" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>`);
   if (floorNum < total) {
     const next = domain.articles[floorNum];
-    stairs.push(`            <a href="${esc(next.slug)}.html" class="mca-stair mca-stair--next">${floorNum + 1}F ${esc(next.title)} ↑</a>`);
+    stairs.push(`            <a href="${esc(next.slug)}" class="mca-stair mca-stair--next">${floorNum + 1}F ${esc(next.title)} ↑</a>`);
   } else {
     stairs.push('            <span class="mca-stair mca-stair--empty"></span>');
   }
@@ -585,7 +585,7 @@ function buildArticlePage(domain, article, floorNum, articleTpl, domains, linkIn
     TITLE_ESC: esc(article.title),
     SUMMARY_ESC: esc(article.summary || `${domain.name} · ${article.title}`),
     SOURCE_URL: esc(`${SITE_ORIGIN}/mc/${domain.slug}/${article.slug}`),
-    CRUMB_HREF: 'index.html',
+    CRUMB_HREF: './',
     CRUMB_TEXT: esc(`← 回到 ${domain.name}`),
     META: `${floorNum}F · ${article.date} · 约 ${readMinutes(bodyHtml)} 分钟`,
     BODY: bodyHtml,
@@ -611,7 +611,7 @@ function buildDomainPage(domain, domainTpl, stale) {
     });
   for (let i = total - 1; i >= 0; i--) {
     const a = domain.articles[i];
-    rows.push(`                <a class="mcd-floor" href="${esc(a.slug)}.html"><span class="mcd-floor-num">${i + 1}F</span><span class="mcd-floor-title">${esc(a.title)}</span><span class="mcd-floor-date">${a.date}</span></a>`);
+    rows.push(`                <a class="mcd-floor" href="${esc(a.slug)}"><span class="mcd-floor-num">${i + 1}F</span><span class="mcd-floor-title">${esc(a.title)}</span><span class="mcd-floor-date">${a.date}</span></a>`);
   }
 
   return fill(domainTpl, {
@@ -681,11 +681,11 @@ function buildNotePage(note, articleTpl, domains, linkIndex) {
     TITLE_ESC: esc(note.title),
     SUMMARY_ESC: esc(note.summary || note.title),
     SOURCE_URL: esc(`${SITE_ORIGIN}/mc/${NOTES_SLUG}/${note.slug}`),
-    CRUMB_HREF: '../../minecraft.html',
+    CRUMB_HREF: '../../minecraft',
     CRUMB_TEXT: '← 回到世界',
     META: ['附页', note.date, `约 ${readMinutes(bodyHtml)} 分钟`].filter(Boolean).join(' · '),
     BODY: bodyHtml,
-    STAIRS: '            <a href="../../minecraft.html" class="mca-stair mca-stair--home">▤ 回到世界</a>',
+    STAIRS: '            <a href="../../minecraft" class="mca-stair mca-stair--home">▤ 回到世界</a>',
   });
 }
 
@@ -763,7 +763,7 @@ function main() {
         date: article.date,
         title: article.title,
         domainName: domain.name,
-        url: `mc/${domain.slug}/${article.slug}.html`,
+        url: `mc/${domain.slug}/${article.slug}`,
       });
     });
 

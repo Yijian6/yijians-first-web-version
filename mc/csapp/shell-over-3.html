@@ -935,30 +935,30 @@
     <div class="progress-track"><div class="progress-bar"></div></div>
 
     <nav class="navbar">
-        <a href="../../index.html" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <a href="../../" class="nav-brand">觉 <span>|</span> Yijian</a>
         <div class="nav-links">
-            <a href="../../work.html" class="nav-link" data-index="01">Work</a>
-            <a href="../../me.html" class="nav-link" data-index="02">Me</a>
-            <a href="../../passion.html" class="nav-link" data-index="03">Passion</a>
-            <a href="../../prediction.html" class="nav-link" data-index="04">Becoming</a>
-            <a href="../../offer.html" class="nav-link" data-index="05">Offer</a>
+            <a href="../../work" class="nav-link" data-index="01">Work</a>
+            <a href="../../me" class="nav-link" data-index="02">Me</a>
+            <a href="../../passion" class="nav-link" data-index="03">Passion</a>
+            <a href="../../prediction" class="nav-link" data-index="04">Becoming</a>
+            <a href="../../offer" class="nav-link" data-index="05">Offer</a>
         </div>
         <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
     </nav>
 
     <div class="mobile-menu">
-        <a href="../../index.html" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
-        <a href="../../work.html" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
-        <a href="../../me.html" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
-        <a href="../../passion.html" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
-        <a href="../../prediction.html" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
-        <a href="../../offer.html" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+        <a href="../../" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="../../work" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="../../me" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="../../passion" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="../../prediction" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="../../offer" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
     </div>
 
     <div id="main" class="main">
         <article class="mca-wrap" data-source="yijian6.com/mc/csapp/shell-over-3">
             <div class="mca-topbar">
-                <a href="index.html" class="mca-crumb">← 回到 计算机系统基础II</a>
+                <a href="./" class="mca-crumb">← 回到 计算机系统基础II</a>
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">Shell实验破解-3</h1>
@@ -973,7 +973,7 @@
 <h2 id="s1">Trace03</h2>
 <p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123459.png" alt="Pasted image 20260803123459" width="1087" height="302" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>trace03 的要求是：<code>#运行前台作业</code>，两行都是shell命令，会直接传给shell。<br>1、第一行运行一个给定路径的echo程序，我们的<code>exevce()</code>已经可以实现。<br>2、第二行，是运行内置的quit指令，我们的早已实现。<br>说明trace03是送我们的，直接make、make test03、make rtest03验证吧<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123846.png" alt="Pasted image 20260803123846" width="1170" height="647" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(411px, 100%)"></p>
 <h2 id="s2">Trace04</h2>
-<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123936.png" alt="Pasted image 20260803123936" width="1092" height="340" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>trace04要求：<code>#运行后台命令</code>,两行都是shell命令、直接传给shell。<br>1、第一行同trace03，echo，已经实现<br>2、第二行是运行一个后台程序。那无论前台、后台，他们都通过<code>exevce()</code>来运行啊。所以我们已经可以实现。<br>直接make验证：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803124449.png" alt="Pasted image 20260803124449" width="1136" height="693" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(392px, 100%)"><br>出问题了， 标准输出还要求输出一行这个后台作业的情况。问题来了，我们压根就没有记录所有运行的作业(job)。<br>咋记录？看看我们有什么工具呢？<a href="shell-over-2.html">Shell实验破解-2</a>中的<code>工具函数表</code>还记得吗？<br>于是我们很快联想到：</p>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803123936.png" alt="Pasted image 20260803123936" width="1092" height="340" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(408px, 100%)"><br>trace04要求：<code>#运行后台命令</code>,两行都是shell命令、直接传给shell。<br>1、第一行同trace03，echo，已经实现<br>2、第二行是运行一个后台程序。那无论前台、后台，他们都通过<code>exevce()</code>来运行啊。所以我们已经可以实现。<br>直接make验证：<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20260803124449.png" alt="Pasted image 20260803124449" width="1136" height="693" loading="lazy" decoding="async" data-media-fit="natural" style="width:min(392px, 100%)"><br>出问题了， 标准输出还要求输出一行这个后台作业的情况。问题来了，我们压根就没有记录所有运行的作业(job)。<br>咋记录？看看我们有什么工具呢？<a href="shell-over-2">Shell实验破解-2</a>中的<code>工具函数表</code>还记得吗？<br>于是我们很快联想到：</p>
 <pre><code class="language-C">我们需要利用作业列表(jobs List)来记录下来我们所有的作业的信息。
 jobs是已经初始化好的
 addjob(jobs,pid,state,cmdline)可以把用cmdline命令添加、PID=pid、state确定的一条作业的情况，加入jobs List。
@@ -1061,9 +1061,9 @@ if(bg == 0){
         </article>
 
         <nav class="mca-stairs" aria-label="楼层导航">
-            <a href="shell-over-2.html" class="mca-stair">↓ 9F Shell实验破解-2</a>
-            <a href="index.html" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
-            <a href="shell-over-4.html" class="mca-stair mca-stair--next">11F Shell实验破解-4 ↑</a>
+            <a href="shell-over-2" class="mca-stair">↓ 9F Shell实验破解-2</a>
+            <a href="./" class="mca-stair mca-stair--home">▤ 回到这栋楼</a>
+            <a href="shell-over-4" class="mca-stair mca-stair--next">11F Shell实验破解-4 ↑</a>
         </nav>
 
         <footer class="footer">

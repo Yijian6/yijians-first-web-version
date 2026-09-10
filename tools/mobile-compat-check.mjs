@@ -45,7 +45,32 @@ function read(file) {
 }
 
 function isExternal(value) {
-  return /^(?:[a-z]+:|\/\/|#|%)/i.test(value) || value.startsWith('/');
+  return /^(?:[a-z]+:|\/\/|#|%)/i.test(value);
+}
+
+/* 站内链接写的是干净网址（work、../csapp/），磁盘上却是 work.html、
+   ../csapp/index.html —— Cloudflare Pages 就是按这个对应关系服务的。
+   这里把干净网址映射回磁盘文件，映射不上就报错，不做任何宽容处理：
+   一个拼错的链接必须在这里就被抓住，而不是留到线上变成 404。 */
+function resolveTarget(clean, full) {
+  const stat = fs.existsSync(full) ? fs.statSync(full) : null;
+  if (stat && stat.isFile()) return { full };
+  if (stat && stat.isDirectory()) {
+    const index = path.join(full, 'index.html');
+    if (!fs.existsSync(index)) return { error: 'directory has no index.html' };
+    /* 少一个斜杠，Pages 会 308 到带斜杠的形式 —— 白白多一个往返。
+       这正是这次要消灭的东西，所以在检查里就把它定成错误。 */
+    if (!clean.endsWith('/')) {
+      return { error: 'directory link needs a trailing slash (Pages 308-redirects otherwise)' };
+    }
+    return { full: index };
+  }
+  // 无后缀且磁盘上没有同名目录 —— 当作干净网址，找对应的 .html
+  if (!/\.[a-z0-9]+$/i.test(path.basename(clean))) {
+    const asHtml = `${full}.html`;
+    if (fs.existsSync(asHtml) && fs.statSync(asHtml).isFile()) return { full: asHtml };
+  }
+  return { error: 'missing local resource' };
 }
 
 function checkTarget(owner, target) {
@@ -54,15 +79,23 @@ function checkTarget(owner, target) {
   const targetKey = `${owner}:${clean}`;
   if (checkedTargets.has(targetKey)) return;
   checkedTargets.add(targetKey);
-  const full = path.resolve(path.dirname(path.join(root, owner)), clean);
+  /* 根绝对路径（/foo）以前被 isExternal 直接放行，等于完全不校验。
+     站点部署在域名根目录，从仓库根解析就是对的，顺手补上这个缺口。 */
+  const base = clean.startsWith('/') ? root : path.dirname(path.join(root, owner));
+  const full = path.resolve(base, clean.startsWith('/') ? `.${clean}` : clean);
   const relative = path.relative(root, full);
-  if (relative.startsWith('..') || path.isAbsolute(relative) || !fs.existsSync(full)) {
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
     errors.push(`${owner}: missing local resource ${target}`);
     return;
   }
+  const resolved = resolveTarget(clean, full);
+  if (resolved.error) {
+    errors.push(`${owner}: ${resolved.error} ${target}`);
+    return;
+  }
 
-  if (/\.(?:avif|gif|jpe?g|png|webp)$/i.test(full)) {
-    const bytes = fs.statSync(full).size;
+  if (/\.(?:avif|gif|jpe?g|png|webp)$/i.test(resolved.full)) {
+    const bytes = fs.statSync(resolved.full).size;
     if (bytes > policy.assetBudgetBytes.error) {
       errors.push(`${owner}: image exceeds hard budget (${bytes} bytes): ${target}`);
     } else if (bytes > policy.assetBudgetBytes.warning) {
@@ -185,6 +218,18 @@ for (const page of pages) {
 
   for (const match of html.matchAll(/\b(?:href|src)=["']([^"']+)["']/gi)) {
     checkTarget(page, match[1]);
+  }
+
+  /* 站内页面链接必须写成干净网址。Cloudflare Pages 把 /x.html 308 到 /x，
+     每个带后缀的链接都让用户白等一个往返，而且这个 308 不会被浏览器缓存
+     （实测每次导航都要重走一遍）。src 不在此列 —— 脚本、样式、图片
+     本来就该带后缀。 */
+  for (const match of html.matchAll(/\bhref=["']([^"']+)["']/gi)) {
+    const value = match[1];
+    if (isExternal(value)) continue;
+    if (/\.html(?:[?#]|$)/i.test(value)) {
+      errors.push(`${page}: internal link must drop the .html suffix (Pages 308-redirects): ${value}`);
+    }
   }
   for (const match of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)) {
     checkCss(`${page} inline style`, match[1]);

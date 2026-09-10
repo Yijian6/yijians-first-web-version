@@ -860,9 +860,18 @@
      8. ACTIVE NAV LINK
   ------------------------------------------------------- */
   function initActiveNav() {
-    var page = window.location.pathname.split('/').pop() || 'index.html';
+    /* 两边都归一化再比。改成干净网址之前，这个函数在线上是死代码：
+       pathname 给的是 /work，而 href 写的是 work.html，=== 永远不成立。
+       （高亮之所以一直是对的，是因为 .active 在每页的静态 HTML 里就写死了，
+       这里只是补一道，顺便让本地的 /work.html 形式也认。） */
+    function keyOf(value) {
+      var v = String(value || '').split('?')[0].split('#')[0];
+      v = v.replace(/^.*\//, '').replace(/\.html$/i, '');
+      return (v === '' || v === 'index') ? '/' : v;
+    }
+    var page = keyOf(window.location.pathname);
     $$('.nav-link, .mobile-link').forEach(function (link) {
-      if (link.getAttribute('href') === page) {
+      if (keyOf(link.getAttribute('href')) === page) {
         link.classList.add('active');
       }
     });
