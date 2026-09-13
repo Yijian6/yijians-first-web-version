@@ -109,6 +109,25 @@
             margin: 0;
         }
 
+        /* 工地告示牌的写法：大字标题 + 一行提示，不写句号 */
+        .mc-sign strong {
+            display: block;
+            font-size: clamp(18px, 3.6vw, 24px);
+            font-weight: 700;
+            letter-spacing: 0.32em;
+            text-indent: 0.32em;
+            line-height: 1.6;
+            margin-bottom: 2px;
+        }
+
+        .mc-sign small {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.78em;
+            letter-spacing: 0.08em;
+            color: rgba(61, 43, 26, 0.7);
+        }
+
         .mc-post {
             width: 14px;
             height: 72px;
@@ -574,7 +593,7 @@
         <div class="mc-scene">
             <div class="mc-sign-group reveal">
                 <div class="mc-sign">
-                    <p>我的世界，还在盖。<br><span id="mcSignStat">随便逛逛~</span></p>
+                    <p><strong>正在施工</strong>部分区域开放<small>施工单位：觉</small></p>
                 </div>
                 <div class="mc-post"></div>
             </div>

@@ -8,7 +8,6 @@
   var map = document.getElementById('mcMap');
   var logEl = document.getElementById('mcLog');
   var legendEl = document.getElementById('mcLegend');
-  var signStat = document.getElementById('mcSignStat');
   if (!data || !map || !data.domains || data.domains.length === 0) return;
 
   // 一块地最多画多少个格子。超过就按比例缩——写到上百篇时格子会细成一根线。
@@ -39,14 +38,11 @@
     if (d.lastDate && d.lastDate > freshest) freshest = d.lastDate;
   });
 
-  var floorTotal = 0;
-
   data.domains.forEach(function (domain, idx) {
     var built = domain.floors ? domain.floors.length : 0;
     var ghosts = domain.ghosts ? domain.ghosts.length : 0;
     var total = domain.total || built + ghosts || 1;
     var tier = tierOf(total);
-    floorTotal += built;
 
     var cls = 'mcm-plot press-scale mcm-plot--t' + tier + ' mcm-plot--' + (domain.biome || 'stone');
     if (domain.stale) cls += ' is-stale';
@@ -100,11 +96,6 @@
   });
 
   if (legendEl) legendEl.hidden = false;
-
-  // 告示牌第二行：层数跟着数据走
-  if (signStat) {
-    signStat.textContent = floorTotal + ' 层了，慢慢盖。';
-  }
 
   // 冒险日志
   if (logEl && data.log && data.log.length) {
