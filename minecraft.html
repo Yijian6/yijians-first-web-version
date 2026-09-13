@@ -16,6 +16,25 @@
             padding: 120px var(--side-pad) 60px;
             position: relative;
             overflow: hidden;
+            background: linear-gradient(180deg, #080c18 0%, #0c1024 50%, #111630 100%);
+        }
+
+        /* 星空单独一层。
+           16 个光点各是一张覆盖整个场景的 radial-gradient，原来直接铺在 .mc-scene 的
+           background 里，等于根图层的每一块 tile 都叠着 17 层渐变。桌面端任何 hover
+           （地块 filter 过渡、导航下划线、光标翻转）一改合成层结构，被波及的 tile 就要
+           把这 17 层全部重新光栅化——录像实测最大地块一次 500ms，整页画面冻住，
+           光标点解冻后直接跳到最新位置。
+           挪进 ::before 并提升为合成层后，星空只光栅化一次，hover 时根图层 tile 里
+           只剩一层线性渐变。手机没有 hover，不做提升，省掉一张全屏纹理的显存。 */
+        .mc-scene::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            pointer-events: none;
             background:
                 radial-gradient(1px 1px at 7% 14%, rgba(255,255,255,0.5), transparent),
                 radial-gradient(1px 1px at 18% 42%, rgba(255,255,255,0.3), transparent),
@@ -32,8 +51,11 @@
                 radial-gradient(1px 1px at 95% 22%, rgba(255,255,255,0.35), transparent),
                 radial-gradient(1px 1px at 4% 56%, rgba(255,255,255,0.3), transparent),
                 radial-gradient(1.5px 1.5px at 76% 36%, rgba(255,255,255,0.45), transparent),
-                radial-gradient(1px 1px at 24% 92%, rgba(255,255,255,0.25), transparent),
-                linear-gradient(180deg, #080c18 0%, #0c1024 50%, #111630 100%);
+                radial-gradient(1px 1px at 24% 92%, rgba(255,255,255,0.25), transparent);
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .mc-scene::before { will-change: transform; }
         }
 
         .mc-scene::after {
@@ -397,6 +419,9 @@
             max-width: 1100px;
             min-width: min(560px, 90vw);
             margin-top: 0;
+            /* 和其他兄弟一样压在星空层之上，否则 ::before 的光点会画到地面上 */
+            position: relative;
+            z-index: 1;
         }
 
         .mcm-legend {
