@@ -1,10 +1,12 @@
 window.MC_WORLD = {
-  "builtAt": "2026-09-10",
+  "builtAt": "2026-09-13",
   "domains": [
     {
       "name": "写在前面",
       "nameEn": "Preword",
       "slug": "preword",
+      "summary": "",
+      "biome": "ocean",
       "floors": [
         {
           "n": 1,
@@ -23,6 +25,7 @@ window.MC_WORLD = {
         }
       ],
       "ghosts": [],
+      "total": 3,
       "lastDate": "2026-07-30",
       "stale": false
     },
@@ -30,6 +33,8 @@ window.MC_WORLD = {
       "name": "计算机系统基础II",
       "nameEn": "CSAPP",
       "slug": "csapp",
+      "summary": "",
+      "biome": "stone",
       "floors": [
         {
           "n": 1,
@@ -108,6 +113,7 @@ window.MC_WORLD = {
         "Proxy实验解析",
         "虚拟存储器……"
       ],
+      "total": 18,
       "lastDate": "2026-08-19",
       "stale": false
     },
@@ -115,6 +121,8 @@ window.MC_WORLD = {
       "name": "AI",
       "nameEn": "arti-intelligence",
       "slug": "arti-intelligence",
+      "summary": "",
+      "biome": "forest",
       "floors": [
         {
           "n": 1,
@@ -128,6 +136,7 @@ window.MC_WORLD = {
         }
       ],
       "ghosts": [],
+      "total": 2,
       "lastDate": "2026-08-17",
       "stale": false
     },
@@ -135,6 +144,8 @@ window.MC_WORLD = {
       "name": "数据结构",
       "nameEn": "Data Structures",
       "slug": "data-structures",
+      "summary": "",
+      "biome": "stone",
       "floors": [
         {
           "n": 1,
@@ -149,6 +160,7 @@ window.MC_WORLD = {
         "哈希表",
         "图"
       ],
+      "total": 6,
       "lastDate": "2026-08-03",
       "stale": false
     },
@@ -156,21 +168,36 @@ window.MC_WORLD = {
       "name": "概率论与数理统计",
       "nameEn": "probability-theory",
       "slug": "probability-theory",
+      "summary": "",
+      "biome": "sand",
       "floors": [
         {
           "n": 1,
-          "title": "类型一、随机变量的数字特征计算",
+          "title": "期末考试刷题",
           "date": "2026-09-08"
+        },
+        {
+          "n": 2,
+          "title": "类型一、随机变量的数字特征计算",
+          "date": "2026-09-11"
+        },
+        {
+          "n": 3,
+          "title": "类型二、参数估计",
+          "date": "2026-09-13"
         }
       ],
       "ghosts": [],
-      "lastDate": "2026-09-08",
+      "total": 3,
+      "lastDate": "2026-09-13",
       "stale": false
     },
     {
       "name": "观点随机漫步",
       "nameEn": "randomness",
       "slug": "randomness",
+      "summary": "",
+      "biome": "forest",
       "floors": [
         {
           "n": 1,
@@ -181,14 +208,27 @@ window.MC_WORLD = {
       "ghosts": [
         "梦到啥说啥"
       ],
+      "total": 2,
       "lastDate": "2026-09-08",
       "stale": false
     }
   ],
   "log": [
     {
-      "date": "2026-09-08",
+      "date": "2026-09-13",
+      "title": "类型二、参数估计",
+      "domainName": "概率论与数理统计",
+      "url": "mc/probability-theory/canshu-guji"
+    },
+    {
+      "date": "2026-09-11",
       "title": "类型一、随机变量的数字特征计算",
+      "domainName": "概率论与数理统计",
+      "url": "mc/probability-theory/shuzi-tezheng"
+    },
+    {
+      "date": "2026-09-08",
+      "title": "期末考试刷题",
       "domainName": "概率论与数理统计",
       "url": "mc/probability-theory/probability-theory"
     },
@@ -203,18 +243,6 @@ window.MC_WORLD = {
       "title": "Malloc实验完整代码",
       "domainName": "计算机系统基础II",
       "url": "mc/csapp/malloc-answer"
-    },
-    {
-      "date": "2026-08-17",
-      "title": "一些他人的观点",
-      "domainName": "AI",
-      "url": "mc/arti-intelligence/ai-view"
-    },
-    {
-      "date": "2026-08-06",
-      "title": "Shell实验完整代码",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/shell-answer"
     }
   ]
 };
