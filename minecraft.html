@@ -96,159 +96,255 @@
             border-bottom: 2px solid #4a3728;
         }
 
-        /* ===== 世界横带：告示牌和建筑站在同一条地面上 ===== */
-        .mcw-strip {
-            max-width: min(1100px, 94vw);
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
+        /* ===== 世界地图：俯视，一个领域一块地 =====
+           换掉原来的侧视天际线。旧版把楼高绑死在文章数上（14 层 vs 1 层已经失衡，
+           写到 60 篇就站不到同一条地面线上），而且横滑一屏只换来「名字 + 层数」。
+           地图用二维网格消化数量，用面积档位消化规模差。
+
+           材质语言全部沿用页面里已有的：告示牌的木色做地图框，草地/泥土的
+           15+1px 方块节距做地面纹理，领域页蓝图的绿虚线做规划格。 */
+        .mcm-map {
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-auto-rows: 74px;
+            grid-auto-flow: row dense;
+            gap: 8px;
+            padding: 8px;
+            margin-top: 30px;
+            position: relative;
+            z-index: 1;
+            /* 地图物品：木框 + 深色图面。图面上铺一层极淡的 16px 方块网格，
+               地块之间露出来的缝就是「羊皮纸上的格线」，不是黑洞 */
+            background-color: #0b0e17;
+            background-image:
+                linear-gradient(90deg, transparent calc(100% - 1px), rgba(200, 169, 110, 0.06) calc(100% - 1px)),
+                linear-gradient(0deg, transparent calc(100% - 1px), rgba(200, 169, 110, 0.06) calc(100% - 1px));
+            background-size: 16px 16px;
+            border: 4px solid #4a3728;
+            box-shadow:
+                inset 0 0 0 1px rgba(200, 169, 110, 0.22),
+                inset 0 2px 0 rgba(255, 255, 255, 0.04),
+                0 18px 48px -12px rgba(0, 0, 0, 0.75);
         }
 
-        .mcw-strip::-webkit-scrollbar {
-            display: none;
+        /* 地块档位：尺寸看「已建 + 规划」，也就是圈下了多大的地 */
+        .mcm-plot--t1 { grid-column: span 1; grid-row: span 1; }
+        .mcm-plot--t2 { grid-column: span 2; grid-row: span 1; }
+        .mcm-plot--t3 { grid-column: span 2; grid-row: span 2; }
+        .mcm-plot--t4 { grid-column: span 3; grid-row: span 2; }
+
+        @media (min-width: 600px) {
+            .mcm-map { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 84px; gap: 10px; padding: 10px; }
         }
 
-        .mcw-inner {
-            display: flex;
-            flex-direction: column;
-            min-width: 100%;
-            width: max-content;
+        @media (min-width: 900px) {
+            .mcm-map { grid-auto-rows: 92px; }
+            /* 桌面整体放大到 24px 节距：地面格线、方块、聚落偏移一起变，对齐关系不变。
+               多写一层选择器压过下面 .mcm-plot 里的 16px 基础值 */
+            .mcm-map .mcm-plot { --mcm-pitch: 24px; }
         }
 
-        .mcw-row {
-            display: flex;
-            align-items: flex-end;
-            gap: 44px;
-            width: max-content;
-            margin: 0 auto;
-            padding: 0 32px;
-        }
-
-        .mcw-building {
-            /* 几何常量：.mcw-hit 靠它们算出「实心楼体 + 铭牌带」的范围 */
-            --mcw-scaffold-h: 16px;
-            --mcw-ghost-h: 0px;
-            /* 楼名 + 层数所在的铭牌带高度，取到 .mcw-stat 底边以内，
-               这样命中层不会让 .mcw-strip 的纵向溢出变大。改铭牌定位时同步 */
-            --mcw-label-band: 40px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
+        .mcm-plot {
+            /* 群系配色：--mcm-ink 是方块色，--mcm-soil 是这片地的地面底色。
+               地面不透明、带色相，未建的部分是「地」而不是黑。 */
+            --mcm-ink: #8a9bab;
+            --mcm-soil: #222933;
+            /* 一个方块的节距。方块 = 节距 − 1px 缝，和草地/泥土条的 15+1 一致 */
+            --mcm-pitch: 16px;
+            --mcm-cell: calc(var(--mcm-pitch) - 1px);
+            /* 铭牌带高度：格子层的底边停在这里，规划格不会被文字盖掉 */
+            --mcm-plate: 30px;
+            position: relative;
+            overflow: hidden;
             text-decoration: none;
-            position: relative;
-            /* 楼体自身不接受指针：脚手架和幽灵层只有虚线框，不该算可点区域 */
-            pointer-events: none;
-            transition: transform 0.5s var(--ease-out-expo);
-            /* backwards 而非 both：动画结束后把 transform 交还给上面那条 transition */
-            animation: mcwRise 0.9s var(--ease-out-expo) backwards;
+            /* 地面：横竖各一组方块缝 + 两层 45° 对角拼出的棋盘格（相邻方块深浅交替，
+               MC 俯视地形就是这样），不是条纹 */
+            background-color: var(--mcm-soil);
+            background-image:
+                linear-gradient(90deg, transparent calc(100% - 1px), rgba(0, 0, 0, 0.24) calc(100% - 1px)),
+                linear-gradient(0deg, transparent calc(100% - 1px), rgba(0, 0, 0, 0.24) calc(100% - 1px)),
+                linear-gradient(45deg, rgba(255, 255, 255, 0.032) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.032) 75%),
+                linear-gradient(45deg, rgba(255, 255, 255, 0.032) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.032) 75%);
+            background-size:
+                var(--mcm-pitch) var(--mcm-pitch),
+                var(--mcm-pitch) var(--mcm-pitch),
+                calc(var(--mcm-pitch) * 2) calc(var(--mcm-pitch) * 2),
+                calc(var(--mcm-pitch) * 2) calc(var(--mcm-pitch) * 2);
+            background-position:
+                0 0,
+                0 0,
+                0 0,
+                var(--mcm-pitch) var(--mcm-pitch);
+            /* 刻进图面：深色缝 + 1px 顶部高光 */
+            border: 2px solid rgba(0, 0, 0, 0.6);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+            /* hover 只改亮度，不做位移：旧版建筑要靠 .mcw-hit 反向补偿才不抖光标，
+               不产生位移就整套机制都不需要了 */
+            transition: border-color var(--mo-short) var(--ease-arrive),
+                        filter var(--mo-short) var(--ease-arrive);
+            animation: mcmPlot var(--mo-ambient) var(--ease-out-expo) backwards;
         }
 
-        .mcw-building:hover {
-            transform: translateY(-5px);
+        .mcm-plot:hover,
+        .mcm-plot:focus-visible {
+            border-color: var(--mcm-ink);
+            filter: brightness(1.14);
         }
 
-        @keyframes mcwRise {
-            from { opacity: 0; transform: translateY(16px); }
+        .mcm-plot:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 2px;
         }
 
-        .mcw-scaffold {
-            width: 88px;
-            height: var(--mcw-scaffold-h);
-            border: 2px dashed rgba(200, 169, 110, 0.45);
-            border-bottom: none;
-            position: relative;
+        @keyframes mcmPlot {
+            from { opacity: 0; transform: scale(0.94); }
         }
 
-        .mcw-scaffold--vine::after {
-            content: '🌿';
+        .mcm-plot--stone  { --mcm-ink: #8a9bab; --mcm-soil: #222933; }
+        .mcm-plot--forest { --mcm-ink: #a8cc88; --mcm-soil: #1c271a; }
+        .mcm-plot--sand   { --mcm-ink: #d1b06a; --mcm-soil: #2a2517; }
+        .mcm-plot--ocean  { --mcm-ink: #6fb0c6; --mcm-soil: #15252c; }
+        .mcm-plot--nether { --mcm-ink: #d4734a; --mcm-soil: #2a1812; }
+
+        /* 格子层：正方形方块，固定尺寸，从左上角起铺成一片聚落。列数由 JS 按格子数算。 */
+        .mcm-fill {
             position: absolute;
-            top: -9px;
-            right: -7px;
-            font-size: 13px;
+            top: var(--mcm-pitch);
+            left: var(--mcm-pitch);
+            right: 0;
+            bottom: var(--mcm-plate);
+            display: grid;
+            grid-auto-rows: var(--mcm-cell);
+            gap: 1px;
+            align-content: start;
+            justify-content: start;
         }
 
-        .mcw-ghost {
-            width: 88px;
-            height: var(--mcw-ghost-h);
-            border: 2px dashed rgba(168, 204, 136, 0.22);
-            border-bottom: none;
-            display: block;
+        /* 规划格：和领域页的蓝图幽灵层同一种绿虚线 */
+        .mcm-cell {
+            width: var(--mcm-cell);
+            height: var(--mcm-cell);
+            background: rgba(168, 204, 136, 0.05);
+            border: 1px dashed rgba(168, 204, 136, 0.32);
         }
 
-        /* 整栋楼唯一的命中区：实心楼体 + 下方铭牌带。
-           父元素 hover 时上移 5px，这里反向补偿 5px，
-           命中盒在屏幕上原地不动，光标不会在命中/脱离之间反复翻转。 */
-        .mcw-hit {
+        /* 已建方块：实色 + 斜面。左上受光、右下背光，就是 MC 方块的立体感 */
+        .mcm-cell.is-built {
+            background: var(--mcm-ink);
+            border: none;
+            box-shadow:
+                inset 1px 1px 0 rgba(255, 255, 255, 0.28),
+                inset -1px -1px 0 rgba(0, 0, 0, 0.42);
+        }
+
+        /* 方块噪点：MC 的材质从来不是一个平色 */
+        .mcm-cell.is-built:nth-child(3n)  { filter: brightness(0.91); }
+        .mcm-cell.is-built:nth-child(7n)  { filter: brightness(1.07); }
+        .mcm-cell.is-built:nth-child(11n) { filter: brightness(0.96) saturate(1.15); }
+
+        /* 铭牌带：不是黑条。地面纹理从底下透过来，只压一层往下渐深的影子 */
+        .mcm-meta {
             position: absolute;
-            top: calc(var(--mcw-scaffold-h) + var(--mcw-ghost-h));
             left: 0;
             right: 0;
-            bottom: calc(-1 * var(--mcw-label-band));
-            pointer-events: auto;
-            transition: transform 0.5s var(--ease-out-expo);
-        }
-
-        .mcw-building:hover .mcw-hit {
-            transform: translateY(5px);
-        }
-
-        .mcw-body {
-            width: 88px;
-            background: #3a4a5c;
-            border: 2px solid #22303f;
+            bottom: 0;
+            min-height: var(--mcm-plate);
+            padding: 5px 9px 6px;
             display: flex;
             flex-direction: column;
-        }
-
-        .mcw-floor-row {
-            display: flex;
-            gap: 12px;
             justify-content: center;
-            padding: 7px 0;
+            gap: 1px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.42) 40%, rgba(0, 0, 0, 0.56) 100%);
         }
 
-        .mcw-win {
-            width: 10px;
-            height: 10px;
-            background: rgba(232, 196, 106, 0.55);
-        }
-
-        .mcw-win--dim {
-            background: rgba(232, 196, 106, 0.22);
-        }
-
-        .mcw-win--bright {
-            background: #e8c46a;
-            box-shadow: 0 0 9px rgba(232, 196, 106, 0.55);
-        }
-
-        .mcw-name {
-            position: absolute;
-            top: calc(100% + 8px);
-            left: 50%;
-            transform: translateX(-50%);
-            width: max-content;
+        .mcm-name {
             font-family: var(--font-mono);
-            font-size: 11px;
-            letter-spacing: 0.1em;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            line-height: 1.45;
             color: var(--white-90);
-            pointer-events: none;
-            z-index: 1;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
         }
 
-        .mcw-stat {
-            position: absolute;
-            top: calc(100% + 25px);
-            left: 50%;
-            transform: translateX(-50%);
-            width: max-content;
+        /* 最小的地块只有一列宽，11px 会让 8 字的领域名折行，把地挤没 */
+        .mcm-plot--t1 .mcm-name {
+            font-size: 10px;
+            letter-spacing: 0;
+        }
+
+        .mcm-plot--t1 .mcm-meta {
+            padding-left: 7px;
+            padding-right: 7px;
+        }
+
+        .mcm-summary {
+            font-family: var(--font-body);
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
+        }
+
+        /* 次要文字从群系色里取，不用灰 */
+        .mcm-stat {
             font-family: var(--font-mono);
-            font-size: 9px;
+            font-size: 10px;
             letter-spacing: 0.08em;
-            color: rgba(228, 224, 216, 0.45);
-            pointer-events: none;
-            z-index: 1;
+            color: var(--mcm-ink);
+            opacity: 0.85;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.85);
+        }
+
+        /* 最近动土：一支火把。木杆 + 火焰，火焰带光晕呼吸 */
+        .mcm-torch {
+            position: absolute;
+            top: 12px;
+            right: 10px;
+            width: 3px;
+            height: 9px;
+            background: #5e4128;
+        }
+
+        .mcm-torch::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: -6px;
+            width: 7px;
+            height: 7px;
+            background: #f2c14e;
+            box-shadow:
+                inset 1px 1px 0 rgba(255, 255, 255, 0.45),
+                0 3px 10px 3px rgba(242, 193, 78, 0.38);
+            animation: mcmTorch 2.6s ease-in-out infinite;
+        }
+
+        @keyframes mcmTorch {
+            0%, 100% { box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45), 0 3px 8px 2px rgba(242, 193, 78, 0.28); }
+            50%      { box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.45), 0 4px 14px 4px rgba(242, 193, 78, 0.5); }
+        }
+
+        .mcm-plot.has-summary { --mcm-plate: 52px; }
+
+        /* 荒了：超过 60 天没动过。整块地压暗，左上角爬一株像素藤 */
+        .mcm-plot.is-stale { filter: brightness(0.7) saturate(0.8); }
+
+        .mcm-plot.is-stale:hover { filter: brightness(0.85) saturate(0.9); }
+
+        .mcm-vine {
+            position: absolute;
+            top: 6px;
+            left: 8px;
+            width: 4px;
+            height: 4px;
+            background: #6fa34a;
+            box-shadow:
+                0 5px 0 #5d8a3c,
+                0 10px 0 #53802e,
+                4px 7px 0 #5d8a3c,
+                -4px 3px 0 #53802e;
         }
 
         /* ===== 冒险日志 ===== */
@@ -278,7 +374,7 @@
             font-size: 12px;
             text-decoration: none;
             color: var(--white-60);
-            transition: color 0.3s ease;
+            transition: color var(--mo-short) var(--ease-arrive);
         }
 
         .mcw-log-line:hover {
@@ -297,36 +393,57 @@
 
         .mc-ground {
             width: 100%;
+            /* 和 .mcm-map 同宽：地图板就是种在这条地上的 */
+            max-width: 1100px;
             min-width: min(560px, 90vw);
-            margin-top: -2px;
+            margin-top: 0;
         }
 
-        .mcw-hint {
-            margin-top: 18px;
+        .mcm-legend {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px 18px;
             font-family: var(--font-mono);
             font-size: 10px;
-            letter-spacing: 0.2em;
+            letter-spacing: 0.12em;
             color: var(--white-30);
-            animation: mcwHintPulse 2.6s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
         }
 
-        @keyframes mcwHintPulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
+        .mcm-key {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        /* 手机端：缩小告示牌，让第一栋楼露出一角，暗示可以横滑 */
-        @media (max-width: 600px) {
-            .mcw-row:not(:only-child) .mc-sign,
-            .mcw-row.has-buildings .mc-sign {
-                width: 60vw;
-                padding: 18px 16px;
-            }
+        .mcm-key i {
+            display: block;
+            width: 9px;
+            height: 9px;
+        }
 
-            .mcw-row.has-buildings {
-                gap: 30px;
-                padding: 0 20px;
-            }
+        .mcm-key--built i {
+            background: var(--white-60);
+            box-shadow:
+                inset 1px 1px 0 rgba(255, 255, 255, 0.35),
+                inset -1px -1px 0 rgba(0, 0, 0, 0.45);
+        }
+
+        .mcm-key--plan i {
+            background: rgba(168, 204, 136, 0.05);
+            border: 1px dashed rgba(168, 204, 136, 0.4);
+        }
+
+        .mcm-key--fresh i {
+            width: 7px;
+            height: 7px;
+            background: #f2c14e;
+            box-shadow:
+                inset 1px 1px 0 rgba(255, 255, 255, 0.45),
+                0 2px 8px 2px rgba(242, 193, 78, 0.35);
         }
 
         .mc-grass-top {
@@ -364,7 +481,7 @@
             font-size: 14px;
             color: var(--white-60);
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: color var(--mo-short) var(--ease-arrive);
             position: relative;
             z-index: 1;
         }
@@ -396,7 +513,9 @@
         }
 
         @media (prefers-reduced-motion: reduce) {
-            .mc-scene::before {
+            .mc-scene::before,
+            .mcm-plot,
+            .mcm-torch::before {
                 animation: none;
             }
         }
@@ -428,24 +547,27 @@
 
     <div id="main" class="main">
         <div class="mc-scene">
-            <div class="mcw-strip reveal" id="mcStrip">
-                <div class="mcw-inner">
-                    <div class="mcw-row" id="mcRow">
-                        <div class="mc-sign-group">
-                            <div class="mc-sign">
-                                <p>欢迎到来，<br>但这里似乎尚未竣工……<br>先看看别处吧~</p>
-                            </div>
-                            <div class="mc-post"></div>
-                        </div>
-                    </div>
-                    <div class="mc-ground">
-                        <div class="mc-grass-top"></div>
-                        <div class="mc-grass"></div>
-                        <div class="mc-dirt"></div>
-                    </div>
+            <div class="mc-sign-group reveal">
+                <div class="mc-sign">
+                    <p>这里还在建。<br><span id="mcSignStat">先看看别处吧~</span></p>
                 </div>
+                <div class="mc-post"></div>
             </div>
-            <p class="mcw-hint" id="mcHint" hidden>← 向右滑 · 世界在生长 →</p>
+
+            <div class="mcm-map reveal delay-1" id="mcMap"></div>
+
+            <div class="mc-ground">
+                <div class="mc-grass-top"></div>
+                <div class="mc-grass"></div>
+                <div class="mc-dirt"></div>
+            </div>
+
+            <p class="mcm-legend" id="mcLegend" hidden>
+                <span class="mcm-key mcm-key--built"><i></i>已建</span>
+                <span class="mcm-key mcm-key--plan"><i></i>规划</span>
+                <span class="mcm-key mcm-key--fresh"><i></i>最近动土</span>
+            </p>
+
             <div class="mcw-log" id="mcLog" hidden></div>
             <a href="offer" class="mc-back reveal delay-2">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

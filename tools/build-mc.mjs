@@ -124,6 +124,12 @@ function nearestBlueprintItem(claim, blueprint) {
   return bestLen >= 2 ? best : null;
 }
 
+// 群系 → 地图配色键。填错或没填都退回 stone，不让内容库的手滑卡住发布。
+const BIOMES = {
+  石: 'stone', 林: 'forest', 沙: 'sand', 海: 'ocean', 岩: 'nether',
+  stone: 'stone', forest: 'forest', sand: 'sand', ocean: 'ocean', nether: 'nether',
+};
+
 function domainSlug(nameEn) {
   return String(nameEn).trim().toLowerCase().replace(/\s+/g, '-');
 }
@@ -472,6 +478,11 @@ function parseDomain(dirName) {
   }
   const order = Number(meta['排序']) || 999;
 
+  // 简介 / 群系：世界地图用。两个都可选——world-data.js 是构建产物，
+  // 内容库里还没填这两个字段时构建必须照跑，所以只给默认值不报错。
+  const summary = String(meta['简介'] || '').trim();
+  const biome = BIOMES[String(meta['群系'] || '').trim()] || 'stone';
+
   // 蓝图：正文里的任务清单
   const blueprint = [];
   for (const m of metaBody.matchAll(/^[-*]\s*\[[ xX]\]\s*(.+)$/gm)) {
@@ -553,7 +564,7 @@ function parseDomain(dirName) {
     }
   }
 
-  return { dirName, dir, name, nameEn, slug: domainSlug(nameEn), order, blueprint, articles };
+  return { dirName, dir, name, nameEn, slug: domainSlug(nameEn), order, summary, biome, blueprint, articles };
 }
 
 // ---------- 生成页面 ----------
@@ -768,12 +779,17 @@ function main() {
     });
 
     const claimed = new Set(domain.articles.map((a) => a.blueprintClaim).filter(Boolean));
+    const ghosts = domain.blueprint.filter((t) => !claimed.has(t));
     worldDomains.push({
       name: domain.name,
       nameEn: domain.nameEn,
       slug: domain.slug,
+      summary: domain.summary,
+      biome: domain.biome,
       floors: domain.articles.map((a, i) => ({ n: i + 1, title: a.title, date: a.date })),
-      ghosts: domain.blueprint.filter((t) => !claimed.has(t)),
+      ghosts,
+      // total = 已建 + 规划：世界地图按「圈下多大的地」定地块尺寸，不按已经建了几篇
+      total: domain.articles.length + ghosts.length,
       lastDate,
       stale,
     });
