@@ -101,9 +101,9 @@
 
   if (legendEl) legendEl.hidden = false;
 
-  // 告示牌上的世界概况：跟着数据走，不写死
+  // 告示牌第二行：层数跟着数据走
   if (signStat) {
-    signStat.textContent = data.domains.length + ' 块地 · ' + floorTotal + ' 层楼';
+    signStat.textContent = floorTotal + ' 层了，慢慢盖。';
   }
 
   // 冒险日志
