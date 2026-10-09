@@ -150,7 +150,7 @@ window.MC_WORLD = {
         {
           "n": 1,
           "title": "一笔股票的交易，钱是如何流动的？",
-          "date": "2026-10-09"
+          "date": "2026-10-06"
         },
         {
           "n": 2,
@@ -239,15 +239,15 @@ window.MC_WORLD = {
   "log": [
     {
       "date": "2026-10-09",
+      "title": "券商",
+      "domainName": "金融投资",
+      "url": "mc/invest/quanshang"
+    },
+    {
+      "date": "2026-10-06",
       "title": "一笔股票的交易，钱是如何流动的？",
       "domainName": "金融投资",
       "url": "mc/invest/invest-instinct"
-    },
-    {
-      "date": "2026-10-09",
-      "title": "券商",
-      "domainName": "金融投资",
-      "url": "mc/invest/2026-10-09"
     },
     {
       "date": "2026-09-13",
