@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-09-13",
+  "builtAt": "2026-10-09",
   "domains": [
     {
       "name": "写在前面",
@@ -27,7 +27,7 @@ window.MC_WORLD = {
       "ghosts": [],
       "total": 3,
       "lastDate": "2026-07-30",
-      "stale": false
+      "stale": true
     },
     {
       "name": "计算机系统基础II",
@@ -141,27 +141,26 @@ window.MC_WORLD = {
       "stale": false
     },
     {
-      "name": "数据结构",
-      "nameEn": "Data Structures",
-      "slug": "data-structures",
+      "name": "金融投资",
+      "nameEn": "invest",
+      "slug": "invest",
       "summary": "",
-      "biome": "stone",
+      "biome": "forest",
       "floors": [
         {
           "n": 1,
-          "title": "数据结构期末考卷",
-          "date": "2026-08-03"
+          "title": "一笔股票的交易，钱是如何流动的？",
+          "date": "2026-10-09"
+        },
+        {
+          "n": 2,
+          "title": "券商",
+          "date": "2026-10-09"
         }
       ],
-      "ghosts": [
-        "链表",
-        "栈与队列",
-        "二叉树",
-        "哈希表",
-        "图"
-      ],
-      "total": 6,
-      "lastDate": "2026-08-03",
+      "ghosts": [],
+      "total": 2,
+      "lastDate": "2026-10-09",
       "stale": false
     },
     {
@@ -211,9 +210,45 @@ window.MC_WORLD = {
       "total": 2,
       "lastDate": "2026-09-08",
       "stale": false
+    },
+    {
+      "name": "数据结构",
+      "nameEn": "Data Structures",
+      "slug": "data-structures",
+      "summary": "",
+      "biome": "stone",
+      "floors": [
+        {
+          "n": 1,
+          "title": "数据结构期末考卷",
+          "date": "2026-08-03"
+        }
+      ],
+      "ghosts": [
+        "链表",
+        "栈与队列",
+        "二叉树",
+        "哈希表",
+        "图"
+      ],
+      "total": 6,
+      "lastDate": "2026-08-03",
+      "stale": true
     }
   ],
   "log": [
+    {
+      "date": "2026-10-09",
+      "title": "一笔股票的交易，钱是如何流动的？",
+      "domainName": "金融投资",
+      "url": "mc/invest/invest-instinct"
+    },
+    {
+      "date": "2026-10-09",
+      "title": "券商",
+      "domainName": "金融投资",
+      "url": "mc/invest/2026-10-09"
+    },
     {
       "date": "2026-09-13",
       "title": "类型二、参数估计",
@@ -231,18 +266,6 @@ window.MC_WORLD = {
       "title": "期末考试刷题",
       "domainName": "概率论与数理统计",
       "url": "mc/probability-theory/probability-theory"
-    },
-    {
-      "date": "2026-09-08",
-      "title": "未命名",
-      "domainName": "观点随机漫步",
-      "url": "mc/randomness/2026-09-08"
-    },
-    {
-      "date": "2026-08-19",
-      "title": "Malloc实验完整代码",
-      "domainName": "计算机系统基础II",
-      "url": "mc/csapp/malloc-answer"
     }
   ]
 };
