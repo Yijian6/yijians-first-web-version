@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>这份涨跌图的解析 — 觉的 Minecraft</title>
+    <meta name="description" content="这份涨跌图的解析">
+    <link rel="preload" href="../../fonts/noto-serif-sc-400.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        :root {
+            --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
+        }
+
+        .mca-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px var(--side-pad) 0;
+        }
+
+        .mca-topbar {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .mca-crumb {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.15em;
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        .mca-crumb:hover {
+            color: var(--gold-bright);
+        }
+
+        .mca-export {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            color: var(--white-30);
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .mca-export:hover {
+            color: var(--gold);
+        }
+
+        .mca-title {
+            font-family: var(--font-display-mc);
+            font-size: clamp(30px, 6vw, 44px);
+            font-weight: 400;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            margin-bottom: 14px;
+        }
+
+        .mca-meta {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: var(--white-30);
+            margin-bottom: 28px;
+        }
+
+        .mca-rule {
+            height: 1px;
+            background: var(--white-10);
+            margin-bottom: 40px;
+        }
+
+        .mca-body {
+            font-size: clamp(15px, 2vw, 16px);
+            font-weight: 300;
+            line-height: 2;
+            color: var(--white-60);
+        }
+
+        /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
+        .mca-body h1,
+        .mca-body h2,
+        .mca-body h3 {
+            scroll-margin-top: calc(var(--nav-offset) + 16px);
+        }
+
+        /* ============ 大纲（本层房间） ============
+           沿用领域立面页的堆叠行语言：楼里的层 → 层里的房间，同一种视觉。 */
+        .mco-btn {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mco-btn:hover,
+        .mco-btn[aria-expanded="true"] {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mco-panel {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 58px);
+            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            width: 236px;
+            max-height: calc(100vh - var(--nav-offset) - 100px);
+            overflow-y: auto;
+            padding: 12px 0 6px;
+            background: rgba(20, 24, 18, 0.94);
+            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.28s ease, transform 0.28s var(--ease-out-expo), visibility 0.28s;
+        }
+
+        .mco-panel.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .mco-label {
+            display: block;
+            padding: 0 14px 10px;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.24em;
+            color: var(--white-30);
+            border-bottom: 1px solid var(--white-05);
+            margin-bottom: 6px;
+        }
+
+        .mco-item {
+            display: block;
+            padding: 8px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--white-60);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .mco-item:hover {
+            color: var(--white-90);
+            background: rgba(168, 204, 136, 0.05);
+        }
+
+        .mco-item--sub {
+            padding-left: 28px;
+            font-size: 12px;
+            color: var(--white-30);
+        }
+
+        .mco-item.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+            background: rgba(168, 204, 136, 0.07);
+        }
+
+        .mco-backdrop {
+            display: none;
+        }
+
+        /* ============ 返回上一页 ============
+           内链是构建时解析成的普通链接，点一次就是一次整页跳转。跨领域跳过去之后，
+           页顶的面包屑指的是新页面所属的那栋楼，不是读者刚才待的那一层。
+           位置和右侧大纲左右对称，用的是同一套 chip 语言，不新造视觉。 */
+        .mca-back {
+            position: fixed;
+            z-index: 250;
+            top: calc(var(--nav-offset) + 20px);
+            left: max(24px, calc((100vw - 720px) / 2 - 260px));
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            max-width: 240px;
+            padding: 7px 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.14em;
+            color: var(--white-30);
+            background: rgba(20, 24, 18, 0.82);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: pointer;
+            text-align: left;
+            transition: color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .mca-back:hover {
+            color: var(--gold);
+            border-color: var(--gold-dim);
+        }
+
+        .mca-back-text,
+        .mca-back-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 窄桌面只留「返回」两个字，标题留给放得下的宽屏 */
+        .mca-back-title {
+            display: none;
+        }
+
+        /* 窄桌面：右边空白不够放面板了，改成覆盖式 */
+        @media (max-width: 1199px) {
+            .mco-btn,
+            .mco-panel {
+                right: 24px;
+            }
+        }
+
+        /* 手机：右下角小圆钮（拇指可达），面板从底部升起 */
+        @media (max-width: 768px) {
+            /* 手机有系统手势和微信自带的返回，首屏不再加一层浮层 */
+            .mca-back {
+                display: none;
+            }
+
+            .mco-btn {
+                top: auto;
+                right: max(18px, var(--safe-right));
+                bottom: calc(20px + var(--safe-bottom));
+                width: 42px;
+                height: 42px;
+                padding: 0;
+                justify-content: center;
+                gap: 0;
+                border-radius: 50%;
+                font-size: 14px;
+            }
+
+            .mco-btn-text {
+                display: none;
+            }
+
+            .mco-panel {
+                top: auto;
+                right: 0;
+                left: 0;
+                bottom: 0;
+                width: auto;
+                max-height: 62vh;
+                padding: 14px 0 calc(14px + var(--safe-bottom));
+                border-radius: 12px 12px 0 0;
+                border-left: none;
+                border-right: none;
+                border-bottom: none;
+                transform: translateY(100%);
+            }
+
+            .mco-panel.open {
+                transform: translateY(0);
+            }
+
+            .mco-label {
+                padding: 0 20px 12px;
+            }
+
+            .mco-item {
+                padding: 11px 20px;
+                font-size: 14px;
+            }
+
+            .mco-item--sub {
+                padding-left: 36px;
+            }
+
+            .mco-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; right: 0; bottom: 0; left: 0;
+                inset: 0;
+                z-index: 249;
+                background: rgba(8, 10, 8, 0.5);
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.28s ease, visibility 0.28s;
+            }
+
+            .mco-backdrop.open {
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+
+        /* 正文里的 h1：文章标题之外，作者用来分大段的那一级（「五、计算题…」）。
+           加一条上边线把大段之间断开，比单纯放大字号更清楚。 */
+        .mca-body h1 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(24px, 4vw, 32px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 64px 0 20px;
+            padding-top: 24px;
+            border-top: 1px solid var(--white-10);
+        }
+
+        .mca-body h1:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .mca-body h2 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(22px, 3.5vw, 28px);
+            font-weight: 400;
+            color: var(--white);
+            margin: 48px 0 16px;
+        }
+
+        .mca-body h3 {
+            font-family: var(--font-display-mc);
+            font-size: clamp(18px, 3vw, 22px);
+            font-weight: 400;
+            color: var(--white-90);
+            margin: 36px 0 12px;
+        }
+
+        .mca-body p {
+            margin-bottom: 20px;
+        }
+
+        .mca-body strong {
+            color: var(--white-90);
+            font-weight: 500;
+        }
+
+        .mca-body em {
+            color: var(--gold);
+            font-style: normal;
+        }
+
+        .mca-body a {
+            color: var(--gold);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .mca-body blockquote {
+            border-left: 3px solid var(--gold-dim);
+            padding: 4px 0 4px 18px;
+            margin: 24px 0;
+            color: var(--white-30);
+        }
+
+        .mca-body blockquote p:last-child {
+            margin-bottom: 0;
+        }
+
+        .mca-body ul, .mca-body ol {
+            margin: 0 0 20px;
+            padding-left: 24px;
+        }
+
+        .mca-body li {
+            margin-bottom: 8px;
+        }
+
+        .mca-body li::marker {
+            color: var(--gold);
+        }
+
+        .mca-body code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            color: var(--gold-bright);
+            background: var(--bg-surface);
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .mca-body pre {
+            background: var(--bg-surface);
+            border: 1px solid var(--white-10);
+            border-left: 3px solid var(--gold);
+            border-radius: 2px;
+            padding: 18px 20px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+
+        .mca-body pre code {
+            background: none;
+            padding: 0;
+            font-size: 13px;
+            line-height: 1.9;
+            color: var(--white-60);
+        }
+
+        .mca-body img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 28px auto;
+            border: 1px solid var(--white-10);
+            border-radius: 2px;
+            cursor: zoom-in;
+        }
+
+        /* ===== 图片灯箱 ===== */
+        .mc-lightbox {
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            inset: 0;
+            z-index: 300;
+            background: rgba(8, 10, 8, 0.92);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            padding: 24px;
+            cursor: zoom-out;
+            animation: mcLbIn 0.25s ease;
+        }
+
+        @keyframes mcLbIn {
+            from { opacity: 0; }
+        }
+
+        .mc-lightbox img {
+            max-width: min(1400px, 96vw);
+            max-height: 82vh;
+            width: auto;
+            height: auto;
+            border: 1px solid var(--white-10);
+        }
+
+        .mc-lightbox-cap {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--white-60);
+            text-align: center;
+            max-width: 80vw;
+        }
+
+        .mc-lightbox-hint {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--white-30);
+        }
+
+        @supports not (backdrop-filter: blur(1px)) {
+            .mc-lightbox { background: rgba(8, 10, 8, 0.97); }
+            .mco-btn { background: rgba(20, 24, 18, 0.97); }
+            .mca-back { background: rgba(20, 24, 18, 0.97); }
+            .mco-panel { background: rgba(20, 24, 18, 0.99); }
+        }
+
+        /* 宽屏：大纲常驻，不用点按钮。
+           常驻之后就不该再是一块浮层——去掉盒子，只留页边的一条细导轨，
+           让它读起来是页面的一部分。放在 @supports 之后，靠源码顺序覆盖背景。 */
+        @media (min-width: 1200px) {
+            .mco-btn {
+                display: none;
+            }
+
+            /* 左页边跟右侧导轨对齐：都是无框文字，同一条水平线 */
+            .mca-back {
+                top: calc(var(--nav-offset) + 44px);
+                left: max(20px, calc((100vw - 720px) / 2 - 230px));
+                max-width: 200px;
+                padding: 0;
+                background: none;
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+                border: none;
+                border-radius: 0;
+            }
+
+            .mca-back-text {
+                display: none;
+            }
+
+            .mca-back-title {
+                display: block;
+            }
+
+            .mco-panel {
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                transition: none;
+                top: calc(var(--nav-offset) + 44px);
+                /* 贴着正文右缘约 40px，让大纲读起来属于这篇文章而不是飘在屏幕角落；
+                   窄一点的宽屏用 max() 保底，不至于顶到屏幕边上 */
+                right: max(20px, calc((100vw - 720px) / 2 - 230px));
+                width: 190px;
+                max-height: calc(100vh - var(--nav-offset) - 96px);
+                padding: 0;
+                background: none;
+                -webkit-backdrop-filter: none;
+                backdrop-filter: none;
+                border: none;
+                border-radius: 0;
+                scrollbar-width: thin;
+            }
+
+            .mco-label {
+                padding: 0 0 8px 14px;
+                border-bottom: none;
+                margin-bottom: 4px;
+            }
+
+            /* 每个条目的左边框连起来就是那条导轨；当前节只换颜色不换宽度，不会有布局跳动 */
+            .mco-item {
+                padding: 7px 0 7px 14px;
+                font-size: 12.5px;
+                color: var(--white-30);
+                border-left: 2px solid var(--white-05);
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .mco-item:hover {
+                color: var(--white-90);
+                background: none;
+            }
+
+            .mco-item--sub {
+                padding-left: 26px;
+                font-size: 12px;
+            }
+
+            .mco-item.active {
+                color: var(--gold);
+                border-left-color: var(--gold);
+                background: none;
+            }
+        }
+
+        html.mc-lightbox-open,
+        html.mc-lightbox-open body {
+            overflow: hidden;
+        }
+
+        .mca-body hr {
+            border: none;
+            height: 1px;
+            background: var(--white-10);
+            margin: 40px 0;
+        }
+
+        .mca-body mark {
+            background: rgba(168, 204, 136, 0.16);
+            color: var(--gold-bright);
+            padding: 1px 5px;
+            border-radius: 2px;
+        }
+
+        .mca-body .mc-indent {
+            padding-left: 20px;
+            border-left: 2px solid var(--white-05);
+        }
+
+        /* ===== 数学公式（KaTeX 在构建时渲染好，页面不加载任何脚本） =====
+           公式是正文的主干而不是注解，比周围文字亮一档。 */
+        .mca-body .katex {
+            color: var(--white-90);
+        }
+
+        /* 行间公式在手机上一定会有撑破屏幕的长式子，给它自己的横向滚动条。
+           段落中间的行间公式只能用 span 承载，所以显式声明 display */
+        .mca-body .mc-math-block {
+            display: block;
+            overflow-x: auto;
+            overflow-y: hidden;
+            margin: 24px 0;
+            padding: 2px 0;
+        }
+
+        .mca-body .mc-math-block .katex-display {
+            margin: 0;
+        }
+
+        .mc-table-wrap {
+            overflow-x: auto;
+            margin: 24px 0;
+        }
+
+        .mca-body table {
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 320px;
+        }
+
+        .mca-body th, .mca-body td {
+            border: 1px solid var(--white-10);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .mca-body th {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            color: var(--gold);
+            background: var(--bg-surface);
+        }
+
+        .mca-stairs {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            max-width: 720px;
+            margin: 64px auto 0;
+            padding: 24px var(--side-pad) 48px;
+            border-top: 1px solid var(--white-10);
+        }
+
+        .mca-stair {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            color: var(--white-60);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            max-width: 46%;
+        }
+
+        .mca-stair:hover {
+            color: var(--gold);
+        }
+
+        .mca-stair--next {
+            text-align: right;
+        }
+
+        /* 中间那个「回到这栋楼」每层都在，读完哪一层都能直接回去 */
+        .mca-stair--home {
+            flex-shrink: 0;
+            color: var(--white-30);
+            letter-spacing: 0.1em;
+            text-align: center;
+        }
+
+        .mca-stair--home:hover {
+            color: var(--gold);
+        }
+
+        .mca-stair--empty {
+            flex: 1;
+            max-width: 46%;
+        }
+
+        @media (max-width: 560px) {
+            .mca-stairs {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 12px 16px;
+            }
+
+            .mca-stair {
+                max-width: 100%;
+            }
+
+            .mca-stair--home {
+                order: -1;
+                width: 100%;
+                padding-bottom: 6px;
+            }
+
+            .mca-stair--empty {
+                display: none;
+            }
+        }
+
+        /* ============ 打印 / 导出 PDF ============
+           深色主题直接打印既费墨又看不清，这里整体翻成白底黑字，
+           只保留标题、日期、出处和正文，并控制分页不劈开代码块和图片。 */
+        @media print {
+            @page {
+                margin: 1.8cm;
+            }
+
+            html, body {
+                background: #fff !important;
+                color: #1a1a1a !important;
+            }
+
+            /* 屏幕专属的结构：导航、进度条、页脚、楼梯、导出按钮、灯箱 */
+            .progress-track,
+            .navbar,
+            .mobile-menu,
+            .hamburger,
+            .footer,
+            .mca-stairs,
+            .mca-export,
+            .mca-back,
+            .mc-lightbox,
+            .mco-btn,
+            .mco-panel,
+            .mco-backdrop,
+            .custom-cursor {
+                display: none !important;
+            }
+
+            .main {
+                opacity: 1 !important;
+                transform: none !important;
+                padding: 0 !important;
+                min-height: 0 !important;
+            }
+
+            .mca-wrap {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            /* reveal 类元素在打印时必须是可见的最终态 */
+            .reveal, .reveal-left, .reveal-scale, .reveal-clip {
+                opacity: 1 !important;
+                transform: none !important;
+                clip-path: none !important;
+            }
+
+            .mca-topbar {
+                margin-bottom: 12px;
+                display: block;
+            }
+
+            .mca-crumb {
+                color: #5a7a3c !important;
+                font-size: 10pt;
+                letter-spacing: 0.1em;
+            }
+
+            .mca-title {
+                color: #111 !important;
+                font-size: 22pt;
+                margin-bottom: 8px;
+                break-after: avoid;
+            }
+
+            .mca-meta {
+                color: #666 !important;
+                font-size: 9pt;
+                margin-bottom: 16px;
+            }
+
+            .mca-rule {
+                background: #ccc !important;
+                margin-bottom: 20px;
+            }
+
+            .mca-body {
+                color: #1a1a1a !important;
+                font-size: 11pt;
+                line-height: 1.75;
+            }
+
+            .mca-body h1,
+            .mca-body h2,
+            .mca-body h3 {
+                color: #111 !important;
+                break-after: avoid;
+                margin-top: 20px;
+            }
+
+            .mca-body h1 {
+                font-size: 15pt;
+                padding-top: 12px;
+                border-top-color: #ddd !important;
+            }
+
+            .mca-body strong {
+                color: #000 !important;
+            }
+
+            .mca-body em {
+                color: #3f6b23 !important;
+            }
+
+            .mca-body a {
+                color: #2c5aa0 !important;
+            }
+
+            .mca-body blockquote {
+                color: #555 !important;
+                border-left-color: #bbb !important;
+                break-inside: avoid;
+            }
+
+            .mca-body li::marker {
+                color: #5a7a3c !important;
+            }
+
+            /* 代码块与高亮：强制保留底色，否则纸上没有区分度 */
+            .mca-body pre {
+                background: #f5f5f2 !important;
+                border: 1px solid #ddd !important;
+                border-left: 3px solid #7a9c5a !important;
+                break-inside: avoid;
+                white-space: pre-wrap;
+                word-break: break-word;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body pre code,
+            .mca-body code {
+                color: #24303a !important;
+                background: none !important;
+                font-size: 9.5pt;
+            }
+
+            .mca-body :not(pre) > code {
+                background: #f0f0ec !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body mark {
+                background: #e8f2d8 !important;
+                color: #2d4a15 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body .mc-indent {
+                border-left-color: #ddd !important;
+            }
+
+            /* 纸上没有滚动条：公式改为换行显示，宁可挤也不能被裁掉 */
+            .mca-body .katex {
+                color: #111 !important;
+            }
+
+            .mca-body .mc-math-block {
+                overflow-x: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body .mc-math-block .katex-display > .katex {
+                white-space: normal;
+            }
+
+            /* max-height + width:auto 已经等比缩放，不用 object-fit（也就不会裁切） */
+            .mca-body img {
+                border-color: #ddd !important;
+                max-height: 16cm;
+                width: auto;
+                break-inside: avoid;
+                cursor: auto;
+            }
+
+            .mc-table-wrap {
+                overflow: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body table {
+                font-size: 9.5pt;
+                min-width: 0;
+                width: 100%;
+            }
+
+            .mca-body th,
+            .mca-body td {
+                border-color: #ccc !important;
+            }
+
+            .mca-body th {
+                color: #2d4a15 !important;
+                background: #f2f5ec !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .mca-body hr {
+                background: #ddd !important;
+            }
+
+            /* 页尾出处 */
+            .mca-wrap::after {
+                content: "来自 " attr(data-source);
+                display: block;
+                margin-top: 28px;
+                padding-top: 10px;
+                border-top: 1px solid #ddd;
+                font-family: var(--font-mono);
+                font-size: 8.5pt;
+                color: #888;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-track"><div class="progress-bar"></div></div>
+
+    <nav class="navbar">
+        <a href="../../" class="nav-brand">觉 <span>|</span> Yijian</a>
+        <div class="nav-links">
+            <a href="../../work" class="nav-link" data-index="01">Work</a>
+            <a href="../../me" class="nav-link" data-index="02">Me</a>
+            <a href="../../passion" class="nav-link" data-index="03">Passion</a>
+            <a href="../../prediction" class="nav-link" data-index="04">Becoming</a>
+            <a href="../../offer" class="nav-link" data-index="05">Offer</a>
+        </div>
+        <button class="hamburger" aria-label="Menu"><span class="hamburger-label">MENU</span><span class="hamburger-box"><span></span><span></span><span></span></span></button>
+    </nav>
+
+    <div class="mobile-menu">
+        <a href="../../" class="mobile-link"><span class="mobile-menu-index">00</span> Home</a>
+        <a href="../../work" class="mobile-link"><span class="mobile-menu-index">01</span> Work</a>
+        <a href="../../me" class="mobile-link"><span class="mobile-menu-index">02</span> Me</a>
+        <a href="../../passion" class="mobile-link"><span class="mobile-menu-index">03</span> Passion</a>
+        <a href="../../prediction" class="mobile-link"><span class="mobile-menu-index">04</span> Becoming</a>
+        <a href="../../offer" class="mobile-link"><span class="mobile-menu-index">05</span> Offer</a>
+    </div>
+
+    <div id="main" class="main">
+        <article class="mca-wrap" data-source="yijian6.com/mc/notes/这份涨跌图的解析">
+            <div class="mca-topbar">
+                <a href="../../minecraft" class="mca-crumb">← 回到世界</a>
+                <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
+            </div>
+            <h1 class="mca-title">这份涨跌图的解析</h1>
+            <p class="mca-meta">附页 · 约 3 分钟</p>
+            <div class="mca-rule"></div>
+            <div class="mca-body">
+<p><img src="../../content/minecraft/Z-Data-Vault/img_v3_0216e_851f1a69-2fb4-40fd-9ffe-410ca2d876ag 1.jpg" alt="img_v3_0216e_851f1a69-2fb4-40fd-9ffe-410ca2d876ag 1" width="2376" height="1080" loading="lazy" decoding="async" data-media-fit="natural">还有一点很重要：<strong>这个 App 是绿涨红跌</strong>，和 A股的红涨绿跌相反。证据是顶部 -0.71% 是红色，而图左边一路上涨的柱子是绿色。</p>
+<p><strong>一、顶部信息栏</strong></p>
+<ul>
+<li><p><strong><a href="http://QQQM.US">QQQM.US</a></strong>：基金代码，.US 表示美股。</p>
+</li>
+<li><p><strong>307.190</strong>：最新价格，单位是美元。</p>
+</li>
+<li><p><strong>-2.200 / -0.71%</strong>：比昨天收盘跌了 2.2 美元，跌幅 0.71%。</p>
+</li>
+<li><p><strong>今开 308.685</strong>：今天第一笔成交的价格。</p>
+</li>
+<li><p><strong>昨收 309.390</strong>：昨天最后一笔成交的价格，今天涨跌就是和它比。</p>
+</li>
+<li><p><strong>最高 / 最低</strong>：今天成交过的最高价和最低价。</p>
+</li>
+<li><p><strong>成交量 228.91万股</strong>：今天一共成交了多少股。</p>
+</li>
+<li><p><strong>成交额 7.04亿</strong>：今天一共成交了多少钱（美元）。</p>
+</li>
+<li><p><strong>盘前交易 10-12 16:00:00 美东</strong>：数据时间是美东 10 月 12 日 16:00，也就是收盘时刻。“盘前交易”是 App 标的当前时段，下一轮盘前还没出新成交，所以显示的仍是收盘价。</p>
+</li>
+</ul>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20261013202318.png" alt="Pasted image 20261013202318" width="2376" height="1080" loading="lazy" decoding="async" data-media-fit="natural"><br><strong>二、时间切换按钮</strong></p>
+<p>切换的是<strong>一根K线代表多长时间</strong>：</p>
+<ul>
+<li><p><strong>盘前</strong>：下拉可切到分时图，也可以看盘前盘后走势。</p>
+</li>
+<li><p><strong>5日</strong>：最近 5 天的分时走势。</p>
+</li>
+<li><p><strong>日</strong>（你现在选的）：一根柱子 = 一天。</p>
+</li>
+<li><p><strong>周 / 月 / 季 / 年</strong>：一根柱子 = 一周、一个月、一个季度、一年。</p>
+</li>
+<li><p><strong>60分钟</strong>：一根柱子 = 60 分钟，下拉可选其他分钟数。</p>
+</li>
+<li><p><strong>笔形图标</strong>：画线工具，可以在图上画趋势线。图上那个蓝色箭头很可能就是画上去的，不是数据。<br><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20261013202323.png" alt="Pasted image 20261013202323" width="2376" height="1080" loading="lazy" decoding="async" data-media-fit="natural"></p>
+</li>
+</ul>
+<p><strong>三、主图：K线</strong></p>
+<p>每根“柱子”叫 <strong>K线（蜡烛图）</strong>，记录一段时间的四个价格：</p>
+<ul>
+<li><p><strong>粗的实体</strong>：开盘价到收盘价之间的范围。</p>
+</li>
+<li><p><strong>细的影线</strong>：上端是最高价，下端是最低价。</p>
+</li>
+<li><p><strong>绿色</strong>：收盘比开盘高，涨了。</p>
+</li>
+<li><p><strong>红色</strong>：收盘比开盘低，跌了。</p>
+</li>
+</ul>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20261013202329.png" alt="Pasted image 20261013202329" width="2376" height="1080" loading="lazy" decoding="async" data-media-fit="natural"><br>图上其他元素：</p>
+<ul>
+<li><p><strong>左边数字（319、303、288……）</strong>：价格刻度。</p>
+</li>
+<li><p><strong>底部日期</strong>：图的时间范围，从 2026-04-21 到 2026-10-12，大约半年。</p>
+</li>
+<li><p><strong>314.115 和 263.846</strong>：这半年里的最高价和最低价。</p>
+</li>
+<li><p><strong>横向虚线</strong>：当前价格的位置，方便和历史比较高低。</p>
+</li>
+<li><p><strong>橙色小圆点</strong>：大概率是分红等事件的标记，点一下可以看详情。</p>
+</li>
+</ul>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20261013202331.png" alt="Pasted image 20261013202331" width="2376" height="1080" loading="lazy" decoding="async" data-media-fit="natural"><br><strong>四、右侧栏</strong></p>
+<ul>
+<li><p><strong>不复权 / 前复权 / 后复权</strong>：基金分红或拆股后，价格会突然变化。复权就是把这种变化修正掉，让走势连贯。<strong>选前复权就行</strong>（你现在就是）。</p>
+</li>
+<li><p><strong>MA、EMA、BOLL、SAR、ARBR、DMA</strong>：技术指标，是叠加在图上的辅助线。最常用的是 <strong>MA（均线）</strong>，表示过去 N 天的平均价格。其他的可以先不管。</p>
+</li>
+</ul>
+<p><img src="../../content/minecraft/Z-Data-Vault/Pasted image 20261013202333.png" alt="Pasted image 20261013202333" width="2376" height="1080" loading="lazy" decoding="async" data-media-fit="natural"><br><strong>五、底部：RSI</strong></p>
+<ul>
+<li><p><strong>RSI（相对强弱指标）</strong>：0–100 的数字，衡量最近涨得猛还是跌得猛。</p>
+</li>
+<li><p><strong>(6,12,24)</strong>：分别按最近 6 天、12 天、24 天来算，对应三条线。</p>
+</li>
+<li><p><strong>怎么读</strong>：一般认为高于 70 是涨得过热，低于 30 是跌得过头，中间算正常。你现在是 48 / 56 / 57，属于中性。</p>
+</li>
+<li><p><strong>‹ › 箭头</strong>：左右滑动图表，看更早或更近的数据。</p>
+</li>
+</ul>
+<p><strong>实际该怎么看：</strong></p>
+<ol>
+<li><p>每次只看顶部的<strong>现价</strong>和<strong>涨跌幅</strong>，了解今天大概的情况。</p>
+</li>
+<li><p>想看长期趋势，点 <strong>“月”或“年”</strong>。定投看的是几年的方向，不是一天的波动。</p>
+</li>
+<li><p>技术指标可以先不学。定投的核心是按计划持续买，不是靠看图找买点。</p>
+</li>
+</ol>
+
+            </div>
+        </article>
+
+        <nav class="mca-stairs" aria-label="楼层导航">
+            <a href="../../minecraft" class="mca-stair mca-stair--home">▤ 回到世界</a>
+        </nav>
+
+        <footer class="footer">
+            <div class="footer-quote reveal">"一切伟大的建筑，都始于第一个方块"</div>
+            <div class="footer-contact reveal delay-1">
+                <p>微信：iDoWantiDoWill</p>
+                <p>邮箱：<a href="mailto:lyijian86@gmail.com">lyijian86@gmail.com</a></p>
+                <p>GitHub：<a href="https://github.com/Yijian6">Yijian6</a></p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="../../js/compat.js" defer></script>
+    <script src="../../js/script.js" defer></script>
+    <script src="../../js/mc-article.js" defer></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-10-09",
+  "builtAt": "2026-10-13",
   "domains": [
     {
       "name": "写在前面",
@@ -156,11 +156,23 @@ window.MC_WORLD = {
           "n": 2,
           "title": "券商",
           "date": "2026-10-09"
+        },
+        {
+          "n": 3,
+          "title": "股票",
+          "date": "2026-10-11"
+        },
+        {
+          "n": 4,
+          "title": "盘",
+          "date": "2026-10-13"
         }
       ],
-      "ghosts": [],
-      "total": 2,
-      "lastDate": "2026-10-09",
+      "ghosts": [
+        "盘"
+      ],
+      "total": 5,
+      "lastDate": "2026-10-13",
       "stale": false
     },
     {
@@ -238,6 +250,18 @@ window.MC_WORLD = {
   ],
   "log": [
     {
+      "date": "2026-10-13",
+      "title": "盘",
+      "domainName": "金融投资",
+      "url": "mc/invest/pan"
+    },
+    {
+      "date": "2026-10-11",
+      "title": "股票",
+      "domainName": "金融投资",
+      "url": "mc/invest/stock"
+    },
+    {
       "date": "2026-10-09",
       "title": "券商",
       "domainName": "金融投资",
@@ -254,18 +278,6 @@ window.MC_WORLD = {
       "title": "类型二、参数估计",
       "domainName": "概率论与数理统计",
       "url": "mc/probability-theory/canshu-guji"
-    },
-    {
-      "date": "2026-09-11",
-      "title": "类型一、随机变量的数字特征计算",
-      "domainName": "概率论与数理统计",
-      "url": "mc/probability-theory/shuzi-tezheng"
-    },
-    {
-      "date": "2026-09-08",
-      "title": "期末考试刷题",
-      "domainName": "概率论与数理统计",
-      "url": "mc/probability-theory/probability-theory"
     }
   ]
 };
