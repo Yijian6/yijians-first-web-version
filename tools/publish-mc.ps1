@@ -35,7 +35,8 @@ foreach ($line in @($changes)) {
   $file = $line.Substring(3)
   if ($file -match ' -> ') { $file = ($file -split ' -> ')[-1] }
   $file = $file.Trim('"')
-  if ($file -notlike 'content/minecraft/*' -and $file -notlike 'mc/*') {
+  # tools/mermaid-cache 是构建时渲染好的 Mermaid 图，和 mc/ 一样属于构建产物
+  if ($file -notlike 'content/minecraft/*' -and $file -notlike 'mc/*' -and $file -notlike 'tools/mermaid-cache/*') {
     $nonContent += $file
   }
 }
@@ -55,7 +56,7 @@ Invoke-Checked 'npm' @('run', 'check')
 
 # 4. 提交内容
 Write-Host '[3/4] 正在提交内容……'
-Invoke-Checked 'git' @('add', 'content/minecraft', 'mc')
+Invoke-Checked 'git' @('add', 'content/minecraft', 'mc', 'tools/mermaid-cache')
 
 $staged = git -c core.quotepath=false diff --cached --name-only
 if (-not $staged) {

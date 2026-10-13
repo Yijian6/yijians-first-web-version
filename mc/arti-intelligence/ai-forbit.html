@@ -10,10 +10,24 @@
     <style>
         :root {
             --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
+            /* 正文栏宽。原来写死 720px，大屏上只剩中间窄窄一条。
+               现在跟着屏幕放宽：笔记本 820，宽屏最多 1040（约 60 个汉字一行，
+               和 Obsidian 关掉「可读行宽」时差不多），两侧仍给大纲和返回留出位置。
+               所有跟正文对齐的浮层都从这个变量算位置。 */
+            --mca-measure: 720px;
         }
 
+        @media (min-width: 900px) {
+            :root { --mca-measure: 820px; }
+        }
+
+        @media (min-width: 1200px) {
+            :root { --mca-measure: max(720px, min(1040px, calc(100vw - 500px))); }
+        }
+
+        /* 内边距放在栏宽之外：文字本身就是 --mca-measure 宽，两侧浮层按它对齐 */
         .mca-wrap {
-            max-width: 720px;
+            max-width: calc(var(--mca-measure) + 2 * var(--side-pad));
             margin: 0 auto;
             padding: 48px var(--side-pad) 0;
         }
@@ -50,7 +64,7 @@
             border: none;
             padding: 0;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: color var(--mo-short) var(--ease-arrive);
             white-space: nowrap;
         }
 
@@ -82,11 +96,13 @@
             margin-bottom: 40px;
         }
 
+        /* 正文排版参照 Obsidian：字够大、够亮，靠标题颜色和留白分层，
+           不靠把正文压暗。原来 300 字重 + 55% 亮度在暗底上读久了很累。 */
         .mca-body {
-            font-size: clamp(15px, 2vw, 16px);
-            font-weight: 300;
-            line-height: 2;
-            color: var(--white-60);
+            font-size: clamp(16px, 1.6vw, 17px);
+            font-weight: 400;
+            line-height: 1.85;
+            color: rgba(228, 224, 216, 0.86);
         }
 
         /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
@@ -102,7 +118,7 @@
             position: fixed;
             z-index: 250;
             top: calc(var(--nav-offset) + 20px);
-            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            right: max(24px, calc((100vw - var(--mca-measure)) / 2 - 260px));
             display: inline-flex;
             align-items: center;
             gap: 7px;
@@ -130,7 +146,7 @@
             position: fixed;
             z-index: 250;
             top: calc(var(--nav-offset) + 58px);
-            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            right: max(24px, calc((100vw - var(--mca-measure)) / 2 - 260px));
             width: 236px;
             max-height: calc(100vh - var(--nav-offset) - 100px);
             overflow-y: auto;
@@ -203,7 +219,7 @@
             position: fixed;
             z-index: 250;
             top: calc(var(--nav-offset) + 20px);
-            left: max(24px, calc((100vw - 720px) / 2 - 260px));
+            left: max(24px, calc((100vw - var(--mca-measure)) / 2 - 260px));
             display: inline-flex;
             align-items: center;
             gap: 7px;
@@ -324,45 +340,51 @@
 
         /* 正文里的 h1：文章标题之外，作者用来分大段的那一级（「五、计算题…」）。
            加一条上边线把大段之间断开，比单纯放大字号更清楚。 */
-        .mca-body h1 {
+        /* 标题靠颜色分级：h1 珊瑚红、h2 橙、h3 琥珀。都是站点珊瑚色往暖黄方向的
+           同一条色阶，不引入冷色；字重加粗，标题和正文一眼能分开。 */
+        .mca-body h1,
+        .mca-body h2,
+        .mca-body h3 {
             font-family: var(--font-display-mc);
-            font-size: clamp(24px, 4vw, 32px);
-            font-weight: 400;
-            color: var(--white);
-            margin: 64px 0 20px;
-            padding-top: 24px;
-            border-top: 1px solid var(--white-10);
+            font-weight: 600;
+            line-height: 1.4;
+            letter-spacing: 0.01em;
+        }
+
+        .mca-body h1 {
+            font-size: clamp(26px, 3.4vw, 32px);
+            color: #e06f5c;
+            margin: 56px 0 16px;
         }
 
         .mca-body h1:first-child {
             margin-top: 0;
-            padding-top: 0;
-            border-top: none;
         }
 
         .mca-body h2 {
-            font-family: var(--font-display-mc);
-            font-size: clamp(22px, 3.5vw, 28px);
-            font-weight: 400;
-            color: var(--white);
-            margin: 48px 0 16px;
+            font-size: clamp(22px, 2.8vw, 26px);
+            color: #e38a52;
+            margin: 44px 0 12px;
         }
 
         .mca-body h3 {
-            font-family: var(--font-display-mc);
-            font-size: clamp(18px, 3vw, 22px);
-            font-weight: 400;
-            color: var(--white-90);
-            margin: 36px 0 12px;
+            font-size: clamp(18px, 2.2vw, 21px);
+            color: #dbb062;
+            margin: 32px 0 10px;
+        }
+
+        .mca-body h1 + h2,
+        .mca-body h2 + h3 {
+            margin-top: 20px;
         }
 
         .mca-body p {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .mca-body strong {
-            color: var(--white-90);
-            font-weight: 500;
+            color: var(--white);
+            font-weight: 600;
         }
 
         .mca-body em {
@@ -377,10 +399,10 @@
         }
 
         .mca-body blockquote {
-            border-left: 3px solid var(--gold-dim);
-            padding: 4px 0 4px 18px;
-            margin: 24px 0;
-            color: var(--white-30);
+            border-left: 2px solid var(--white-10);
+            padding: 2px 0 2px 18px;
+            margin: 20px 0;
+            color: var(--white-60);
         }
 
         .mca-body blockquote p:last-child {
@@ -411,9 +433,8 @@
 
         .mca-body pre {
             background: var(--bg-surface);
-            border: 1px solid var(--white-10);
-            border-left: 3px solid var(--gold);
-            border-radius: 2px;
+            border: 1px solid var(--white-05);
+            border-radius: 4px;
             padding: 18px 20px;
             margin: 24px 0;
             overflow-x: auto;
@@ -501,7 +522,7 @@
             /* 左页边跟右侧导轨对齐：都是无框文字，同一条水平线 */
             .mca-back {
                 top: calc(var(--nav-offset) + 44px);
-                left: max(20px, calc((100vw - 720px) / 2 - 230px));
+                left: max(20px, calc((100vw - var(--mca-measure)) / 2 - 230px));
                 max-width: 200px;
                 padding: 0;
                 background: none;
@@ -527,7 +548,7 @@
                 top: calc(var(--nav-offset) + 44px);
                 /* 贴着正文右缘约 40px，让大纲读起来属于这篇文章而不是飘在屏幕角落；
                    窄一点的宽屏用 max() 保底，不至于顶到屏幕边上 */
-                right: max(20px, calc((100vw - 720px) / 2 - 230px));
+                right: max(20px, calc((100vw - var(--mca-measure)) / 2 - 230px));
                 width: 190px;
                 max-height: calc(100vh - var(--nav-offset) - 96px);
                 padding: 0;
@@ -586,10 +607,11 @@
             margin: 40px 0;
         }
 
+        /* ==高亮==：和标题同一条暖色阶的琥珀底，像荧光笔划过 */
         .mca-body mark {
-            background: rgba(168, 204, 136, 0.16);
-            color: var(--gold-bright);
-            padding: 1px 5px;
+            background: rgba(219, 176, 98, 0.22);
+            color: var(--white);
+            padding: 1px 4px;
             border-radius: 2px;
         }
 
@@ -623,31 +645,71 @@
             margin: 24px 0;
         }
 
+        /* 表格：Obsidian 式极简，只留行与行之间的细线，列之间一条更淡的分隔 */
         .mca-body table {
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 15px;
+            line-height: 1.6;
             min-width: 320px;
         }
 
         .mca-body th, .mca-body td {
-            border: 1px solid var(--white-10);
-            padding: 10px 14px;
+            border: none;
+            border-bottom: 1px solid var(--white-10);
+            padding: 10px 18px 10px 0;
             text-align: left;
+            vertical-align: top;
+        }
+
+        .mca-body th + th,
+        .mca-body td + td {
+            padding-left: 18px;
+            border-left: 1px solid var(--white-05);
         }
 
         .mca-body th {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            letter-spacing: 0.08em;
-            color: var(--gold);
-            background: var(--bg-surface);
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        /* 手机上列多时浏览器会把列压窄，把「股票类型」挤成竖排。
+           表头不折行、单元格留最小宽度，放不下就整表横滑 */
+        .mca-body th {
+            white-space: nowrap;
+        }
+
+        .mca-body td {
+            min-width: 4.5em;
+        }
+
+        @media (max-width: 560px) {
+            .mca-body table {
+                font-size: 14px;
+            }
+        }
+
+        /* ===== Mermaid 图（构建时已渲染成 SVG） =====
+           按图自己的尺寸显示，放不下就横向滑动，不缩成看不清的小字 */
+        .mca-body .mc-mermaid {
+            margin: 24px 0 28px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .mca-body .mc-mermaid svg {
+            display: inline-block;
+            max-width: none;
+            height: auto;
+            vertical-align: top;
         }
 
         .mca-stairs {
             display: flex;
             justify-content: space-between;
             gap: 16px;
-            max-width: 720px;
+            max-width: calc(var(--mca-measure) + 2 * var(--side-pad));
             margin: 64px auto 0;
             padding: 24px var(--side-pad) 48px;
             border-top: 1px solid var(--white-10);
@@ -659,7 +721,7 @@
             letter-spacing: 0.05em;
             color: var(--white-60);
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: color var(--mo-short) var(--ease-arrive);
             max-width: 46%;
         }
 
@@ -716,6 +778,17 @@
         @media print {
             @page {
                 margin: 1.8cm;
+            }
+
+            /* 图是按暗底配的色，白纸上整体反相，再转回原来的色相 */
+            .mca-body .mc-mermaid {
+                overflow: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body .mc-mermaid svg {
+                max-width: 100%;
+                filter: invert(1) hue-rotate(180deg);
             }
 
             html, body {

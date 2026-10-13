@@ -10,10 +10,24 @@
     <style>
         :root {
             --font-display-mc: 'Lora', 'Songti SC', 'SimSun', serif;
+            /* 正文栏宽。原来写死 720px，大屏上只剩中间窄窄一条。
+               现在跟着屏幕放宽：笔记本 820，宽屏最多 1040（约 60 个汉字一行，
+               和 Obsidian 关掉「可读行宽」时差不多），两侧仍给大纲和返回留出位置。
+               所有跟正文对齐的浮层都从这个变量算位置。 */
+            --mca-measure: 720px;
         }
 
+        @media (min-width: 900px) {
+            :root { --mca-measure: 820px; }
+        }
+
+        @media (min-width: 1200px) {
+            :root { --mca-measure: max(720px, min(1040px, calc(100vw - 500px))); }
+        }
+
+        /* 内边距放在栏宽之外：文字本身就是 --mca-measure 宽，两侧浮层按它对齐 */
         .mca-wrap {
-            max-width: 720px;
+            max-width: calc(var(--mca-measure) + 2 * var(--side-pad));
             margin: 0 auto;
             padding: 48px var(--side-pad) 0;
         }
@@ -50,7 +64,7 @@
             border: none;
             padding: 0;
             cursor: pointer;
-            transition: color 0.3s ease;
+            transition: color var(--mo-short) var(--ease-arrive);
             white-space: nowrap;
         }
 
@@ -82,11 +96,13 @@
             margin-bottom: 40px;
         }
 
+        /* 正文排版参照 Obsidian：字够大、够亮，靠标题颜色和留白分层，
+           不靠把正文压暗。原来 300 字重 + 55% 亮度在暗底上读久了很累。 */
         .mca-body {
-            font-size: clamp(15px, 2vw, 16px);
-            font-weight: 300;
-            line-height: 2;
-            color: var(--white-60);
+            font-size: clamp(16px, 1.6vw, 17px);
+            font-weight: 400;
+            line-height: 1.85;
+            color: rgba(228, 224, 216, 0.86);
         }
 
         /* 导航栏是 fixed，跳转落点要留出它的高度，否则标题会被压在下面 */
@@ -102,7 +118,7 @@
             position: fixed;
             z-index: 250;
             top: calc(var(--nav-offset) + 20px);
-            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            right: max(24px, calc((100vw - var(--mca-measure)) / 2 - 260px));
             display: inline-flex;
             align-items: center;
             gap: 7px;
@@ -130,7 +146,7 @@
             position: fixed;
             z-index: 250;
             top: calc(var(--nav-offset) + 58px);
-            right: max(24px, calc((100vw - 720px) / 2 - 260px));
+            right: max(24px, calc((100vw - var(--mca-measure)) / 2 - 260px));
             width: 236px;
             max-height: calc(100vh - var(--nav-offset) - 100px);
             overflow-y: auto;
@@ -203,7 +219,7 @@
             position: fixed;
             z-index: 250;
             top: calc(var(--nav-offset) + 20px);
-            left: max(24px, calc((100vw - 720px) / 2 - 260px));
+            left: max(24px, calc((100vw - var(--mca-measure)) / 2 - 260px));
             display: inline-flex;
             align-items: center;
             gap: 7px;
@@ -324,45 +340,51 @@
 
         /* 正文里的 h1：文章标题之外，作者用来分大段的那一级（「五、计算题…」）。
            加一条上边线把大段之间断开，比单纯放大字号更清楚。 */
-        .mca-body h1 {
+        /* 标题靠颜色分级：h1 珊瑚红、h2 橙、h3 琥珀。都是站点珊瑚色往暖黄方向的
+           同一条色阶，不引入冷色；字重加粗，标题和正文一眼能分开。 */
+        .mca-body h1,
+        .mca-body h2,
+        .mca-body h3 {
             font-family: var(--font-display-mc);
-            font-size: clamp(24px, 4vw, 32px);
-            font-weight: 400;
-            color: var(--white);
-            margin: 64px 0 20px;
-            padding-top: 24px;
-            border-top: 1px solid var(--white-10);
+            font-weight: 600;
+            line-height: 1.4;
+            letter-spacing: 0.01em;
+        }
+
+        .mca-body h1 {
+            font-size: clamp(26px, 3.4vw, 32px);
+            color: #e06f5c;
+            margin: 56px 0 16px;
         }
 
         .mca-body h1:first-child {
             margin-top: 0;
-            padding-top: 0;
-            border-top: none;
         }
 
         .mca-body h2 {
-            font-family: var(--font-display-mc);
-            font-size: clamp(22px, 3.5vw, 28px);
-            font-weight: 400;
-            color: var(--white);
-            margin: 48px 0 16px;
+            font-size: clamp(22px, 2.8vw, 26px);
+            color: #e38a52;
+            margin: 44px 0 12px;
         }
 
         .mca-body h3 {
-            font-family: var(--font-display-mc);
-            font-size: clamp(18px, 3vw, 22px);
-            font-weight: 400;
-            color: var(--white-90);
-            margin: 36px 0 12px;
+            font-size: clamp(18px, 2.2vw, 21px);
+            color: #dbb062;
+            margin: 32px 0 10px;
+        }
+
+        .mca-body h1 + h2,
+        .mca-body h2 + h3 {
+            margin-top: 20px;
         }
 
         .mca-body p {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .mca-body strong {
-            color: var(--white-90);
-            font-weight: 500;
+            color: var(--white);
+            font-weight: 600;
         }
 
         .mca-body em {
@@ -377,10 +399,10 @@
         }
 
         .mca-body blockquote {
-            border-left: 3px solid var(--gold-dim);
-            padding: 4px 0 4px 18px;
-            margin: 24px 0;
-            color: var(--white-30);
+            border-left: 2px solid var(--white-10);
+            padding: 2px 0 2px 18px;
+            margin: 20px 0;
+            color: var(--white-60);
         }
 
         .mca-body blockquote p:last-child {
@@ -411,9 +433,8 @@
 
         .mca-body pre {
             background: var(--bg-surface);
-            border: 1px solid var(--white-10);
-            border-left: 3px solid var(--gold);
-            border-radius: 2px;
+            border: 1px solid var(--white-05);
+            border-radius: 4px;
             padding: 18px 20px;
             margin: 24px 0;
             overflow-x: auto;
@@ -501,7 +522,7 @@
             /* 左页边跟右侧导轨对齐：都是无框文字，同一条水平线 */
             .mca-back {
                 top: calc(var(--nav-offset) + 44px);
-                left: max(20px, calc((100vw - 720px) / 2 - 230px));
+                left: max(20px, calc((100vw - var(--mca-measure)) / 2 - 230px));
                 max-width: 200px;
                 padding: 0;
                 background: none;
@@ -527,7 +548,7 @@
                 top: calc(var(--nav-offset) + 44px);
                 /* 贴着正文右缘约 40px，让大纲读起来属于这篇文章而不是飘在屏幕角落；
                    窄一点的宽屏用 max() 保底，不至于顶到屏幕边上 */
-                right: max(20px, calc((100vw - 720px) / 2 - 230px));
+                right: max(20px, calc((100vw - var(--mca-measure)) / 2 - 230px));
                 width: 190px;
                 max-height: calc(100vh - var(--nav-offset) - 96px);
                 padding: 0;
@@ -586,10 +607,11 @@
             margin: 40px 0;
         }
 
+        /* ==高亮==：和标题同一条暖色阶的琥珀底，像荧光笔划过 */
         .mca-body mark {
-            background: rgba(168, 204, 136, 0.16);
-            color: var(--gold-bright);
-            padding: 1px 5px;
+            background: rgba(219, 176, 98, 0.22);
+            color: var(--white);
+            padding: 1px 4px;
             border-radius: 2px;
         }
 
@@ -623,31 +645,71 @@
             margin: 24px 0;
         }
 
+        /* 表格：Obsidian 式极简，只留行与行之间的细线，列之间一条更淡的分隔 */
         .mca-body table {
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 15px;
+            line-height: 1.6;
             min-width: 320px;
         }
 
         .mca-body th, .mca-body td {
-            border: 1px solid var(--white-10);
-            padding: 10px 14px;
+            border: none;
+            border-bottom: 1px solid var(--white-10);
+            padding: 10px 18px 10px 0;
             text-align: left;
+            vertical-align: top;
+        }
+
+        .mca-body th + th,
+        .mca-body td + td {
+            padding-left: 18px;
+            border-left: 1px solid var(--white-05);
         }
 
         .mca-body th {
-            font-family: var(--font-mono);
-            font-size: 12px;
-            letter-spacing: 0.08em;
-            color: var(--gold);
-            background: var(--bg-surface);
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        /* 手机上列多时浏览器会把列压窄，把「股票类型」挤成竖排。
+           表头不折行、单元格留最小宽度，放不下就整表横滑 */
+        .mca-body th {
+            white-space: nowrap;
+        }
+
+        .mca-body td {
+            min-width: 4.5em;
+        }
+
+        @media (max-width: 560px) {
+            .mca-body table {
+                font-size: 14px;
+            }
+        }
+
+        /* ===== Mermaid 图（构建时已渲染成 SVG） =====
+           按图自己的尺寸显示，放不下就横向滑动，不缩成看不清的小字 */
+        .mca-body .mc-mermaid {
+            margin: 24px 0 28px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            text-align: center;
+        }
+
+        .mca-body .mc-mermaid svg {
+            display: inline-block;
+            max-width: none;
+            height: auto;
+            vertical-align: top;
         }
 
         .mca-stairs {
             display: flex;
             justify-content: space-between;
             gap: 16px;
-            max-width: 720px;
+            max-width: calc(var(--mca-measure) + 2 * var(--side-pad));
             margin: 64px auto 0;
             padding: 24px var(--side-pad) 48px;
             border-top: 1px solid var(--white-10);
@@ -659,7 +721,7 @@
             letter-spacing: 0.05em;
             color: var(--white-60);
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: color var(--mo-short) var(--ease-arrive);
             max-width: 46%;
         }
 
@@ -716,6 +778,17 @@
         @media print {
             @page {
                 margin: 1.8cm;
+            }
+
+            /* 图是按暗底配的色，白纸上整体反相，再转回原来的色相 */
+            .mca-body .mc-mermaid {
+                overflow: visible;
+                break-inside: avoid;
+            }
+
+            .mca-body .mc-mermaid svg {
+                max-width: 100%;
+                filter: invert(1) hue-rotate(180deg);
             }
 
             html, body {
@@ -962,7 +1035,7 @@
                 <button type="button" class="mca-export" id="mcaExport">导出 PDF</button>
             </div>
             <h1 class="mca-title">盘</h1>
-            <p class="mca-meta">4F · 2026-10-13 · 约 1 分钟</p>
+            <p class="mca-meta">4F · 2026-10-13 · 约 13 分钟</p>
             <div class="mca-rule"></div>
             <div class="mca-body">
 <p>：交易市场。</p>
@@ -970,9 +1043,7 @@
 <p>指的是，不断跳动的、像仪表盘一样的报价、成交情况，后来就代指交易市场。</p>
 </blockquote>
 <h2 id="s1">交易的过程</h2>
-<pre><code class="language-mermaid">graph LR
-盘前--&gt;开盘--&gt;盘中--&gt;收盘--&gt;盘后
-</code></pre>
+<figure class="mc-mermaid"><svg width="678" height="69" role="img" id="mmd-e81d3f87c3" xmlns="http://www.w3.org/2000/svg" class="flowchart" viewBox="0 0 678 69" role="graphics-document document" aria-roledescription="flowchart-v2"><style>#mmd-e81d3f87c3{font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;font-size:15px;fill:#e4e0d8;}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#mmd-e81d3f87c3 .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#mmd-e81d3f87c3 .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#mmd-e81d3f87c3 .error-icon{fill:#10130e;}#mmd-e81d3f87c3 .error-text{fill:#e4e0d8;stroke:#e4e0d8;}#mmd-e81d3f87c3 .edge-thickness-normal{stroke-width:1px;}#mmd-e81d3f87c3 .edge-thickness-thick{stroke-width:3.5px;}#mmd-e81d3f87c3 .edge-pattern-solid{stroke-dasharray:0;}#mmd-e81d3f87c3 .edge-thickness-invisible{stroke-width:0;fill:none;}#mmd-e81d3f87c3 .edge-pattern-dashed{stroke-dasharray:3;}#mmd-e81d3f87c3 .edge-pattern-dotted{stroke-dasharray:2;}#mmd-e81d3f87c3 .marker{fill:#8b9086;stroke:#8b9086;}#mmd-e81d3f87c3 .marker.cross{stroke:#8b9086;}#mmd-e81d3f87c3 svg{font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;font-size:15px;}#mmd-e81d3f87c3 p{margin:0;}#mmd-e81d3f87c3 .label{font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;color:#e4e0d8;}#mmd-e81d3f87c3 .cluster-label text{fill:#e4e0d8;}#mmd-e81d3f87c3 .cluster-label span{color:#e4e0d8;}#mmd-e81d3f87c3 .cluster-label span p{background-color:transparent;}#mmd-e81d3f87c3 .label text,#mmd-e81d3f87c3 span{fill:#e4e0d8;color:#e4e0d8;}#mmd-e81d3f87c3 .node rect,#mmd-e81d3f87c3 .node circle,#mmd-e81d3f87c3 .node ellipse,#mmd-e81d3f87c3 .node polygon,#mmd-e81d3f87c3 .node path{fill:#141812;stroke:#a8cc88;stroke-width:1px;}#mmd-e81d3f87c3 .rough-node .label text,#mmd-e81d3f87c3 .node .label text,#mmd-e81d3f87c3 .image-shape .label,#mmd-e81d3f87c3 .icon-shape .label{text-anchor:middle;}#mmd-e81d3f87c3 .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#mmd-e81d3f87c3 .rough-node .label,#mmd-e81d3f87c3 .node .label,#mmd-e81d3f87c3 .image-shape .label,#mmd-e81d3f87c3 .icon-shape .label{text-align:center;}#mmd-e81d3f87c3 .node.clickable{cursor:pointer;}#mmd-e81d3f87c3 .root .anchor path{fill:#8b9086!important;stroke-width:0;stroke:#8b9086;}#mmd-e81d3f87c3 .arrowheadPath{fill:rgba(255, 255, 255, 0);}#mmd-e81d3f87c3 .edgePaths .path{stroke:#8b9086;stroke-width:1px;}#mmd-e81d3f87c3 .flowchart-link{stroke:#8b9086;fill:none;}#mmd-e81d3f87c3 .edgeLabel{background-color:#0c0e0b;text-align:center;}#mmd-e81d3f87c3 .edgeLabel p{background-color:#0c0e0b;}#mmd-e81d3f87c3 .edgeLabel rect{opacity:0.5;background-color:#0c0e0b;fill:#0c0e0b;}#mmd-e81d3f87c3 .labelBkg{background-color:rgba(12, 14, 11, 0.5);}#mmd-e81d3f87c3 .cluster rect{fill:#10130e;stroke:#3a4036;stroke-width:1px;}#mmd-e81d3f87c3 .cluster text{fill:#e4e0d8;}#mmd-e81d3f87c3 .cluster span{color:#e4e0d8;}#mmd-e81d3f87c3 .node .collapsed-indicator{fill:#3a4036;stroke:none;opacity:0.6;}#mmd-e81d3f87c3 .node .collapsed-separator{stroke:#3a4036;stroke-width:0.75px;}#mmd-e81d3f87c3 div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;font-size:12px;background:#10130e;border:1px solid #4d5546;border-radius:2px;pointer-events:none;z-index:100;}#mmd-e81d3f87c3 .flowchartTitleText{text-anchor:middle;font-size:18px;fill:#e4e0d8;}#mmd-e81d3f87c3 rect.text{fill:none;stroke-width:0;}#mmd-e81d3f87c3 .icon-shape,#mmd-e81d3f87c3 .image-shape{background-color:#0c0e0b;text-align:center;}#mmd-e81d3f87c3 .icon-shape p,#mmd-e81d3f87c3 .image-shape p{background-color:#0c0e0b;padding:2px;}#mmd-e81d3f87c3 .icon-shape .label rect,#mmd-e81d3f87c3 .image-shape .label rect{opacity:0.5;background-color:#0c0e0b;fill:#0c0e0b;}#mmd-e81d3f87c3 .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#mmd-e81d3f87c3 .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#mmd-e81d3f87c3 .node .neo-node{stroke:#a8cc88;}#mmd-e81d3f87c3 [data-look="neo"].node rect,#mmd-e81d3f87c3 [data-look="neo"].cluster rect,#mmd-e81d3f87c3 [data-look="neo"].node polygon{stroke:url(#mmd-e81d3f87c3-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mmd-e81d3f87c3 [data-look="neo"].swimlane.cluster rect{filter:none;}#mmd-e81d3f87c3 [data-look="neo"].node path{stroke:url(#mmd-e81d3f87c3-gradient);stroke-width:1px;}#mmd-e81d3f87c3 [data-look="neo"].node .outer-path{filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mmd-e81d3f87c3 [data-look="neo"].node .neo-line path{stroke:#a8cc88;filter:none;}#mmd-e81d3f87c3 [data-look="neo"].node circle{stroke:url(#mmd-e81d3f87c3-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mmd-e81d3f87c3 [data-look="neo"].node circle .state-start{fill:#000000;}#mmd-e81d3f87c3 [data-look="neo"].icon-shape .icon{fill:url(#mmd-e81d3f87c3-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mmd-e81d3f87c3 [data-look="neo"].icon-shape .icon-neo path{stroke:url(#mmd-e81d3f87c3-gradient);filter:drop-shadow( 1px 2px 2px rgba(185,185,185,1));}#mmd-e81d3f87c3 :root{--mermaid-font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;}</style><g><marker id="mmd-e81d3f87c3_flowchart-v2-pointEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="mmd-e81d3f87c3_flowchart-v2-pointStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="4.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 5 L 10 10 L 10 0 z" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></path></marker><marker id="mmd-e81d3f87c3_flowchart-v2-pointEnd-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="11.5" refY="7" markerUnits="userSpaceOnUse" markerWidth="10.5" markerHeight="14" orient="auto"><path d="M 0 0 L 11.5 7 L 0 14 z" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></path></marker><marker id="mmd-e81d3f87c3_flowchart-v2-pointStart-margin" class="marker flowchart-v2" viewBox="0 0 11.5 14" refX="1" refY="7" markerUnits="userSpaceOnUse" markerWidth="11.5" markerHeight="14" orient="auto"><polygon points="0,7 11.5,14 11.5,0" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></polygon></marker><marker id="mmd-e81d3f87c3_flowchart-v2-circleEnd" class="marker flowchart-v2" viewBox="0 0 10 10" refX="11" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="mmd-e81d3f87c3_flowchart-v2-circleStart" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-1" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 1; stroke-dasharray: 1, 0;"></circle></marker><marker id="mmd-e81d3f87c3_flowchart-v2-circleEnd-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refY="5" refX="12.25" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="mmd-e81d3f87c3_flowchart-v2-circleStart-margin" class="marker flowchart-v2" viewBox="0 0 10 10" refX="-2" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><circle cx="5" cy="5" r="5" class="arrowMarkerPath" style="stroke-width: 0; stroke-dasharray: 1, 0;"></circle></marker><marker id="mmd-e81d3f87c3_flowchart-v2-crossEnd" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="12" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="mmd-e81d3f87c3_flowchart-v2-crossStart" class="marker cross flowchart-v2" viewBox="0 0 11 11" refX="-1" refY="5.2" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M 1,1 l 9,9 M 10,1 l -9,9" class="arrowMarkerPath" style="stroke-width: 2; stroke-dasharray: 1, 0;"></path></marker><marker id="mmd-e81d3f87c3_flowchart-v2-crossEnd-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="17.7" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5;"></path></marker><marker id="mmd-e81d3f87c3_flowchart-v2-crossStart-margin" class="marker cross flowchart-v2" viewBox="0 0 15 15" refX="-3.5" refY="7.5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M 1,1 L 14,14 M 1,14 L 14,1" class="arrowMarkerPath" style="stroke-width: 2.5; stroke-dasharray: 1, 0;"></path></marker><g class="root"><g class="clusters"></g><g class="edgePaths"><path d="M102,34.5L106,34.5C110,34.5,118,34.5,125.333,34.5C132.667,34.5,139.333,34.5,142.667,34.5L146,34.5" id="mmd-e81d3f87c3-L_盘前_开盘_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_盘前_开盘_0" data-points="W3sieCI6MTAyLCJ5IjozNC41fSx7IngiOjEyNiwieSI6MzQuNX0seyJ4IjoxNTAsInkiOjM0LjV9XQ==" data-look="classic" marker-end="url(#mmd-e81d3f87c3_flowchart-v2-pointEnd)"></path><path d="M244,34.5L248,34.5C252,34.5,260,34.5,267.333,34.5C274.667,34.5,281.333,34.5,284.667,34.5L288,34.5" id="mmd-e81d3f87c3-L_开盘_盘中_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_开盘_盘中_0" data-points="W3sieCI6MjQ0LCJ5IjozNC41fSx7IngiOjI2OCwieSI6MzQuNX0seyJ4IjoyOTIsInkiOjM0LjV9XQ==" data-look="classic" marker-end="url(#mmd-e81d3f87c3_flowchart-v2-pointEnd)"></path><path d="M386,34.5L390,34.5C394,34.5,402,34.5,409.333,34.5C416.667,34.5,423.333,34.5,426.667,34.5L430,34.5" id="mmd-e81d3f87c3-L_盘中_收盘_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_盘中_收盘_0" data-points="W3sieCI6Mzg2LCJ5IjozNC41fSx7IngiOjQxMCwieSI6MzQuNX0seyJ4Ijo0MzQsInkiOjM0LjV9XQ==" data-look="classic" marker-end="url(#mmd-e81d3f87c3_flowchart-v2-pointEnd)"></path><path d="M528,34.5L532,34.5C536,34.5,544,34.5,551.333,34.5C558.667,34.5,565.333,34.5,568.667,34.5L572,34.5" id="mmd-e81d3f87c3-L_收盘_盘后_0" class="edge-thickness-normal edge-pattern-solid edge-thickness-normal edge-pattern-solid flowchart-link" style=";" data-edge="true" data-et="edge" data-id="L_收盘_盘后_0" data-points="W3sieCI6NTI4LCJ5IjozNC41fSx7IngiOjU1MiwieSI6MzQuNX0seyJ4Ijo1NzYsInkiOjM0LjV9XQ==" data-look="classic" marker-end="url(#mmd-e81d3f87c3_flowchart-v2-pointEnd)"></path></g><g class="edgeLabels"><g class="edgeLabel"><g class="label" data-id="L_盘前_开盘_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"></tspan></text></g></g><g><rect class="background" style="stroke: none"></rect></g><g class="edgeLabel"><g class="label" data-id="L_开盘_盘中_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"></tspan></text></g></g><g><rect class="background" style="stroke: none"></rect></g><g class="edgeLabel"><g class="label" data-id="L_盘中_收盘_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"></tspan></text></g></g><g><rect class="background" style="stroke: none"></rect></g><g class="edgeLabel"><g class="label" data-id="L_收盘_盘后_0" transform="translate(0, 0)"><text y="-10.1" text-anchor="middle"><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em" text-anchor="middle"></tspan></text></g></g><g><rect class="background" style="stroke: none"></rect></g></g><g class="nodes"><g class="node default" id="mmd-e81d3f87c3-flowchart-盘前-0" data-look="classic" transform="translate(55, 34.5)"><rect class="basic label-container" style="" x="-47" y="-26.5" width="94" height="53"></rect><g class="label" style="" transform="translate(0, -10.5)"><rect></rect><g><rect class="background" style="stroke: none"></rect><text y="-10.1" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">盘前</tspan></tspan></text></g></g></g><g class="node default" id="mmd-e81d3f87c3-flowchart-开盘-1" data-look="classic" transform="translate(197, 34.5)"><rect class="basic label-container" style="" x="-47" y="-26.5" width="94" height="53"></rect><g class="label" style="" transform="translate(0, -10.5)"><rect></rect><g><rect class="background" style="stroke: none"></rect><text y="-10.1" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">开盘</tspan></tspan></text></g></g></g><g class="node default" id="mmd-e81d3f87c3-flowchart-盘中-2" data-look="classic" transform="translate(339, 34.5)"><rect class="basic label-container" style="" x="-47" y="-26.5" width="94" height="53"></rect><g class="label" style="" transform="translate(0, -10.5)"><rect></rect><g><rect class="background" style="stroke: none"></rect><text y="-10.1" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">盘中</tspan></tspan></text></g></g></g><g class="node default" id="mmd-e81d3f87c3-flowchart-收盘-3" data-look="classic" transform="translate(481, 34.5)"><rect class="basic label-container" style="" x="-47" y="-26.5" width="94" height="53"></rect><g class="label" style="" transform="translate(0, -10.5)"><rect></rect><g><rect class="background" style="stroke: none"></rect><text y="-10.1" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">收盘</tspan></tspan></text></g></g></g><g class="node default" id="mmd-e81d3f87c3-flowchart-盘后-4" data-look="classic" transform="translate(623, 34.5)"><rect class="basic label-container" style="" x="-47" y="-26.5" width="94" height="53"></rect><g class="label" style="" transform="translate(0, -10.5)"><rect></rect><g><rect class="background" style="stroke: none"></rect><text y="-10.1" style=""><tspan class="text-outer-tspan row" x="0" y="-0.1em" dy="1.1em"><tspan font-style="normal" class="text-inner-tspan" font-weight="normal">盘后</tspan></tspan></text></g></g></g></g></g></g><defs><filter id="mmd-e81d3f87c3-drop-shadow" height="130%" width="130%"><feDropShadow dx="4" dy="4" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><defs><filter id="mmd-e81d3f87c3-drop-shadow-small" height="150%" width="150%"><feDropShadow dx="2" dy="2" stdDeviation="0" flood-opacity="0.06" flood-color="#000000"></feDropShadow></filter></defs><linearGradient id="mmd-e81d3f87c3-gradient" gradientUnits="objectBoundingBox" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#a8cc88" stop-opacity="1"></stop><stop offset="100%" stop-color="#7d8f6c" stop-opacity="1"></stop></linearGradient></svg></figure>
 <h3 id="s2">交易中的时间结点</h3>
 <p><mark>不同类型的股票不同</mark></p>
 <div class="mc-table-wrap"><table>

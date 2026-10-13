@@ -2,6 +2,7 @@
 // 用法：npm run build:mc
 // 输入：content/minecraft/<领域>/(_领域.md + *.md + assets/)
 // 输出：mc/<域slug>/index.html、mc/<域slug>/<文章slug>.html、mc/world-data.js
+// 缓存：tools/mermaid-cache/*.svg（Mermaid 图的构建时渲染结果，随仓库提交）
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,6 +11,8 @@ import matter from 'gray-matter';
 import { marked } from 'marked';
 import { imageSize } from 'image-size';
 import katex from 'katex';
+import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CONTENT_DIR = path.join(ROOT, 'content', 'minecraft');
@@ -315,6 +318,166 @@ const mathInlineExt = {
   },
 };
 
+// ---------- Mermaid 图表 ----------
+
+// 和公式一样在构建时渲染：Mermaid 本体 3.5MB，而且要较新的浏览器内核，
+// 微信里的老 X5 跑不动。构建时用 Playwright 的 Chromium 渲染成 SVG 直接嵌进页面，
+// 读者那边一行脚本都不用加载。
+// 结果按「源码 + 配置 + Mermaid 版本」的哈希缓存在 tools/mermaid-cache/，
+// 没改过的图不重复渲染；缓存随仓库提交，换台没装 Python 的机器也能照常构建。
+const MERMAID_CACHE_DIR = path.join(ROOT, 'tools', 'mermaid-cache');
+const MERMAID_LIB = path.join(ROOT, 'node_modules', 'mermaid', 'dist', 'mermaid.min.js');
+const MERMAID_FONT = "'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif";
+const MERMAID_CONFIG = {
+  theme: 'base',
+  securityLevel: 'strict',
+  // 纯 SVG 文字，不用 foreignObject：老内核和打印都更稳
+  htmlLabels: false,
+  fontFamily: MERMAID_FONT,
+  flowchart: { htmlLabels: false, useMaxWidth: false, padding: 16, nodeSpacing: 44, rankSpacing: 48, curve: 'basis' },
+  sequence: { useMaxWidth: false },
+  class: { useMaxWidth: false },
+  state: { useMaxWidth: false },
+  er: { useMaxWidth: false },
+  gantt: { useMaxWidth: false },
+  pie: { useMaxWidth: false },
+  journey: { useMaxWidth: false },
+  mindmap: { useMaxWidth: false },
+  timeline: { useMaxWidth: false },
+  // 站点暗色：节点用表面色，描边用金绿，连线用次要文字色
+  themeVariables: {
+    darkMode: true,
+    background: 'transparent',
+    fontFamily: MERMAID_FONT,
+    fontSize: '15px',
+    primaryColor: '#141812',
+    primaryBorderColor: '#a8cc88',
+    primaryTextColor: '#e4e0d8',
+    secondaryColor: '#1b2017',
+    secondaryBorderColor: '#7d8f6c',
+    secondaryTextColor: '#e4e0d8',
+    tertiaryColor: '#10130e',
+    tertiaryBorderColor: '#4d5546',
+    tertiaryTextColor: '#e4e0d8',
+    lineColor: '#8b9086',
+    textColor: '#e4e0d8',
+    mainBkg: '#141812',
+    nodeBorder: '#a8cc88',
+    clusterBkg: '#10130e',
+    clusterBorder: '#3a4036',
+    titleColor: '#e4e0d8',
+    edgeLabelBackground: '#0c0e0b',
+    noteBkgColor: '#1b2017',
+    noteTextColor: '#e4e0d8',
+    noteBorderColor: '#4d5546',
+    actorBkg: '#141812',
+    actorBorder: '#a8cc88',
+    actorTextColor: '#e4e0d8',
+    signalColor: '#c9cdc4',
+    signalTextColor: '#e4e0d8',
+    labelBoxBkgColor: '#141812',
+    labelBoxBorderColor: '#a8cc88',
+    labelTextColor: '#e4e0d8',
+    pie1: '#a8cc88', pie2: '#d4734a', pie3: '#6fb0c6', pie4: '#d1b06a', pie5: '#8a9bab',
+  },
+};
+const mermaidSvgs = new Map(); // 哈希 → SVG
+
+function normalizeMermaid(code) {
+  return code.replace(/\r\n/g, '\n').trim();
+}
+
+function mermaidKey(code) {
+  let version = '';
+  try { version = JSON.parse(fs.readFileSync(path.join(ROOT, 'node_modules', 'mermaid', 'package.json'), 'utf8')).version; } catch {}
+  return crypto
+    .createHash('sha1')
+    .update(version + '\n' + JSON.stringify(MERMAID_CONFIG) + '\n' + normalizeMermaid(code))
+    .digest('hex');
+}
+
+// 渲染前先把全部文章里的 mermaid 代码块扫一遍：缓存里有的直接用，
+// 没有的攒成一批，只启动一次浏览器
+function prepareMermaid(bodies) {
+  const wanted = new Map(); // key → code
+  const fence = /^(`{3,}|~{3,})[ \t]*mermaid[ \t]*\r?\n([\s\S]*?)\r?\n\1[ \t]*$/gm;
+  for (const body of bodies) {
+    for (const m of body.matchAll(fence)) {
+      const code = normalizeMermaid(m[2]);
+      if (code) wanted.set(mermaidKey(code), code);
+    }
+  }
+
+  fs.mkdirSync(MERMAID_CACHE_DIR, { recursive: true });
+  const missing = [];
+  for (const [key, code] of wanted) {
+    const file = path.join(MERMAID_CACHE_DIR, `${key}.svg`);
+    if (fs.existsSync(file)) mermaidSvgs.set(key, fs.readFileSync(file, 'utf8'));
+    else missing.push({ key, code });
+  }
+
+  if (missing.length) {
+    if (!fs.existsSync(MERMAID_LIB)) {
+      warnings.push('⚠ 有 Mermaid 图需要渲染，但没找到 node_modules/mermaid。先运行 npm install，这些图暂时按代码显示。');
+    } else {
+      const res = spawnSync('python', [path.join(ROOT, 'tools', 'render-mermaid.py')], {
+        input: JSON.stringify({ lib: MERMAID_LIB, config: MERMAID_CONFIG, items: missing }),
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+      });
+      if (res.status !== 0) {
+        const why = (res.error ? res.error.message : res.stderr || '').trim().split('\n').slice(-2).join(' ');
+        warnings.push(`⚠ Mermaid 渲染器没跑起来（${why.slice(0, 160)}），${missing.length} 张图暂时按代码显示。`);
+      } else {
+        const out = JSON.parse(res.stdout);
+        for (const { key } of missing) {
+          const r = out[key];
+          if (r && r.svg) {
+            const svg = tidyMermaidSvg(r.svg);
+            fs.writeFileSync(path.join(MERMAID_CACHE_DIR, `${key}.svg`), svg, 'utf8');
+            mermaidSvgs.set(key, svg);
+          } else if (r && r.error) {
+            mermaidErrors.set(key, r.error);
+          }
+        }
+      }
+    }
+  }
+
+  // 缓存目录只留这次还在用的图，删掉的图不在仓库里越积越多
+  for (const f of fs.readdirSync(MERMAID_CACHE_DIR)) {
+    if (f.endsWith('.svg') && !wanted.has(f.slice(0, -4))) fs.rmSync(path.join(MERMAID_CACHE_DIR, f));
+  }
+}
+const mermaidErrors = new Map();
+
+// Mermaid 默认输出 width="100%"，会被拉伸到容器宽：手机上整张图缩成蚂蚁字。
+// 改成按自身尺寸显示，放不下就横向滑动。
+function tidyMermaidSvg(svg) {
+  const vb = /viewBox="([\d.\-]+) ([\d.\-]+) ([\d.]+) ([\d.]+)"/.exec(svg);
+  if (!vb) return svg;
+  const w = Math.ceil(Number(vb[3]));
+  const h = Math.ceil(Number(vb[4]));
+  return svg
+    .replace(/^<svg([^>]*?)\swidth="[^"]*"/, '<svg$1')
+    .replace(/^<svg([^>]*?)\sheight="[^"]*"/, '<svg$1')
+    .replace(/^<svg([^>]*?)\sstyle="[^"]*"/, '<svg$1')
+    .replace(/^<svg/, `<svg width="${w}" height="${h}" role="img"`);
+}
+
+function renderMermaid(code) {
+  const key = mermaidKey(code);
+  const svg = mermaidSvgs.get(key);
+  if (svg) return `<figure class="mc-mermaid">${svg}</figure>\n`;
+  const err = mermaidErrors.get(key);
+  warnings.push(
+    err
+      ? `⚠ ${relDisplay(ctx.mdFile)} 有一张 Mermaid 图语法有误，已按代码显示：${err}`
+      : `⚠ ${relDisplay(ctx.mdFile)} 有一张 Mermaid 图没能渲染，已按代码显示。`
+  );
+  return `<pre><code class="language-mermaid">${esc(code)}</code></pre>\n`;
+}
+
 // ---------- Obsidian 方言扩展 ----------
 
 // ![[图.png]] / ![[图.png|300]] / ![[图.png|说明文字]] — 图片嵌入（文件名可含空格）
@@ -397,6 +560,10 @@ marked.use({
   breaks: true, // 和 Obsidian 一致：单次换行就是换行
   extensions: [mathBlockExt, wikiEmbedExt, wikiLinkExt, mathInlineExt, highlightExt, indentedTextExt],
   renderer: {
+    code({ text, lang }) {
+      if ((lang || '').trim().toLowerCase() === 'mermaid') return renderMermaid(normalizeMermaid(text));
+      return false; // 其它语言交回 marked 默认渲染
+    },
     image({ href, text }) {
       const abs = resolveImage(href, ctx.mdFile);
       if (!abs) return '';
@@ -723,6 +890,7 @@ function main() {
   const today = new Date();
 
   const notes = parseRootNotes();
+  prepareMermaid([...notes.map((n) => n.body), ...domains.flatMap((d) => d.articles.map((a) => a.body))]);
 
   // 内链索引：渲染前先收齐全部文章和附页（标题 + slug），供 [[内链]] 解析
   const linkIndex = [];
