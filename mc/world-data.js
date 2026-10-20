@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-10-19",
+  "builtAt": "2026-10-20",
   "domains": [
     {
       "name": "写在前面",
@@ -40,11 +40,16 @@ window.MC_WORLD = {
           "n": 1,
           "title": "命运是思考的结果",
           "date": "2026-10-19"
+        },
+        {
+          "n": 2,
+          "title": "思考",
+          "date": "2026-10-20"
         }
       ],
       "ghosts": [],
-      "total": 1,
-      "lastDate": "2026-10-19",
+      "total": 2,
+      "lastDate": "2026-10-20",
       "stale": false
     },
     {
@@ -248,6 +253,12 @@ window.MC_WORLD = {
   ],
   "log": [
     {
+      "date": "2026-10-20",
+      "title": "思考",
+      "domainName": "观点随机漫步",
+      "url": "mc/randomness/think"
+    },
+    {
       "date": "2026-10-19",
       "title": "命运是思考的结果",
       "domainName": "观点随机漫步",
@@ -270,12 +281,6 @@ window.MC_WORLD = {
       "title": "券商",
       "domainName": "金融投资",
       "url": "mc/invest/quanshang"
-    },
-    {
-      "date": "2026-10-06",
-      "title": "一笔股票的交易，钱是如何流动的？",
-      "domainName": "金融投资",
-      "url": "mc/invest/invest-instinct"
     }
   ]
 };
