@@ -1,5 +1,5 @@
 window.MC_WORLD = {
-  "builtAt": "2026-10-20",
+  "builtAt": "2026-10-21",
   "domains": [
     {
       "name": "写在前面",
@@ -45,11 +45,16 @@ window.MC_WORLD = {
           "n": 2,
           "title": "思考",
           "date": "2026-10-20"
+        },
+        {
+          "n": 3,
+          "title": "重视直接、简单、有效的概念",
+          "date": "2026-10-21"
         }
       ],
       "ghosts": [],
-      "total": 2,
-      "lastDate": "2026-10-20",
+      "total": 3,
+      "lastDate": "2026-10-21",
       "stale": false
     },
     {
@@ -253,6 +258,12 @@ window.MC_WORLD = {
   ],
   "log": [
     {
+      "date": "2026-10-21",
+      "title": "重视直接、简单、有效的概念",
+      "domainName": "观点随机漫步",
+      "url": "mc/randomness/concept"
+    },
+    {
       "date": "2026-10-20",
       "title": "思考",
       "domainName": "观点随机漫步",
@@ -275,12 +286,6 @@ window.MC_WORLD = {
       "title": "股票",
       "domainName": "金融投资",
       "url": "mc/invest/stock"
-    },
-    {
-      "date": "2026-10-09",
-      "title": "券商",
-      "domainName": "金融投资",
-      "url": "mc/invest/quanshang"
     }
   ]
 };
