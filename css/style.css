@@ -741,8 +741,20 @@ img[data-media-fit="contain"] {
 .mobile-menu.open .mobile-link:nth-child(4) { transition-delay: 0.26s; }
 .mobile-menu.open .mobile-link:nth-child(5) { transition-delay: 0.32s; }
 .mobile-menu.open .mobile-link:nth-child(6) { transition-delay: 0.38s; }
+.mobile-menu.open .mobile-link:nth-child(7) { transition-delay: 0.44s; }
 
 .mobile-link:hover, .mobile-link.active { color: var(--gold); }
+
+/* 横屏手机（667×375 这类）高度不够：字号按 10vw 算出来近 67px，7 项摞起来
+   600 多像素，而菜单是 fixed + 居中、不能滚动，头尾两项直接落在屏幕外点不到。
+   这里改成按高度取字号，7 项在 320px 高的屏上也放得下。 */
+@media (max-height: 500px) {
+  .mobile-link {
+    font-size: clamp(22px, 8.5vh, 40px);
+    line-height: 1.15;
+    margin-bottom: 2px;
+  }
+}
 
 .mobile-menu-index {
   font-family: var(--font-mono);
@@ -1090,6 +1102,7 @@ img[data-media-fit="contain"] {
 .delay-4 { transition-delay: 0.4s; }
 .delay-5 { transition-delay: 0.5s; }
 .delay-6 { transition-delay: 0.6s; }
+.delay-7 { transition-delay: 0.7s; }
 
 /* =========================================================
    KINETIC TEXT — Character-by-character reveal
@@ -4117,6 +4130,8 @@ html:not(.js-live) .reveal-clip {
 .home-nav-item.delay-4.revealed::before { animation-delay: 0.52s; }
 .home-nav-item.delay-5.revealed::after,
 .home-nav-item.delay-5.revealed::before { animation-delay: 0.66s; }
+.home-nav-item.delay-6.revealed::after,
+.home-nav-item.delay-6.revealed::before { animation-delay: 0.80s; }
 
 /* — 触屏设备：箭头常驻可见（hover 在手机上不存在）—— */
 @media (hover: none) {

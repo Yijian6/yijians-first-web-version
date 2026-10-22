@@ -91,5 +91,5 @@ try {
 Write-Host ''
 Write-Host '=========================================' -ForegroundColor Green
 Write-Host '  ✅ 已上线！你的楼长高了。' -ForegroundColor Green
-Write-Host '  世界入口：https://yijian6.pages.dev/minecraft.html' -ForegroundColor Green
+Write-Host '  世界入口：https://yijian6.com/minecraft' -ForegroundColor Green
 Write-Host '=========================================' -ForegroundColor Green

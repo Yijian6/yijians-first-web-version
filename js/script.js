@@ -864,14 +864,20 @@
        pathname 给的是 /work，而 href 写的是 work.html，=== 永远不成立。
        （高亮之所以一直是对的，是因为 .active 在每页的静态 HTML 里就写死了，
        这里只是补一道，顺便让本地的 /work.html 形式也认。） */
-    function keyOf(value) {
-      var v = String(value || '').split('?')[0].split('#')[0];
-      v = v.replace(/^.*\//, '').replace(/\.html$/i, '');
-      return (v === '' || v === 'index') ? '/' : v;
+    /* 比的是完整路径，不是最后一段。只看最后一段时，/mc/csapp/ 和首页链接
+       ../../ 的最后一段都是空串，领域页的菜单会把 Home 点亮；哪篇文章的网址
+       恰好叫 offer，也会去点亮 Offer。link.pathname 是浏览器解析好的绝对路径，
+       老 IE 会漏掉开头的斜杠，补上。/mc/ 下的所有页面都属于 Minecraft。 */
+    function keyOf(path) {
+      var v = String(path || '/');
+      if (v.charAt(0) !== '/') v = '/' + v;
+      if (v.indexOf('/mc/') === 0) return '/minecraft';
+      v = v.replace(/\/index(\.html)?$/i, '/').replace(/\.html$/i, '');
+      return v.length > 1 ? v.replace(/\/+$/, '') : v;
     }
     var page = keyOf(window.location.pathname);
     $$('.nav-link, .mobile-link').forEach(function (link) {
-      if (keyOf(link.getAttribute('href')) === page) {
+      if (keyOf(link.pathname) === page) {
         link.classList.add('active');
       }
     });

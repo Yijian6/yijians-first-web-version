@@ -20,6 +20,15 @@
 
 完整规则见 `docs/compatibility/media-policy.md`。
 
+## 导航
+
+全站导航共 6 项：01 Work · 02 Me · 03 Passion · 04 Becoming · 05 Offer · 06 Minecraft，手机菜单前面再加 00 Home。
+
+- 没有公共组件，导航**手写在 13 个地方**：11 个带 `.navbar` 的根页面 + `tools/mc-templates/` 下两个模板（模板改完必须 `npm run build:mc`，把 `mc/` 下的生成页一起提交）。改导航必须全改。
+- `tools/mobile-compat-check.mjs` 会逐页解析桌面导航和手机菜单，比对编号、名称、顺序和实际指向，并校验高亮项。漏改一处就报错，不要为了过检查去改它的期望值，除非导航本身真的变了。
+- 高亮以静态 HTML 里写死的 `.active` 为准，`initActiveNav()` 只按完整路径补一道；`/mc/` 下的所有页面都属于 06 Minecraft。
+- Universe 和 Offer 页底通往 Minecraft 的幽灵入口是有意保留的彩蛋，不进编号体系，也不要删。
+
 ## 开屏动画（index.html）
 
 首页有一段约 3.5 秒的开屏动画：田字格画出来 → 「觉」落进格子 → 撤格 → 静场 → 「见」框里点亮一粒灼橙 → 揭幕 → 「觉」缩小飞向右上角的幽灵水印、一路减亮直到看不见，橙点同时汇进标题的「觉醒」。

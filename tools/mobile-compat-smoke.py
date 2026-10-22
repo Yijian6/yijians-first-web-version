@@ -136,6 +136,7 @@ def run(engine_names, quick):
             "work.html",
             "offer.html",
             "passion.html",
+            "minecraft.html",
             "universe.html",
         }]
         if quick

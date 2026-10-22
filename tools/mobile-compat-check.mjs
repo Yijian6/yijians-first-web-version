@@ -236,6 +236,74 @@ for (const page of pages) {
   }
 }
 
+/* 导航没有公共组件，手写在 11 个根页面和两个 mc 模板里（模板再生成 mc/ 下
+   的几十页）。加一项、改一个名字，漏掉一处就是某一页少一个入口 —— 不报错、
+   不溢出，只有点到那一页的人才会发现。所以这里把每一页的导航都解析出来，
+   和唯一的标准清单逐项比对：编号、名称、顺序、链接实际指向哪一页。 */
+const NAV_ITEMS = [
+  ['01', 'Work', '/work'],
+  ['02', 'Me', '/me'],
+  ['03', 'Passion', '/passion'],
+  ['04', 'Becoming', '/prediction'],
+  ['05', 'Offer', '/offer'],
+  ['06', 'Minecraft', '/minecraft'],
+];
+const MOBILE_ITEMS = [['00', 'Home', '/'], ...NAV_ITEMS];
+
+/* 把链接解析成站点路径：从 mc/csapp/x.html 出发的 ../../work 就是 /work */
+function sitePathOf(page, href) {
+  const resolved = path.posix.resolve(`/${path.posix.dirname(page)}`, href.split(/[?#]/, 1)[0]);
+  return resolved.replace(/\/index$/, '/').replace(/\.html$/, '');
+}
+
+/* 这一页应该高亮哪一项：mc/ 下的都属于 Minecraft，Offer 的详情页属于 Offer */
+function sectionOf(page) {
+  if (page.startsWith('mc/')) return '/minecraft';
+  if (page.startsWith('offer-detail')) return '/offer';
+  const name = page.replace(/\.html$/, '');
+  return name === 'index' ? '/' : `/${name}`;
+}
+
+function checkNavList(page, label, block, linkPattern, expected) {
+  const found = [...block.matchAll(linkPattern)].map((m) => ({
+    index: m[3],
+    name: m[4].trim(),
+    target: sitePathOf(page, m[1]),
+    active: /\bactive\b/.test(m[2]),
+  }));
+  const actual = found.map((item) => `${item.index} ${item.name} → ${item.target}`).join(' | ');
+  const wanted = expected.map(([index, name, target]) => `${index} ${name} → ${target}`).join(' | ');
+  if (actual !== wanted) {
+    errors.push(`${page}: ${label} does not match the site nav\n    found:    ${actual}\n    expected: ${wanted}`);
+  }
+  const active = found.filter((item) => item.active);
+  if (active.length > 1) {
+    errors.push(`${page}: ${label} has ${active.length} active items`);
+  }
+  if (active.length === 1 && active[0].target !== sectionOf(page)) {
+    errors.push(`${page}: ${label} highlights ${active[0].target}, expected ${sectionOf(page)}`);
+  }
+}
+
+for (const page of pages) {
+  const html = read(page);
+  const navbars = html.match(/class="navbar"/g) || [];
+  if (!navbars.length) continue;
+  if (navbars.length > 1) {
+    errors.push(`${page}: more than one .navbar (breaks the navbar view transition)`);
+  }
+  const desktop = html.match(/<div class="nav-links">([\s\S]*?)<\/div>/)?.[1];
+  const mobile = html.match(/<div class="mobile-menu">([\s\S]*?)<\/div>/)?.[1];
+  if (!desktop || !mobile) {
+    errors.push(`${page}: .navbar without both .nav-links and .mobile-menu`);
+    continue;
+  }
+  checkNavList(page, 'desktop nav', desktop,
+    /<a href="([^"]+)" class="(nav-link(?: active)?)" data-index="(\d\d)">([^<]+)<\/a>/g, NAV_ITEMS);
+  checkNavList(page, 'mobile menu', mobile,
+    /<a href="([^"]+)" class="(mobile-link(?: active)?)"><span class="mobile-menu-index">(\d\d)<\/span>([^<]+)<\/a>/g, MOBILE_ITEMS);
+}
+
 checkCss('css/style.css', read('css/style.css'));
 for (const file of ['js/script.js', 'universe.html']) {
   if (/\blocalStorage\s*\./.test(read(file))) {
